@@ -176,7 +176,7 @@ function terrFills(){if(!G)return"";if(!VOR)buildVor();const own=i=>G.cities[i].
  VOR.forEach((poly,i)=>{if(poly.length<3)return;h+=`<path d="M${poly.map(p=>p.x.toFixed(1)+" "+p.y.toFixed(1)).join("L")}Z" fill="${fcol(own(i))}" fill-opacity="${own(i)<0?.18:.38}"/>`;
   poly.forEach((p,n)=>{const j=p.e;if(j<=i)return;const q=poly[(n+1)%poly.length];const diff=own(i)!=own(j);b+=`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="${diff?"#1a0f05":"#f4ecd8"}" stroke-width="${diff?3:1}" stroke-opacity="${diff?.85:.35}"${diff?' stroke-linecap="round"':""}/>`})});
  return h+"</g>"+`<g class="tb">${b}</g>`}
-function drawMap(){const svg=$("#map");let h=`<defs><filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".6"/></filter></defs><rect width="1000" height="860" fill="#2b4a6b"/><path d="M0 0L980 0L980 90L900 112L805 108L745 140L728 200L765 232L860 220L950 250L905 298L842 320L828 370L852 430L830 482L852 540L902 580L922 640L900 702L880 762L842 860L0 860Z" fill="#5f7d45"/>${terrFills()}<path d="M500 140L545 150L545 300L505 300Z" fill="#6b5a3a" opacity=".38"/><path d="M230 395Q340 375 455 400L450 430Q340 410 235 432Z" fill="#6b5a3a" opacity=".38"/><path d="M70 480Q190 450 300 500L320 700L285 705L270 540Q180 505 90 540Z" fill="#6b5a3a" opacity=".38"/><path d="M370 815Q540 790 720 812L720 860L370 860Z" fill="#6b5a3a" opacity=".38"/><path d="M590 40Q700 25 820 40L815 58Q700 45 595 60Z" fill="#6b5a3a" opacity=".38"/><path d="M0 0L130 0L60 520L0 560Z" fill="#6b5a3a" opacity=".38"/><ellipse cx="660" cy="300" rx="110" ry="125" fill="#b9c98a" opacity=".22"/><ellipse cx="470" cy="610" rx="95" ry="45" fill="#b9c98a" opacity=".22"/><ellipse cx="140" cy="615" rx="50" ry="35" fill="#b9c98a" opacity=".22"/><ellipse cx="335" cy="328" rx="85" ry="20" fill="#b9c98a" opacity=".22"/><ellipse cx="760" cy="560" rx="70" ry="45" fill="#b9c98a" opacity=".22"/><path d="M100 280L180 300L250 250L300 180L380 120L430 160L425 300L445 315L560 302L640 262L700 232L742 214" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="6"/><path d="M110 700L215 706L300 672L340 652L420 640L500 615L560 602L605 645L635 670L665 610L700 570L770 540L855 560" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="7"/><path d="M230 462L330 482L400 540L422 580L500 598L558 600" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="3.5"/><path d="M470 455L560 445L612 438L662 466L760 452L832 440" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="3.5"/><path d="M220 330L330 322L425 312" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="2.5"/><text x="365" y="140" fill="#bfe0ff" font-size="13" opacity=".75">黃河</text><text x="610" y="625" fill="#bfe0ff" font-size="13" opacity=".75">長江</text><text x="330" y="505" fill="#bfe0ff" font-size="13" opacity=".75">漢水</text><text x="735" y="445" fill="#bfe0ff" font-size="13" opacity=".75">淮河</text><text x="950" y="420" fill="#bfe0ff" font-size="13" opacity=".75">東海</text><text x="525" y="132" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">太行山</text><text x="340" y="415" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">秦嶺</text><text x="185" y="478" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">巴蜀</text><text x="545" y="845" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">南嶺</text><text x="650" y="205" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">華北平原</text>`;
+function drawMap(){const svg=$("#map");let h=`<defs><filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".6"/></filter></defs><rect width="1000" height="860" fill="#2b4a6b"/><path d="M0 0L980 0L980 90L900 112L805 108L745 140L728 200L765 232L860 220L950 250L905 298L842 320L828 370L852 430L830 482L852 540L902 580L922 640L900 702L880 762L842 860L0 860Z" fill="#5f7d45"/>${terrFills()}<path d="M500 140L545 150L545 300L505 300Z" fill="#6b5a3a" opacity=".38"/><path d="M230 395Q340 375 455 400L450 430Q340 410 235 432Z" fill="#6b5a3a" opacity=".38"/><path d="M70 480Q190 450 300 500L320 700L285 705L270 540Q180 505 90 540Z" fill="#6b5a3a" opacity=".38"/><path d="M370 815Q540 790 720 812L720 860L370 860Z" fill="#6b5a3a" opacity=".38"/><path d="M590 40Q700 25 820 40L815 58Q700 45 595 60Z" fill="#6b5a3a" opacity=".38"/><path d="M0 0L130 0L60 520L0 560Z" fill="#6b5a3a" opacity=".38"/><ellipse cx="660" cy="300" rx="110" ry="125" fill="#b9c98a" opacity=".22"/><ellipse cx="470" cy="610" rx="95" ry="45" fill="#b9c98a" opacity=".22"/><ellipse cx="140" cy="615" rx="50" ry="35" fill="#b9c98a" opacity=".22"/><ellipse cx="335" cy="328" rx="85" ry="20" fill="#b9c98a" opacity=".22"/><ellipse cx="760" cy="560" rx="70" ry="45" fill="#b9c98a" opacity=".22"/><path d="M100 280L180 300L250 250L300 180L380 120L430 160L425 300L445 315L560 302L640 262L700 232L742 214" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="6"/><path d="M110 700L215 706L300 672L340 652L420 640L500 615L560 602L605 645L635 670L665 610L700 570L770 540L855 560" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="7"/><path d="M230 462L330 482L400 540L422 580L500 598L558 600" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="3.5"/><path d="M470 455L560 445L612 438L662 466L760 452L832 440" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="3.5"/><path d="M220 330L330 322L425 312" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="2.5"/><path d="M760 735Q800 718 828 700Q856 684 872 662Q884 650 896 638L918 626" stroke="#7fb3e6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" stroke-width="3.5"/><text x="800" y="700" fill="#bfe0ff" font-size="13" opacity=".75">錢塘江</text><text x="365" y="140" fill="#bfe0ff" font-size="13" opacity=".75">黃河</text><text x="610" y="625" fill="#bfe0ff" font-size="13" opacity=".75">長江</text><text x="330" y="505" fill="#bfe0ff" font-size="13" opacity=".75">漢水</text><text x="735" y="445" fill="#bfe0ff" font-size="13" opacity=".75">淮河</text><text x="950" y="420" fill="#bfe0ff" font-size="13" opacity=".75">東海</text><text x="525" y="132" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">太行山</text><text x="340" y="415" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">秦嶺</text><text x="185" y="478" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">巴蜀</text><text x="545" y="845" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">南嶺</text><text x="650" y="205" fill="#e8dcc0" font-size="13" opacity=".55" text-anchor="middle">華北平原</text>`;
  ROADS.forEach(([a,b])=>{const p=G.cities.find(c=>c.n==a),q=G.cities.find(c=>c.n==b);h+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="#d9c08a" stroke-width="4" stroke-dasharray="8 5" opacity=".75"/>`});
  G.cities.forEach(c=>{const s=selCity==c.id;h+=`<g data-c="${c.id}" filter="url(#sh)"><circle cx="${c.x}" cy="${c.y}" r="34" fill="transparent"/><rect x="${c.x-20}" y="${c.y-16}" width="40" height="32" rx="6" fill="#efe6d0" stroke="${s?"#ffd700":"#2a1a0e"}" stroke-width="${s?5:3}"/><text x="${c.x}" y="${c.y+6}" text-anchor="middle" font-size="${c.n.length>1?15:18}" font-weight="bold" fill="#2a1a0e">${c.n}</text><text x="${c.x}" y="${c.y+32}" text-anchor="middle" font-size="12" fill="#fff" stroke="#000" stroke-width=".6">${(c.troops/1000).toFixed(1)}k</text></g>`});
  svg.innerHTML=h}
@@ -196,7 +196,7 @@ function zoomAt(mx,my,k){const ns=cl(view.s*k,.3,4);k=ns/view.s;view.x=mx-(mx-vi
 // ---------- UI ----------
 function render(){if(G&&G.factions.some(F=>F.alive&&F.tier==null))initTitles();$("#date").innerHTML=`${G.year}年 ${G.month}月　<span style="color:#9f9">${fname(0)}軍</span> <span class="ttl">${titleName(0)}</span> ${facCities(0).length}城`;$("#bOff").textContent=`人事${promoList().length?`(${promoList().length})`:""}`;drawMap();renderPanel()}
 function selectCity(i){selCity=i;drawMap();renderPanel()}
-function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(0);p.innerHTML=`<h2>主公 ${fname(0)}</h2><div style="padding:0 10px 10px;font-size:14px">點選地圖上的城市以下達命令。雙指縮放、拖曳移動地圖。<br><button id="pAutoAll" class="${G.autoAll?"pri":""}" style="margin:6px 0">全部自治 ${G.autoAll?"ON":"OFF"}</button><br>我方城市：${cs.map(c=>`<button data-sel="${c.id}" style="margin:3px">${c.n}${c.auto?" ⚙":""}</button>`).join("")}<h4 style="color:#ffd77a">戰報</h4>${G.log.slice(0,12).map(l=>`<div style="font-size:12px;opacity:.85">${l}</div>`).join("")}</div>`;p.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectCity(+b.dataset.sel);fitMap(C(+b.dataset.sel))});$("#pAutoAll").onclick=()=>setAutoAll(!G.autoAll);return}
+function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(0);p.innerHTML=`<h2>主公 ${fname(0)}<small style="font-size:13px;margin-left:6px;color:#ddd">${titleName(0)}・名聲${frep(0)}・名望×${fame(0)}</small></h2><div style="padding:0 10px 10px;font-size:14px">點選地圖上的城市以下達命令。雙指縮放、拖曳移動地圖。<br><button id="pAutoAll" class="${G.autoAll?"pri":""}" style="margin:6px 0">全部自治 ${G.autoAll?"ON":"OFF"}</button><br>我方城市：${cs.map(c=>`<button data-sel="${c.id}" style="margin:3px">${c.n}${c.auto?" ⚙":""}</button>`).join("")}<h4 style="color:#ffd77a">戰報</h4>${G.log.slice(0,12).map(l=>`<div style="font-size:12px;opacity:.85">${l}</div>`).join("")}</div>`;p.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectCity(+b.dataset.sel);fitMap(C(+b.dataset.sel))});$("#pAutoAll").onclick=()=>setAutoAll(!G.autoAll);return}
  const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
  p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small>${mine?`<button id="pAuto" class="${c.auto?"pri":""}" style="margin-left:auto">自治 ${c.auto?"ON":"OFF"}</button>`:""}<button id="pClose" style="${mine?"":"margin-left:auto"}">✕</button></h2>
  <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>月收入<b>金+${c.f>=0?goldInc(c):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>月耗糧<b>${Math.ceil(c.troops/60)}</b></div><div>繁榮度<b>${prosper(c).toFixed(2)}</b></div><div>上月成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上月遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
@@ -234,7 +234,7 @@ const recGot=(n,st)=>Math.round(n*expo(st));
 // ---------- 官職・經驗・寶物 ----------
 const RANKS=["不入流","九品","八品","七品","六品","五品","四品","三品","二品","一品"];
 const SALARY=[2,4,6,9,13,18,25,34,45,60];      // 每月俸祿（金）
-const BUDGET=[50,56,61,67,72,78,83,89,94,100]; // 每次內政資金（金）
+const BUDGET=[50,61,72,83,94,106,117,128,139,150] /* 內政花費：不入流50→一品150（3倍，線性）；效果只取決於能力，與資金無關 */; // 每次內政資金（金）
 const TCAP=[1000,2000,3000,4000,5000,6500,8000,10000,12000,15000]; // 帶兵上限
 const expReq=r=>r<=0?0:100*(Math.pow(2,r)-1);  // 累積經驗門檻：每級翻倍
 const its=o=>o.items||(o.items=[]);
@@ -259,17 +259,19 @@ function dismiss(o){while(its(o).length)revokeItem(o,true);o.f=-1;o.st="free";o.
 const loyRecF=loy=>cl(Math.pow(2,(loy-70)/15),.1,1.5);
 const recCap=c=>{const k=nowM();if(c._rm!==k){c._rm=k;c._rn=0}return Math.max(0,Math.floor(c.pop*.015)-c._rn)}; // 每城每月徵兵上限＝人口1.5% // 徵兵：民忠每15點翻倍（70=1倍、40=0.25倍、上限1.5倍）；基礎產量×0.5
 // ---------- 內政指令（可多人執行／自治共用） ----------
+// 內政失誤：能力≥70不會失誤；以下機率＝0.4×((70−能力)/50)^1.5，能力20以下為40%。失誤時資金照付，該項數值反降正常效果的50%
+const failP=st=>st>=70?0:Math.min(.4,.4*Math.pow((70-st)/50,1.5));
 const SKN={t:"統率",w:"武力",z:"智力",p:"政治",m:"魅力"};
 const TNM={agri:"農業",com:"商業",def:"城防",loy:"民忠"};
-// 內政效果＝能力指數×(資金/50)÷難度；資金由品級決定，效果與資金成正比；多人執行時逐一套用、每人重新計算難度
-function devPrev(o,c,t){const b=BUDGET[rk(o)];if(t=="loy")return Math.max(1,Math.round(8*expo(o.m)*(b/50)/Math.pow(2,(c.loy-60)/40)));return Math.max(1,Math.round(devGain(t=="def"?o.w:o.p)*(b/50)/cExp(c[t])))}
-function doDev(o,c,t){const cost=BUDGET[rk(o)];const nm=TNM[t];const cap=t=="loy"?100:999;if(c[t]>=cap)return`${o.n}：${nm}已達上限`;if(c.gold<cost)return`${o.n}：金不足（需${cost}），未執行`;c.gold-=cost;const sk=t=="def"?"武力":t=="loy"?"魅力":"政治",st=t=="def"?o.w:t=="loy"?o.m:o.p;const g=Math.min(cap-c[t],devPrev(o,c,t));c[t]+=g;o.done=true;gainExp(o,t=="loy"?g*4:g*2);return`${o.n}（${RANKS[rk(o)]}・${sk}${st}・資金${cost}）${t=="loy"?"安撫":"開發"}${nm} +${g}（${c[t]}）`}
+// 內政效果＝能力指數÷難度（與資金無關）；資金(品級決定)只是花費；多人執行時逐一套用、每人重新計算難度
+function devPrev(o,c,t){if(t=="loy")return Math.max(1,Math.round(8*expo(o.m)/Math.pow(2,(c.loy-60)/40)));return Math.max(1,Math.round(devGain(t=="def"?o.w:o.p)/cExp(c[t])))}
+function doDev(o,c,t){const cost=BUDGET[rk(o)];const nm=TNM[t];const cap=t=="loy"?100:999;if(c[t]>=cap)return`${o.n}：${nm}已達上限`;if(c.gold<cost)return`${o.n}：金不足（需${cost}），未執行`;c.gold-=cost;const sk=t=="def"?"武力":t=="loy"?"魅力":"政治",st=t=="def"?o.w:t=="loy"?o.m:o.p;o.done=true;if(R()<failP(st)){const l=Math.max(1,Math.round(devPrev(o,c,t)*.5));c[t]=Math.max(0,c[t]-l);gainExp(o,1);return`<span style="color:#f88">${o.n}（${sk}${st}・資金${cost}）${t=="loy"?"安撫":"開發"}失敗！處置失當，${nm} −${l}（${c[t]}）</span>`}const g=Math.min(cap-c[t],devPrev(o,c,t));c[t]+=g;gainExp(o,t=="loy"?g*4:g*2);return`${o.n}（${RANKS[rk(o)]}・${sk}${st}・資金${cost}）${t=="loy"?"安撫":"開發"}${nm} +${g}（${c[t]}）`}
 // 徵兵：一品・統率100・民忠100 每次最多5000；×品級係數4^((品級-9)/9)(不入流0.25→一品1,指數)；費用＝資金×4(不入流200→一品400,線性)×2^((統率-100)/30)×2^((民忠-100)/50)；並受每月人口1.5%上限
 const recYield=(o,c)=>Math.round(5000*Math.pow(4,(rk(o)-9)/9)*Math.pow(2,(cl(o.t,1,110)-100)/30)*Math.pow(2,(c.loy-100)/50));
 const recCost=o=>BUDGET[rk(o)]*4;
 const recPrev=(o,c,a)=>Math.max(0,Math.min(a||99999,recYield(o,c),recCap(c)));
 function doRec(o,c,a){const got=recPrev(o,c,a);const rc=recCost(o);if(c.gold<rc)return`${o.n}：金不足（需${rc}），未徵兵`;if(got<1)return`${o.n}：本月徵兵已達上限（人口1.5%）或民忠不足，未徵兵`;c.gold-=rc;c.pop-=got;c._rn+=got;c.train=Math.round((c.train*c.troops+20*got)/(c.troops+got));c.troops+=got;c.loy=Math.max(0,c.loy-Math.max(1,Math.round(got/250)));o.done=true;gainExp(o,got/25);return`${o.n}（統率${o.t}・民忠${c.loy}）徵得 ${got} 兵（兵力${c.troops}）`}
-function doTrain(o,c){const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));o.done=true;gainExp(o,(c.train-old)*4);return`${o.n}（武力${o.w}）訓練 +${c.train-old}（訓練度${c.train}）`}
+function doTrain(o,c){if(R()<failP(o.w)){const l=Math.max(1,Math.round(trainGain(o.w)*.5));c.train=Math.max(0,c.train-l);o.done=true;gainExp(o,1);return`<span style="color:#f88">${o.n}（武力${o.w}）訓練失敗！操練失序，訓練 −${l}（訓練度${c.train}）</span>`}const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));o.done=true;gainExp(o,(c.train-old)*4);return`${o.n}（武力${o.w}）訓練 +${c.train-old}（訓練度${c.train}）`}
 const searchP=z=>cl(.4*expo(z),.05,.95); // 發現率：智力每30點翻倍（30=25%、50=40%、70=63%、90+=95%）
 const nowM=()=>G.year*12+G.month;
 function doSearch(o,c){o.done=true;const hid=G.offs.filter(x=>x.st=="hidden"&&x.c==c.id&&!x.dead).sort((a,b)=>(b.t+b.w+b.z+b.p+b.m)-(a.t+a.w+a.z+a.p+a.m));
@@ -436,7 +438,7 @@ async function war(af,from,to,aoffs,atroops,interactive,pside,atypes,afood){cons
  const remA=alive(B,"A").reduce((s,u)=>s+u.troops,0),remD=alive(B,"D").reduce((s,u)=>s+u.troops,0);
  B.units.forEach(u=>{if(!u.o.pseudo)gainExp(u.o,(u.dmg||0)/40+(u.side==w?60:15))});
  // 戰爭損害：每次城戰降低開發・城防・民忠；守城失敗則大幅下降
- const dmgCity=(k,f)=>{to.agri=Math.round(to.agri*k);to.com=Math.round(to.com*k);to.def=Math.round(to.def*f)};dmgCity(.95,.92);to.loy=Math.max(0,to.loy-5);
+ const dmgCity=(k,f)=>{to.agri=Math.round(to.agri*k);to.com=Math.round(to.com*k);to.def=Math.round(to.def*f)};dmgCity(.95,.92);to.loy=Math.max(0,to.loy-5);if(w=="A"){addRep(af,25);addRep(df,-20)}else{addRep(df,8);addRep(af,-8)}
  if(w=="A"){dmgCity(.75,.6);to.loy=Math.max(0,to.loy-20);to.pop=Math.round(to.pop*.92);to.food=Math.floor(B.foodD*.5)+B.foodA}else{to.food=B.foodD;from.food+=B.foodA}const captives=[];const capBy=w=="A"?af:df;
  const flee=(o,f)=>{const cs=facCities(f).filter(c=>c.id!=to.id);if(cs.length){o.c=cs[ri(0,cs.length-1)].id;return true}return false};
  if(w=="A"){const allDef=offsIn(to.id).filter(o=>o.f==df);to.f=af;to.troops=remA;to.gold=Math.floor(to.gold*.7);aoffs.forEach(o=>o.c=to.id);
@@ -467,37 +469,44 @@ function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;for(const c of
  facCities(f).forEach(c=>{if(!offsIn(c.id,f).length){const src=facCities(f).find(s=>offsIn(s.id,f).length>2&&adj(s.id).includes(c.id));if(src)offsIn(src.id,f)[1].c=c.id}})}
 // ---------- 爵位・名聲 ----------
 // 封號格式：伯＝三字＋伯（都鄉亭伯）、侯＝二字＋侯（武平侯）、公＝一字＋公（魏公）、王＝一字＋王（漢王）。
-// 四階爵位：伯(20名，足供全部君主)・侯(7名)・公(5名)・王(3名)，統一天下為皇帝。每個封號獨一無二，名單由尊至卑排列。
-// 開局所有君主皆為伯（依實力順序取號）。進階門檻(綜合實力)：侯≥450、公≥800、王≥1400（194年開局最強約400，全員為伯）。先達者得最尊之號，後到者依次遞補；該階已滿則留在下階等候空缺。
+// 四階爵位：伯(15名：縣伯5・鄉伯5・亭伯5)；開局全員「無爵」(名聲0.95)，綜合實力≥230且名聲≥110方可受封伯，先到先得・侯(7名)・公(5名)・王(3名)，統一天下為皇帝。每個封號獨一無二，名單由尊至卑排列。
+// 先達者得最尊之號，後到者依次遞補；該階已滿則留在下階等候空缺。
 // 名聲依封號尊卑：伯1.12→1.00、侯1.30→1.15、公1.50→1.35、王1.75→1.55、皇帝1.8。
 // 晉階則釋放原封號；勢力滅亡釋放封號；綜合實力跌破現階門檻50%時降一階。
-const TIER=["伯","侯","公","王"],TIER_TH=[0,450,800,1400];
+const TIER=["伯","侯","公","王"],TIER_TH=[230,450,750,1200]; // 伯≥230・侯≥450・公≥750・王≥1200（另需名聲）；未受封者「無爵」爵位倍率0.95
 const TNAMES=[
- "都鄉亭 宜城亭 安平亭 臨晉亭 廣昌亭 東阿亭 武原亭 昌邑亭 臨沮亭 平陸亭 高陽亭 安樂亭 西鄉亭 新安亭 長社亭 鄢陵亭 襄邑亭 乘氏亭 蒙城亭 陽翟亭".split(" "),
+ "宜城縣 臨晉縣 安平縣 東阿縣 昌邑縣 高陽鄉 安樂鄉 平陸鄉 長社鄉 鄢陵鄉 都鄉亭 廣昌亭 武原亭 臨沮亭 新安亭".split(" "),
  "武鄉 武平 高陵 宜陽 新野 博望 臨湘".split(" "),
  "魏 齊 晉 宋 魯".split(" "),
  "漢 秦 楚".split(" ")];
 const FAMEB=[[1.12,1.00],[1.30,1.15],[1.50,1.35],[1.75,1.55]];
 const slotFame=(t,k)=>{const [hi,lo]=FAMEB[t],n=TNAMES[t].length;return +(hi-(hi-lo)*k/(n-1)).toFixed(2)};
-const ttier=f=>G.factions[f].tier??0, tslot=f=>G.factions[f].slot??0;
-const tl=f=>ttier(f)>=4?999:ttier(f)*100+(99-tslot(f)); // 排序用
-const titleName=f=>ttier(f)>=4?"皇帝":TNAMES[ttier(f)][tslot(f)]+TIER[ttier(f)];
-const fame=f=>f>=0&&G.factions[f]&&G.factions[f].tier!=null?(ttier(f)>=4?1.8:slotFame(ttier(f),tslot(f))):1;
-const tierFor=pw=>{let t=0;while(t<3&&pw>=TIER_TH[t+1])t++;return t};
+const ttier=f=>G.factions[f].tier??-1, tslot=f=>G.factions[f].slot??0;
+const tl=f=>ttier(f)>=4?999:ttier(f)<0?-1:ttier(f)*100+(99-tslot(f)); // 排序用
+const titleName=f=>ttier(f)>=4?"皇帝":ttier(f)<0?"無爵":TNAMES[ttier(f)][tslot(f)]+TIER[ttier(f)];
+const tfame=f=>f>=0&&G.factions[f]&&G.factions[f].tier!=null?(ttier(f)>=4?1.8:ttier(f)<0?.95:slotFame(ttier(f),tslot(f))):1;
+const fame=f=>f>=0&&G.factions[f]?+(tfame(f)*repF(f)).toFixed(2):1; // 實際名望倍率＝爵位倍率×名聲係數
+// 名聲（君主聲望）：開局100；攻陷城池+25、守城成功+8、出征敗退-8、失城-20、晉爵+20（上限999，下限0）
+// 晉爵需同時達到 綜合實力 與 名聲 門檻：伯 230/110、侯 450/180、公 750/300、王 1200/500；另每月依城數自然增加（每城+0.1）
+const REP_TH=[110,180,300,500];
+const frep=f=>f>=0&&G.factions[f]?Math.round(G.factions[f].rep??100):0;
+function addRep(f,v){if(f<0||!G.factions[f])return;const F=G.factions[f];F.rep=cl((F.rep??100)+v,0,999)}
+const repF=f=>+(0.9+Math.min(frep(f),600)/1500).toFixed(3); // 名聲係數：0→0.9、100→0.97、600→1.3
+const tierFor=(pw,rp)=>{let t=-1;while(t<3&&pw>=TIER_TH[t+1]&&(rp==null||rp>=REP_TH[t+1]))t++;return t};
 const freeSlot=t=>{const used=new Set(G.factions.filter(F=>F.alive&&F.tier===t).map(F=>F.slot));for(let k=0;k<TNAMES[t].length;k++)if(!used.has(k))return k;return -1};
-function seat(F,t){F.tier=null;F.slot=null;for(let tt=t;tt>=0;tt--){const k=freeSlot(tt);if(k>=0){F.tier=tt;F.slot=k;return}}F.tier=0;F.slot=TNAMES[0].length-1}
-function initTitles(){const L=G.factions.map((F,f)=>({F,f,pw:F.alive?facPower(f):-1})).sort((a,b)=>b.pw-a.pw);L.forEach(x=>{x.F.tier=null;x.F.slot=null});L.forEach(x=>{if(x.F.alive)seat(x.F,0)})} // 開局全員為伯，依實力強弱取伯號
-async function titleTick(){let big=null;G.factions.forEach(F=>{if(!F.alive){F.tier=null;F.slot=null}});
+function seat(F,t){F.tier=null;F.slot=null;for(let tt=t;tt>=0;tt--){const k=freeSlot(tt);if(k>=0){F.tier=tt;F.slot=k;return}}F.tier=-1;F.slot=0}
+function initTitles(){const L=G.factions.map((F,f)=>({F,f,pw:F.alive?facPower(f):-1})).sort((a,b)=>b.pw-a.pw);L.forEach(x=>{x.F.tier=null;x.F.slot=null});L.forEach(x=>{if(x.F.alive){x.F.tier=-1;x.F.slot=0;if(x.F.rep==null)x.F.rep=100}})} // 開局全員無爵
+async function titleTick(){let big=null;G.factions.forEach((F,f)=>{if(F.alive)addRep(f,facCities(f).length*.1)});G.factions.forEach(F=>{if(!F.alive){F.tier=null;F.slot=null}});
  const L=G.factions.map((F,f)=>({F,f,pw:facPower(f)})).filter(x=>x.F.alive).sort((a,b)=>b.pw-a.pw);
- for(const {F,f,pw} of L){if(F.tier==null){seat(F,tierFor(pw));continue}const cur=F.tier,old=titleName(f);let want=cur;
-  if(facCities(f).length==G.cities.length)want=4;else if(cur<4){const t=tierFor(pw);if(t>cur)want=t;else if(cur>0&&pw<TIER_TH[cur]*.5)want=cur-1}
+ for(const {F,f,pw} of L){if(F.tier==null){seat(F,tierFor(pw,frep(f)));continue}const cur=F.tier,old=titleName(f);let want=cur;
+  if(facCities(f).length==G.cities.length)want=4;else if(cur<4){const t=tierFor(pw,frep(f));if(t>cur)want=t;else if(cur>=0&&pw<TIER_TH[cur]*.5)want=cur-1}
   if(want==cur)continue;
-  if(want==4){F.tier=4;F.slot=0}else if(want>cur){let got=-1,gt=cur;for(let t=want;t>cur;t--){const k=freeSlot(t);if(k>=0){got=k;gt=t;break}}if(got<0)continue;F.tier=gt;F.slot=got}else seat(F,want);
+  if(want==4){F.tier=4;F.slot=0}else if(want>cur){let got=-1,gt=cur;for(let t=want;t>cur&&t>=0;t--){const k=freeSlot(t);if(k>=0){got=k;gt=t;break}}if(got<0)continue;F.tier=gt;F.slot=got}else if(want<0){F.tier=-1;F.slot=0}else seat(F,want);
   const nm=titleName(f);if(nm==old)continue;logMsg(`${F.n} ${F.tier>cur?"晉封":"降為"} ${nm}`);
-  if(F.tier>cur){if(f==0)big=nm;else toast(`${F.n} 晉封 ${nm}`,2500)}}
+  if(F.tier>cur){addRep(f,20);if(f==0)big=nm;else toast(`${F.n} 晉封 ${nm}`,2500)}}
  if(big)await modal("晉封爵位",`<p style="font-size:18px;text-align:center">天子詔曰：<br><b style="color:#ffd77a;font-size:26px">${G.factions[0].n} 晉封 ${big}</b></p><p>名聲大振！搜索、登用、勸降成功率 ×${fame(0)}</p>`)}
-function ladderView(){const rows=[];TNAMES.forEach((L,t)=>L.forEach((n,k)=>{const h=G.factions.findIndex(F=>F.alive&&F.tier===t&&F.slot===k);rows.push({t,k,n:n+TIER[t],h})}));rows.push({t:4,k:0,n:"皇帝",h:G.factions.findIndex(F=>F.alive&&F.tier===4)});
- return sortTable("爵位一覽（封號獨一，先到先得）",[{h:"階",v:x=>x.t*100+(99-x.k),f:x=>x.t>=4?"帝":TIER[x.t]},{h:"序",v:x=>x.k,f:x=>x.k+1},{h:"封號",v:x=>x.n},{h:"門檻",v:x=>x.t,f:x=>x.t>=4?"統一":TIER_TH[x.t]},{h:"名聲",v:x=>x.t>=4?1.8:slotFame(x.t,x.k),f:x=>"×"+(x.t>=4?1.8:slotFame(x.t,x.k))},{h:"持有",v:x=>x.h>=0?G.factions[x.h].n:"",f:x=>x.h>=0?`<b>${G.factions[x.h].n}</b>`:"—"}],rows,null,null,null,{sort:0,dir:-1})}
+function ladderView(){const rows=[];TNAMES.forEach((L,t)=>L.forEach((n,k)=>{const h=G.factions.findIndex(F=>F.alive&&F.tier===t&&F.slot===k);rows.push({t,k,n:n+TIER[t],h})}));rows.push({t:4,k:0,n:"皇帝",h:G.factions.findIndex(F=>F.alive&&F.tier===4)});G.factions.forEach((F,f)=>{if(F.alive&&F.tier===-1)rows.push({t:-1,k:-1,n:"無爵",h:f})});
+ return sortTable("爵位一覽（封號獨一，先到先得）",[{h:"階",v:x=>x.t*100+(x.k<0?0:99-x.k),f:x=>x.t>=4?"帝":x.t<0?"—":TIER[x.t]},{h:"序",v:x=>x.k,f:x=>x.k<0?"-":x.k+1},{h:"封號",v:x=>x.n},{h:"門檻",v:x=>x.t,f:x=>x.t>=4?"統一":x.t<0?"—":TIER_TH[x.t]+"／名聲"+REP_TH[x.t]},{h:"名聲",v:x=>x.t>=4?1.8:x.t<0?.95:slotFame(x.t,x.k),f:x=>"×"+(x.t>=4?1.8:x.t<0?.95:slotFame(x.t,x.k))},{h:"持有",v:x=>x.h>=0?G.factions[x.h].n:"",f:x=>x.h>=0?`<b>${G.factions[x.h].n}</b>`:"—"}],rows,null,null,null,{sort:0,dir:-1})}
 // ---------- turn ----------
 let ending=false;
 async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;try{if(G.autoAll)facCities(0).forEach(c=>c.auto=true);const autoLines=autoRun();const queue=[];
@@ -525,10 +534,12 @@ const cExp=v=>Math.pow(2,(v-300)/300);
 // 人口：繁榮度=商業與農業的指數效果×民忠；每月自然成長0.124%＋0.2%×繁榮度，並沿道路由較不繁榮的城市移入較繁榮的城市
 const prosper=c=>(cExp(c.com)+cExp(c.agri))/2*(.5+c.loy/200);
 const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1; // 自然成長年1.5%（月約0.124%）
+const growY=c=>{const a=(c.agri+c.com)/2;return a<450?0:.015*Math.pow(Math.min(1,(a-450)/549),.6)}; // 農商平均<450:0；450→999 平滑升至年1.5%（600≈0.7%）
+const growM=c=>Math.pow(1+growY(c),1/12)-1;
 const growK=c=>cl(((c.agri+c.com)/2-450)/150,0,1); // 開發(農商平均)<450 自然成長0，450→600 平滑升至全額
 function popTick(rep){const net=G.cities.map(()=>0);
- G.cities.forEach(c=>{const g=Math.round(c.pop*(POPNAT+.002*prosper(c))*growK(c));const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
- ROADS.forEach(([an,bn])=>{const a=G.cities.find(c=>c.n==an),b=G.cities.find(c=>c.n==bn);const pa=prosper(a),pb=prosper(b);const gap=(pa-pb)/(pa+pb);if(Math.abs(gap)<.05)return;
+ G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c));const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
+ ROADS.forEach(([an,bn])=>{const a=G.cities.find(c=>c.n==an),b=G.cities.find(c=>c.n==bn);const pa=prosper(a)*fame(a.f),pb=prosper(b)*fame(b.f); /* 遷徙吸引力＝繁榮度×君主名聲（無主城×1） */const gap=(pa-pb)/(pa+pb);if(Math.abs(gap)<.05)return;
   const [rich,poor]=gap>0?[a,b]:[b,a];const mv=Math.max(0,Math.min(Math.round(poor.pop*.01*Math.abs(gap)),poor.pop-POPMIN,POPMAX-rich.pop));if(!mv)return;poor.pop-=mv;rich.pop+=mv;net[rich.id]+=mv;net[poor.id]-=mv});
  G.cities.forEach(c=>{c._m=net[c.id];if(rep&&c.f==0&&Math.abs(net[c.id])>=1500)rep.push(net[c.id]>0?`${c.n} 繁榮吸引移民 +${net[c.id]}人`:`${c.n} 人口外流 ${net[c.id]}人`)})}
 // 開發難度：收益÷2^((現值-300)/300)，最少+1；花費 50×√倍率
@@ -537,8 +548,8 @@ const devCost=cur=>Math.round(50*Math.sqrt(cExp(cur)));
 // 在野武將每月有機會遷往人口較多的鄰城（人口越懸殊機率越高）
 function gatherFree(rep){G.offs.forEach(o=>{if(o.dead||(o.st!="free"&&o.st!="hidden"))return;if(o.n=="諸葛亮"&&o.st=="hidden")return;const here=C(o.c);const nb=adj(o.c).map(C).filter(c=>c.pop>here.pop*1.2).sort((a,b)=>b.pop-a.pop)[0];if(!nb)return;
  if(R()<Math.min(.3,.08*nb.pop/here.pop)){o.c=nb.id;if(o.st=="free"){logMsg(`在野武將 ${o.n} 由${here.n}前往${nb.n}`);if(rep&&(nb.f==0||here.f==0))rep.push(`在野武將 ${o.n} ${nb.f==0?"來到":"離開"}${nb.f==0?nb.n:here.n}`)}}})}
-// 俸祿：每月由所在城支付，金不足則忠誠-5
-function payroll(rep){let paid=0;const un=[];G.offs.forEach(o=>{if(o.dead||o.st!="serve"||o.f<0||fixedLord(o))return;const c=C(o.c),s=SALARY[rk(o)];if(c.gold>=s){c.gold-=s;if(o.f==0)paid+=s}else{o.loy=Math.max(0,o.loy-5);if(o.f==0)un.push(o.n)}});if(rep){if(paid)rep.push(`俸祿支出 金${paid}`);if(un.length)rep.push(`⚠️ 俸祿未發：${un.join("、")}（忠誠-5）`)}}
+// 俸祿：每月由所在城支付（君主不支薪），金不足則忠誠-5
+function payroll(rep){let paid=0;const un=[];G.offs.forEach(o=>{if(o.dead||o.st!="serve"||o.f<0||isLord(o))return;const c=C(o.c),s=SALARY[rk(o)];if(c.gold>=s){c.gold-=s;if(o.f==0)paid+=s}else{o.loy=Math.max(0,o.loy-5);if(o.f==0)un.push(o.n)}});if(rep){if(paid)rep.push(`俸祿支出 金${paid}`);if(un.length)rep.push(`⚠️ 俸祿未發：${un.join("、")}（忠誠-5）`)}}
 // 暴動：民忠<30 時機率 (30-民忠)/60；開發-10%、金糧-20%、人口流失5%
 function riotTick(rep){G.cities.forEach(c=>{if(c.f<0||c.loy>=30||R()>=(30-c.loy)/60)return;c.agri=Math.round(c.agri*.9);c.com=Math.round(c.com*.9);c.gold=Math.floor(c.gold*.8);c.food=Math.floor(c.food*.8);const lost=Math.round(c.pop*.05);c.pop-=lost;logMsg(`${c.n} 發生暴動`);if(c.f==0&&rep)rep.push(`🔥 ${c.n} 民忠${c.loy}，發生暴動！開發-10%、金糧-20%、人口流失${lost}（請派魅力高的武將「安撫」）`)})}
 function goldInc(c){return Math.round(60*cExp(c.com)*(.5+c.loy/200)+c.pop/20000)}
@@ -552,9 +563,9 @@ async function menu(){const v=await pick("選單",[{label:"存檔 1",v:"s1"},{la
 function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve");
  sortTable(`人事（${rows.length}名，可晉升${promoList().length}）`,[
   {h:"姓名",v:o=>o.n,f:o=>`${canPromote(o)?"⬆️":""}${o.n}${isLord(o)?"👑":""}`},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"經驗",v:o=>o.exp||0,f:o=>`${o.exp||0}/${rk(o)>=9?"-":expReq(rk(o)+1)}`},{h:"上限",v:o=>maxRank(o),f:o=>RANKS[maxRank(o)]},
-  {h:"俸祿",v:o=>fixedLord(o)?0:SALARY[rk(o)]},{h:"資金",v:o=>BUDGET[rk(o)]},{h:"帶兵",v:o=>TCAP[rk(o)]},{h:"寶物",v:o=>its(o).map(x=>x.n).join("、")},{h:"忠",v:o=>o.loy},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"城",v:o=>C(o.c).n}],
+  {h:"俸祿",v:o=>isLord(o)?0:SALARY[rk(o)]},{h:"資金",v:o=>BUDGET[rk(o)]},{h:"帶兵",v:o=>TCAP[rk(o)]},{h:"寶物",v:o=>its(o).map(x=>x.n).join("、")},{h:"忠",v:o=>o.loy},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"城",v:o=>C(o.c).n}],
   rows,o=>officerDetail(o),[["全部","all",()=>true],["可晉升","promo",o=>canPromote(o)]],[{t:`全部晉升(${promoList().length})`,v:"all"},{t:`寶物庫(${G.vault.length})`,v:"vault"}]).then(async v=>{if(v=="all"){const l=promoList();l.forEach(promote);if(l.length)await modal("晉升",l.map(o=>`${o.n} 晉升為 <b>${RANKS[rk(o)]}</b>（忠誠${o.loy}）`).join("<br>"));render();officerTable()}else if(v=="vault")vaultView()})}
-async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}）　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${fixedLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（每項能力限一件）：${its(o).map(x=>`${x.n}（${SKN[itemDef(x.n)[1]]}+${x.b}）`).join("、")||"無"}`;
+async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}）　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（每項能力限一件）：${its(o).map(x=>`${x.n}（${SKN[itemDef(x.n)[1]]}+${x.b}）`).join("、")||"無"}`;
  const b=[{t:"返回",v:0}];if(canPromote(o))b.push({t:`晉升→${RANKS[nx]}`,v:1,cls:"pri"});if(!isLord(o)&&rk(o)>0)b.push({t:"降級",v:2});if(G.vault.length)b.push({t:"賜予寶物",v:4});if(its(o).length)b.push({t:"沒收寶物",v:5});if(!isLord(o))b.push({t:"開除",v:3});
  const v=await modal("武將",info,b);if(!v){render();return officerTable()}
  if(v==1){promote(o);toast(`${o.n} 晉升為 ${RANKS[rk(o)]}，忠誠 ${o.loy}`)}
@@ -593,12 +604,12 @@ function facPower(f){const x=facStat(f);return Math.round(x.cities*10+x.pop/1000
 function facTable(){const rows=G.factions.map((F,f)=>({F,f})).filter(r=>r.F.alive);rows.forEach(r=>{r.x=facStat(r.f);r.pw=facPower(r.f)});
  sortTable("勢力一覽（依綜合實力）",[
   {h:"勢力",v:r=>r.F.n,f:r=>`<span class="dot" style="background:${r.F.col}"></span> ${r.F.n}`},
-  {h:"綜合",v:r=>r.pw,f:r=>`<b style="color:#ffd77a">${r.pw}</b>`},{h:"君主",v:r=>O(r.F.lord).n},{h:"爵位",v:r=>tl(r.f),f:r=>`<span class="ttl">${titleName(r.f)}</span>`},{h:"名聲",v:r=>fame(r.f),f:r=>"×"+fame(r.f)},{h:"城池",v:r=>r.x.cities},{h:"人口",v:r=>r.x.pop,f:r=>(r.x.pop/10000).toFixed(1)+"萬"},
+  {h:"綜合",v:r=>r.pw,f:r=>`<b style="color:#ffd77a">${r.pw}</b>`},{h:"君主",v:r=>O(r.F.lord).n},{h:"爵位",v:r=>tl(r.f),f:r=>`<span class="ttl">${titleName(r.f)}</span>`},{h:"名聲",v:r=>frep(r.f)},{h:"名望倍率",v:r=>fame(r.f),f:r=>"×"+fame(r.f)},{h:"城池",v:r=>r.x.cities},{h:"人口",v:r=>r.x.pop,f:r=>(r.x.pop/10000).toFixed(1)+"萬"},
   {h:"武將",v:r=>r.x.offn},{h:"武將總值",v:r=>r.x.offv},{h:"兵力",v:r=>r.x.troops},{h:"糧",v:r=>r.x.food},{h:"金",v:r=>r.x.gold},{h:"開發",v:r=>r.x.dev},{h:"寶物",v:r=>r.x.items},{h:"本城",v:r=>(capital(r.f)||{n:"-"}).n}],rows,r=>facDetail(r.f),null,[{t:"爵位一覽",v:"ladder"}],{sort:1}).then(v=>{if(v=="ladder")ladderView()})}
 const POWER_NOTE="綜合實力＝城池×10＋人口(萬)×1＋武將總值÷100×2＋兵力(千)×3＋糧(萬)×2＋金(千)×2＋開發總值÷100×1＋寶物×3";
 function facDetail(f){const F=G.factions[f];const cs=facCities(f);const os=G.offs.filter(o=>!o.dead&&o.f==f&&o.st=="serve").sort((a,b)=>(b.t+b.w+b.z)-(a.t+a.w+a.z));
  const box=document.createElement("div");box.innerHTML=`<h4 style="margin:4px 0;color:#ffd77a">城市（${cs.length}）</h4><div class="msbar">${cs.map(c=>`<button data-c="${c.id}">${c.n} ${(c.troops/1000).toFixed(1)}k</button>`).join("")}</div><h4 style="margin:8px 0 4px;color:#ffd77a">武將（${os.length}）</h4><div id="fdo"></div><p style="font-size:12px;opacity:.7">${POWER_NOTE}：<b>${facPower(f)}</b></p>`;box.querySelector("#fdo").appendChild(stEl([{h:"姓名",v:o=>o.n,f:o=>o.n+(isLord(o)?"👑":"")},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"城",v:o=>C(o.c).n},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"忠",v:o=>o.loy}],os,{hint:false}));
- box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{modal.close(null);openCity(+b.dataset.c)});return modal(`${F.n}勢力・${titleName(f)}（名聲×${fame(f)}）`,box,[{t:"返回",v:1},{t:"關閉",v:null}]).then(v=>{if(v)facTable()})}
+ box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{modal.close(null);openCity(+b.dataset.c)});return modal(`${F.n}勢力・${titleName(f)}（名聲${frep(f)}・名望×${fame(f)}）`,box,[{t:"返回",v:1},{t:"關閉",v:null}]).then(v=>{if(v)facTable()})}
 function openCity(id){selectCity(id);fitMap(C(id))}
 function cityTable(){const rows=G.cities.slice();const freeN=c=>G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free").length;
  sortTable("城市一覽",[
@@ -609,7 +620,7 @@ function cityTable(){const rows=G.cities.slice();const freeN=c=>G.offs.filter(o=
 $("#bEnd").onclick=endTurn;$("#bMenu").onclick=menu;$("#bOff").onclick=officerTable;$("#bFac").onclick=facTable;$("#bCity").onclick=cityTable;
 function start(){$("#title").style.display="none";selCity=null;render();fitMap()}
 const intro=()=>modal(`西元${G.scen||190}年`,(G.scen==194?(G.player=="田郎"?"董卓已死，李傕・郭汜亂長安，群雄割據。<br>江東錢塘，人口十五萬。豪傑田郎聚眾起事，欲以此為基業，逐鹿中原。":"董卓已死，群雄割據。<br>陶謙病逝，劉備受讓徐州，北有呂布・曹操爭兗州，南有袁術虎視。"):(G.player=="田郎"?"董卓專權，天下大亂。<br>江東錢塘，人口十五萬。豪傑田郎聚眾起事，欲以此為基業，逐鹿中原。":"董卓專權，天下大亂。<br>身為平原相的劉備，與關羽、張飛立誓匡扶漢室。"))+"<br><br>"+HELP,[{t:"出發",v:1,cls:"pri"}]);
-const HELP="每月每名武將可執行一項命令：農業・商業開發看政治、城防開發與訓練看武力、徵兵看統率、安撫看魅力、搜索看智力（能力越高效果呈指數成長）。<br>官職分十級（不入流～一品）：品級決定每月俸祿、內政資金與帶兵上限；累積經驗並經主公批准可晉升（「人事」）。<br>內政花費＝品級資金，效果與資金成正比，經驗＝效果。徵兵量隨民忠指數變化；民忠過低會暴動。<br>戰爭會降低城市開發、城防、民忠；守城失敗損失慘重。戰場有平原、林、山、湖地形。";
+const HELP="每月每名武將可執行一項命令：農業・商業開發看政治、城防開發與訓練看武力、徵兵看統率、安撫看魅力、搜索看智力（能力越高效果呈指數成長）。<br>官職分十級（不入流～一品）：品級決定每月俸祿、內政資金與帶兵上限；累積經驗並經主公批准可晉升（「人事」）。<br>內政花費＝品級資金（不入流50～一品150），效果只看能力，經驗＝效果。徵兵量隨民忠指數變化；民忠過低會暴動。<br>戰爭會降低城市開發、城防、民忠；守城失敗損失慘重。戰場有平原、林、山、湖地形。";
 $("#tNew").onclick=()=>{newGame("田郎");start();intro()};$("#tNew2").onclick=()=>{newGame("劉備");start();intro()};
 $("#tScen").onclick=()=>{SCEN_YEAR=SCEN_YEAR==194?190:194;$("#tSub").textContent=`群雄割據 · 西元${SCEN_YEAR}年`;$("#tScen").textContent=SCEN_YEAR==194?"劇本：194年 群雄割據（點此切換190年）":"劇本：190年 反董卓聯軍（點此切換194年）";$("#tNew2").textContent=`新遊戲：劉備（${SCEN_YEAR==194?"下邳":"平原"}）`};
 $("#tLoad").onclick=()=>{if(load("1")||load("auto"))start();else if(!localStorage.getItem("sango_1")&&!localStorage.getItem("sango_auto"))toast("沒有存檔");else{newGame();start();}};
