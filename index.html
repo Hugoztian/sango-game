@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="三國志">
+<meta name="theme-color" content="#1a120b">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAANiUlEQVR4nO3de1hUZR4H8PfMjYHhKjBc5CYIcpOLoaAmiBF5T0UTrd20MvNalpbVura1PZW7W89uPuJlHzNtM9c0zTQt76ZmZgokoXIP5DrchhmGue4ftIQz54czA8x7Bn6fv8b3nJn5IV/O5T3vew6z3ncIQYgNj3YBiLswHAiE4UAgDAcCYTgQCMOBQBgOBBJAC94585wt60AUvZq+lbUdtxwIhOFAIAwHAmE4EAjDgUDg2Yop6JgW2Rfzz0Nxy4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBDIgpu3DFSp2Qk6rV7eoGiVKVoblPJGpaZDS7soTsBwkDHTozyHunVvUbV1tMqUrQ2KVplSLlPkniqqLpbRKo8iDAcLsbOD2NlBGuxBCDEYDD+duE27IjowHD3RafXHci7VlTfRLoQODAe7u3ca8s8W550pbqxupV0LNRgOdj8cKbhypIB2FZThqSwCYTgQCMOBQBgOBMJwIBCGA4EwHJTxeAztEkAYDppEYsGKrVmjp0fRLoQdhoOmrFfS/cO95ryUNmtNKl/Aud8F5woaPCbMj4+bGNb5Onlm9DPvz3R2d6RbkhEMBx1hiUMnP5vSvSVkpO+KbVm+oZ60SjKF4aDAXeq8YOPDpoei7lLnZZtnRY8PoVEUCwyHrQlE/CfeekTiJmZdKnIUPvHW5LQFiTauihXlq7KBkVIJ7R2tSCw0bfQN84xMCe6Pr0vICB8a4d3DCgxDJj+b7OHr8uU/L+j1hv6owUyUwxGbFpqanUC3BlYpj8akPBpDsYDkmdFuUsnev3yrVlEb0Ep5t1J0rZJuAVwWmRKcTDWglLccZfk1Wo1OIOTTLYNrDAZSX9FUfL3qyuGbFMugHA5Nh3ZD5g66Naz9ZIHR6HNCyKH3z+NIMDxbQSAMBwJhOBAIw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA6bEjrY0z0vMBy2I3IUrtyWNWVpCpcnMnVnT0G2d1nrJkqDPaTBHv7hXnvfPKlsVdGu6D5wy2Ej4+aMjEv/bZbK8AcCVm7L8gvj0CwEVhgOWwiK8Zm6bGz3Fg9fl+c2z45NDaVVkjkwHP1O4u64cGOm6WxHkViw8I3Mh55MYrh6BILh6F8MwyzYkOHmLQGWkoxFSQs3ZnLzLIaLNYnEAoHIdoXxeCx/ISJHoZMr+7wji0yYHx82amjP68Smhbp6S3a/flzR3N77b+xDXAxH0tSoGavG061h6rKxRkcJ/Soo2mf5ltm71h+rr2i22ZfeFxd3K7d/qKBdAgVD/FynLR9Hu4p7cHHL0VDZIrvb6unvSrsQ22mulZffrD2x4wrtQu7BxXAQQv7++Ke0S0Cc3K0gjsBwIBCGA4EwHAiE4UCgwRUOhmEmPBYfmxoqloho12IHOHoq20+CR/pmLB4tEgv0On1Zfs2tKxWFl8sH7VO67mtwbTnK8qo/XLL/18I6Hp8XmuA/ZWnKml3zl22enTQlUuTIcmewQW5whYMQ0lDZsnXloQv7crtagmJ8sl6e+PqBP85+KdXDz4VibVwz6MJBCNHr9Me2Xt775j33YhM5CsdMj35p94JZL6ZCV9gHm8EYjk55Z4pzVhyUNyq7N/IFvOQZ0Wv/szDz6TEcvBm5jQ3qn7+mpHHb6sPNdW1G7QIhP/2JUau2zw0Y0dMNQwe8ARWOUY+MSM1OiEsPC47xdZM6mzMDQFbVsm3VIVlVi+kin2FDlm2ZMz5rZD9Uah8G1Kls1Njg2LTfh+zq9Qa5TNlcJ2+pU7TUtd0tarhx8o7pu5rr2ratPvz0P6b7hAwxWsTjMdNXjh/i7/rV5ksGg8U3E2YYYvmbOGRAbTmM8HiMm7ckOMY3Lj1swvx4aYgHtKa8Ubn9+S/v3mlgXTpuzsjHXptk6TDgmAnDXjv45MznH/QOdLfsnZwxkMPRRavWfbc/79SuH3tYR9mq2vHiEahDLCEj/JElyRZ9qaK5ncdjxs6KXfNx9uL3pkWMCeTsKHOIHYRj3JzYt04sefip0da9Pe9s8ZszPzq65ZJOq+95TVVbx65Xj0GjfNMWJHbNSjJHWX7NluVfNFS2MAyJGBO4+L1paz7Ojp803I4iYgfhcHASCUT8wCipdW9XNLVrOsy9t3xTtXzPhhNQjGasftDJxcH8r5ZVteQsP1hRUNv5T+9A9+wNGctzskIT7zMenSPsIBxCsYAQ0vNjKPpQ+c81x7d/z7rI2d0x/Q8PWPRpSnnHznVfld+s6WoJGOG95P0Zi96danr8yzV2EI7OK6hOrmJ3qbNtvvHi53nQ4xySplp8FaZDqdm57mhZXnX3xhHJQat2zE1/fBSXZ9zbQTh8gn87y/C31cbDYCD73z2jUqhNF4kloogxgZZ+oLpd89ErRytv1Xdv5At4mc+MWfrhLK8A49vyc4QdhMNvuFfnC1ueE7Y2KM59ep11UVCUjxUfqFZp97x+vFWmMP60aJ/V/56XNDXSis/sb1wPh4evi+P/jwEdnGx6Vf3igfyWeuPfJSFE4m7lNMlWmWLPn06YHh0LHQRZ6yZOWZrCtRMZrodjRHJQ12sHJ5sO39J0aM98cs20vTfP1aosrDuw6SzrotTshIVvcGtGNdfDETdpeNdrG285CCG5p4q0ap1Ro9GhpcWfebro9G6WzBFCYlNDF2+aJhBx5blVnA6Hq5ckZKRf1z9tP/BTpVDfvFDavaWmRJZ/rqSXH3ty11Wjj+0yLM5vwZ9ZHjlLBafDMT5rZPfdsKqtw/Y1HMu5fG7v9drSxqYa+Y9fF+5Yc0Svu09P630ZDGTf26eqi9gv5USPD5m9Nq2XX9EnOLSHMyJxE6fMiu3e0tLAcnjY31pliuPbrxzf3sdTnDUd2s/+emrVjrmsDz9MmhJZcbP26tFf+vZLLcXdLUfawkSR+J7symVKaGV7VFfedOpj8Frg9BXjqN9ngKPhCIiUmo6yYT2x5CYej1m8adqozIieVzv/WW7V7XrWRSJH4bxXJ/VDaRbgYjgEQv689ek8vnFtlbfqqNRjBZ9Qz4jRgZ736/rU6/QHNp2FhhEFx/r20yPTzcS5cDAMmbM2TRpsPDCnpqTRjnYrQVFSQohpvk1VF8uuf3MbWvrQoqS+LMtCnAtH5jPJiWxbY/t6sHnnAAO+GeEghHy786pWY9yb0ilghLfVYxV6j0PhYBjy8FOjJy5MZF1a8B17xwA3Bfy25TCru6K5ru3ywZ+hpTEThvVZWRbiSjgEIv78P2VMAkZLVN6qL+1dv6QtiZ0dpMFDiHm7lU4X9udC3ScUDzs4EY7hDwS8sPOx+G495UbOf3bDhuX0VnCMT2ffnfnhkMuUBRfLWBd5DnWjdUGOcieY0EEwY+X40dOjelinpqTx5vne9ljbUleXv5m7lU5XvixgvRW6QMR3cnOkcv9amuEQiQVL/zXLP9yrh3V0Wv1/3zmt19vT9I+QuK5wWLBhLv6psrlW7u7DMpNbo9L0TWUWorlbefSFCT0ngxByevc16BoEN4kchV3nFxZtOQwGUnStyrRdpVD3ZpBAb1ALh1giSsgI73mda18Xso6o4LKwRP+uGdgWbTkIISU37po2/gIci9gAtXB4B7r3/H+Xe6rowN/O2d10wvDRv48wNbOfo0tJrnE4tGrdub03el+VdaiFo7a8Ceo21mn1x3Iu73v7pBXTU+liGKZ7t4RFuxVCSEtd27bnD1cU1Hb+3K0Nij0bjteWNfZtkeajdkCqbtdc/Dz/wXlxRu2Fl8u/2Xm1D48zbHk/p8ixQa6ev9/4xdLdCiGkLK86Z8UXYmcHRxdRc42c7l8HzbOVo1suVd2uD08K8AvzbGlQVBfLCi6UGo3ftwjrliY03t/Z3bGt/08FhQ6CjEX3zNkcGuGdNCUy93SR+VPuOqnaOqiMbDJCuZ/jxsk7rLdFsI66neWUz8PPZc3u7NIbd1vq21Rtap1Ob+jFiTHDMIT57QXDYxiGCIR8gYjv6iUZFu8vcbtnYLqLp1PWyxMfWpT06cZvfi20m0vKXbg7EswKSjn7X5uTiwPFKxTuUue569M/WLSPVgFW40T3eV+p5Opf5xDaY7qsM6DCcefHStY5jNRVF8lol2CNARWOdnnHsZzLXDv/lcuUhz44T7sKawyoYw5CyNWjv7TLOyY/m+w5lPLsZJ1WX55fXfh9xZUjBaxHytw30MJBCPn5fMnNC6UhcX4hsb7+EV6uXhJXTyexRMQX8vkCnhV9DwYD6TxNNugNep1erzPodHqdRqfT6NQqraZDq27XqBTq9ja1oqld3qRsqW1rqGqpK28ynS1nXwZgOAghBoOhNPduqUlvNLLIgDrmQH0Lw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA4EwnAgEIYDgTAcCIThQCAMBwJhOBAIw4FAGA4EsmAM6Ttnnuu/OhAH4ZYDgTAcCIThQCAMBwJhOBCIWe/L9YdmI1pwy4FAGA4EwnAgEIYDgTAcCIThQCAMBwL9DzsV6MFdN90bAAAAAElFTkSuQmCC">
+<link rel="icon" href="data:image/png;base64,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">
+<title>三國志 · 群雄割據</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#1a120b;color:#f3e6c8;font-family:"PingFang TC","Heiti TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;min-height:44px;min-width:44px;border:1px solid #8a6a3a;background:linear-gradient(#5a3a1e,#3a2412);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:active{filter:brightness(1.3)}
+button:disabled{opacity:.4}
+button.pri{background:linear-gradient(#b0302a,#701a14);border-color:#e0b060}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#top{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#2a1a0e;border-bottom:2px solid #8a6a3a;flex-wrap:wrap}
+#date{font-weight:bold;color:#ffd77a;flex:1;min-width:120px}
+#main{flex:1;display:flex;position:relative;min-height:0}
+#mapwrap{flex:1;position:relative;overflow:hidden;touch-action:none;background:radial-gradient(#3b5a3a,#203520)}
+#map{position:absolute;left:0;top:0;transform-origin:0 0}
+#panel{background:#24170c;border-top:2px solid #8a6a3a;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media (orientation:portrait){#main{flex-direction:column}#panel{max-height:48%;min-height:0}}
+@media (orientation:landscape){#panel{width:min(380px,45%);border-top:0;border-left:2px solid #8a6a3a}}
+#panel h2{margin:6px 10px;font-size:20px;color:#ffd77a;display:flex;align-items:center;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 10px;font-size:13px}
+.stats div{background:#33210f;border-radius:6px;padding:4px;text-align:center}.stats b{display:block;color:#ffd77a;font-size:15px}
+.cmds{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px 10px}
+.cmds button{padding:4px 2px}
+.olist{padding:0 10px 10px}
+.orow{display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid #3a2a18;font-size:13px;min-height:44px}
+.orow .nm{font-weight:bold;width:64px;font-size:15px}.orow.done{opacity:.5}
+.tag{font-size:11px;padding:1px 5px;border-radius:4px;background:#704a20}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid #000}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+#modal .box{background:#2a1a0e;border:2px solid #c09050;border-radius:12px;max-width:560px;width:100%;max-height:88%;display:flex;flex-direction:column;box-shadow:0 8px 30px #000}
+#modal h3{margin:0;padding:10px 14px;color:#ffd77a;border-bottom:1px solid #6a4a2a}
+#modal .bd{padding:10px 14px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+#modal .ft{display:flex;gap:8px;padding:10px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid #6a4a2a}
+.pick{display:flex;width:100%;text-align:left;margin:4px 0;align-items:center;gap:8px}
+.pick.on{background:linear-gradient(#a07020,#604010);border-color:#ffd77a}
+.pick small{opacity:.8;margin-left:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:5px 4px;border-bottom:1px solid #3a2a18;text-align:center}th{color:#ffd77a;position:sticky;top:0;background:#2a1a0e}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#000c;border:1px solid #c09050;padding:8px 14px;border-radius:8px;z-index:80;display:none;max-width:90%;text-align:center}
+#title{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:radial-gradient(#4a2a14,#120a05)}
+#title h1{font-size:56px;margin:0;color:#ffd77a;letter-spacing:12px;text-shadow:0 0 18px #b03020}
+#title p{margin:0;opacity:.8}#title button{width:220px;font-size:20px}
+#battle{position:fixed;inset:0;z-index:40;background:#1d140a;display:none;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#bhead{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#2a1a0e;border-bottom:2px solid #8a6a3a;font-size:14px;gap:6px}
+#bfield{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:6px}
+#grid{display:grid;gap:2px;width:min(100%,calc((100vh - 230px) * 8 / 6));max-width:760px}
+.cell{aspect-ratio:1;background:#5c7a3c;border-radius:4px;position:relative;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.cell.f{background:#3e5e2e}.cell.w{background:#7a6a5a}
+.cell.reach{box-shadow:inset 0 0 0 3px #7af}.cell.tgt{box-shadow:inset 0 0 0 3px #f55}
+.unit{width:92%;height:92%;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;line-height:1.1;font-size:clamp(11px,2.6vw,17px);border:2px solid #000;color:#fff;text-shadow:0 1px 2px #000}
+.unit.A{background:linear-gradient(#c03a2a,#701a10)}.unit.D{background:linear-gradient(#2a5ac0,#10306a)}
+.unit.sel{border-color:#ffd77a;box-shadow:0 0 10px #ffd77a}.unit.dn{filter:grayscale(.7) brightness(.7)}.unit.stun::after{content:"亂";position:absolute;top:0;right:2px;color:#ff0;font-size:11px}
+.unit .tp{font-size:clamp(9px,2vw,13px);font-weight:normal}
+#binfo{padding:4px 10px;font-size:13px;min-height:40px;background:#24170c}
+#bact{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px}
+#bact button{padding:2px}
+#blog{font-size:12px;opacity:.85;max-height:52px;overflow:hidden;padding:0 10px}
+.fx{position:absolute;color:#ff6;font-weight:bold;font-size:14px;animation:up .8s forwards;pointer-events:none;z-index:5}
+@keyframes up{to{transform:translateY(-24px);opacity:0}}
+</style></head><body>
+<div id="app">
+ <div id="top"><span id="date"></span><button id="bOff">武將</button><button id="bFac">勢力</button><button id="bMenu">選單</button><button id="bEnd" class="pri">結束回合</button></div>
+ <div id="main"><div id="mapwrap"><svg id="map" width="1000" height="860" viewBox="0 0 1000 860"></svg></div><div id="panel"></div></div>
+</div>
+<div id="battle"><div id="bhead"></div><div id="blog"></div><div id="bfield"><div id="grid"></div></div><div id="binfo"></div><div id="bact"></div></div>
+<div id="modal"><div class="box"><h3 id="mt"></h3><div class="bd" id="mb"></div><div class="ft" id="mf"></div></div></div>
+<div id="toast"></div>
+<div id="title"><h1>三國志</h1><p>群雄割據 · 西元190年 · 劉備篇</p><button class="pri" id="tNew">新遊戲</button><button id="tLoad">讀取存檔</button></div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);const R=Math.random;const ri=(a,b)=>a+Math.floor(R()*(b-a+1));const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const FAC=[["劉備","#3cb44b"],["曹操","#4363d8"],["孫堅","#e6194b"],["袁紹","#ffd700"],["董卓","#911eb4"],["袁術","#f58231"],["公孫瓚","#e8e8e8"],["劉表","#42d4f4"],["馬騰","#9a6324"]];
+const CITY=[["武威",120,250],["天水",220,330],["長安",330,330],["晉陽",470,190],["薊",650,80],["北平",780,70],["南皮",690,180],["平原",700,255],["鄴",560,240],["北海",820,270],["洛陽",450,330],["陳留",570,330],["濮陽",640,290],["許昌",540,410],["小沛",700,360],["下邳",790,390],["宛",430,440],["壽春",660,480],["新野",440,520],["襄陽",420,585],["江夏",560,600],["江陵",340,650],["長沙",470,750],["建業",770,520],["吳",840,590],["會稽",840,700],["成都",130,620],["漢中",230,460]];
+const ROADS="武威-天水,天水-長安,天水-漢中,漢中-長安,漢中-成都,成都-江陵,長安-洛陽,洛陽-晉陽,晉陽-鄴,晉陽-薊,薊-北平,薊-南皮,南皮-平原,南皮-鄴,鄴-平原,鄴-濮陽,鄴-洛陽,平原-北海,平原-濮陽,北海-下邳,洛陽-陳留,洛陽-宛,陳留-濮陽,陳留-許昌,濮陽-小沛,許昌-小沛,許昌-宛,許昌-壽春,小沛-下邳,下邳-壽春,下邳-建業,宛-新野,新野-襄陽,襄陽-江陵,襄陽-江夏,江夏-壽春,江夏-長沙,江陵-長沙,壽春-建業,建業-吳,吳-會稽".split(",").map(s=>s.split("-"));
+const START={平原:0,陳留:1,長沙:2,南皮:3,鄴:3,洛陽:4,長安:4,壽春:5,宛:5,北平:6,薊:6,襄陽:7,江陵:7,武威:8,天水:8};
+// name t w z p m faction(-1 hidden) city
+const OFF=`劉備 75 72 77 78 99 0 平原|關羽 95 97 75 62 93 0 平原|張飛 85 98 30 22 44 0 平原|簡雍 33 42 70 74 82 0 平原
+曹操 96 72 91 94 96 1 陳留|夏侯惇 89 90 58 70 85 1 陳留|夏侯淵 90 91 55 46 72 1 陳留|曹仁 88 86 62 52 72 1 陳留|曹洪 75 80 42 38 60 1 陳留|荀彧 52 30 95 98 89 1 陳留|典韋 60 95 35 28 54 1 陳留
+孫堅 93 90 75 70 90 2 長沙|孫策 92 94 70 70 95 2 長沙|黃蓋 82 85 70 55 70 2 長沙|程普 80 79 72 65 75 2 長沙|韓當 78 82 50 45 62 2 長沙
+袁紹 80 70 72 75 92 3 南皮|田豐 70 30 93 88 65 3 南皮|顏良 80 93 40 30 50 3 鄴|文醜 78 94 30 25 45 3 鄴|沮授 75 40 90 85 70 3 鄴|張郃 89 88 69 58 65 3 鄴
+董卓 85 88 66 20 45 4 洛陽|呂布 87 100 26 13 40 4 洛陽|華雄 80 92 38 30 50 4 洛陽|李儒 50 35 90 70 30 4 長安|張遼 93 92 78 58 78 4 長安|徐榮 78 78 60 40 50 4 長安|賈詡 80 40 97 82 58 4 長安
+袁術 66 65 60 70 72 5 壽春|紀靈 76 87 40 35 55 5 壽春|張勳 66 70 50 45 50 5 宛|閻象 30 30 76 75 60 5 宛
+公孫瓚 82 85 60 55 75 6 北平|趙雲 91 96 76 65 81 6 北平|嚴綱 65 70 45 35 45 6 薊|田楷 60 60 55 55 55 6 薊
+劉表 60 50 72 80 88 7 襄陽|蔡瑁 80 70 70 60 50 7 襄陽|黃祖 72 70 55 50 45 7 江陵|蒯越 52 40 86 84 70 7 江陵|文聘 82 84 60 55 70 7 江陵
+馬騰 85 87 50 52 80 8 武威|馬超 88 97 44 26 82 8 武威|龐德 82 94 60 40 68 8 天水|韓遂 80 78 75 60 65 8 天水
+諸葛亮 92 38 100 95 92 -1 新野|徐庶 78 65 93 81 83 -1 新野|龐統 70 34 97 85 69 -1 江陵|太史慈 82 93 66 58 79 -1 北海|甘寧 86 94 76 18 58 -1 江夏|黃忠 86 93 60 52 75 -1 長沙|魏延 84 92 69 49 37 -1 襄陽|糜竺 28 30 68 86 88 -1 下邳|陳宮 75 50 88 75 60 -1 濮陽|周瑜 97 71 96 86 93 -1 吳|魯肅 80 56 92 90 89 -1 建業|張昭 15 10 80 97 87 -1 建業|法正 60 40 94 80 50 -1 成都|嚴顏 80 83 68 60 70 -1 成都|郭嘉 60 15 98 85 80 -1 許昌|許褚 66 96 36 20 60 -1 許昌|徐晃 87 90 74 48 70 -1 晉陽|高順 85 86 52 32 50 -1 下邳|陸遜 96 69 95 87 90 -1 會稽|孫乾 32 38 72 80 85 -1 北海|陳登 75 50 82 80 70 -1 小沛|姜維 90 89 90 67 80 -1 天水`;
+const ITEMS=[["青龍偃月刀","w",8],["丈八蛇矛","w",7],["方天畫戟","w",8],["倚天劍","w",5],["孫子兵法","t",6],["孟德新書","z",5],["太平要術","z",6],["赤兔馬","t",5],["的盧","m",3],["玉璽","m",10]];
+let G=null;
+const C=i=>G.cities[i], O=i=>G.offs[i];
+const adj=i=>G.adj[i];
+function newGame(){
+ const cities=CITY.map(([n,x,y],id)=>{const f=START[n]??-1,big=f>=0;return{id,n,x,y,f,gold:big?ri(700,1200):ri(200,500),food:big?ri(3000,6000):ri(1500,3000),troops:big?ri(8,14)*1000:ri(3,6)*1000,pop:ri(8,40)*10000,agri:ri(150,400),com:ri(150,400),def:ri(200,500),loy:ri(50,80),train:big?50:30}});
+ if(true){const p=cities.find(c=>c.n=="平原");p.troops=7000;p.gold=1000;p.food=5000}
+ const adjl=cities.map(()=>[]);ROADS.forEach(([a,b])=>{const i=cities.findIndex(c=>c.n==a),j=cities.findIndex(c=>c.n==b);adjl[i].push(j);adjl[j].push(i)});
+ const offs=[];OFF.split(/[|\n]/).forEach(l=>{const a=l.trim().split(/\s+/);const f=+a[6];offs.push({id:offs.length,n:a[0],t:+a[1],w:+a[2],z:+a[3],p:+a[4],m:+a[5],f,c:cities.findIndex(c=>c.n==a[7]),loy:f>=0?ri(80,100):0,st:f>=0?"serve":"hidden",done:false,item:null,dead:false})});
+ const factions=FAC.map(([n,col],i)=>({n,col,lord:offs.find(o=>o.n==n).id,alive:true}));
+ factions.forEach(f=>O0(offs,f.lord).loy=100);
+ G={year:190,month:1,cities,offs,factions,adj:adjl,items:ITEMS.map(x=>x[0]),log:[]};
+}
+function O0(a,i){return a[i]}
+const isLord=o=>o.f>=0&&G.factions[o.f].lord==o.id;
+const offsIn=(c,f)=>G.offs.filter(o=>!o.dead&&o.c==c&&o.st=="serve"&&(f===undefined||o.f==f));
+const facCities=f=>G.cities.filter(c=>c.f==f);
+const fname=f=>f<0?"無主":G.factions[f].n;
+const fcol=f=>f<0?"#888":G.factions[f].col;
+const ostr=o=>`${o.t}/${o.w}/${o.z}/${o.p}/${o.m}`;
+function toast(t,ms=1800){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display="none",ms)}
+function logMsg(t){G.log.unshift(`${G.year}年${G.month}月 ${t}`);G.log.length=Math.min(G.log.length,60)}
+// ---------- modal ----------
+function modal(title,body,buttons){return new Promise(res=>{$("#mt").textContent=title;const mb=$("#mb");mb.innerHTML="";if(typeof body=="string")mb.innerHTML=body;else mb.appendChild(body);const ft=$("#mf");ft.innerHTML="";(buttons||[{t:"確定",v:true}]).forEach(b=>{const e=document.createElement("button");e.textContent=b.t;if(b.cls)e.className=b.cls;e.onclick=()=>{close();res(b.v)};ft.appendChild(e)});const m=$("#modal");m.style.display="flex";function close(){m.style.display="none"}modal.close=v=>{close();res(v)}})}
+function pick(title,items,multi=0){const box=document.createElement("div");const sel=new Set();if(!items.length)box.innerHTML="<p>沒有可選擇的項目。</p>";
+ items.forEach((it,i)=>{const b=document.createElement("button");b.className="pick";b.disabled=!!it.dis;b.innerHTML=`<span>${it.label}</span><small>${it.sub||""}</small>`;b.onclick=()=>{if(!multi){modal.close(it.v)}else{if(sel.has(i)){sel.delete(i);b.classList.remove("on")}else if(sel.size<multi){sel.add(i);b.classList.add("on")}}};box.appendChild(b)});
+ const btns=[{t:"取消",v:null}];if(multi&&items.length)btns.push({t:"確定",v:"ok",cls:"pri"});
+ return modal(title,box,btns).then(v=>{if(multi&&v=="ok")return[...sel].map(i=>items[i].v);if(v=="ok")return null;return v})}
+const offItem=o=>({label:`${o.n}${isLord(o)?" 👑":""}`,sub:`統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m} 忠${o.loy}`,v:o});
+// ---------- map ----------
+const view={s:1,x:0,y:0};let selCity=null;
+function drawMap(){const svg=$("#map");let h=`<defs><filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".6"/></filter></defs><path d="M60 120 Q300 20 600 40 T930 160 Q900 420 900 760 L700 830 Q400 840 80 760 Q20 500 60 120Z" fill="#6f8f4f" opacity=".55"/><path d="M200 300 Q400 270 560 300 Q700 330 860 330" stroke="#6aa0d8" stroke-width="7" fill="none" opacity=".7"/><path d="M120 640 Q300 560 450 620 Q600 640 900 560" stroke="#6aa0d8" stroke-width="9" fill="none" opacity=".7"/><text x="490" y="292" fill="#cfe4ff" font-size="16" opacity=".8">黃河</text><text x="600" y="640" fill="#cfe4ff" font-size="16" opacity=".8">長江</text>`;
+ ROADS.forEach(([a,b])=>{const p=G.cities.find(c=>c.n==a),q=G.cities.find(c=>c.n==b);h+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="#d9c08a" stroke-width="4" stroke-dasharray="8 5" opacity=".75"/>`});
+ G.cities.forEach(c=>{const s=selCity==c.id;h+=`<g data-c="${c.id}" filter="url(#sh)"><circle cx="${c.x}" cy="${c.y}" r="34" fill="transparent"/><rect x="${c.x-20}" y="${c.y-16}" width="40" height="32" rx="6" fill="${fcol(c.f)}" stroke="${s?"#fff":"#2a1a0e"}" stroke-width="${s?5:3}"/><text x="${c.x}" y="${c.y+6}" text-anchor="middle" font-size="${c.n.length>1?15:18}" font-weight="bold" fill="${c.f==6||c.f==3?"#222":"#fff"}">${c.n}</text><text x="${c.x}" y="${c.y+32}" text-anchor="middle" font-size="12" fill="#fff" stroke="#000" stroke-width=".6">${(c.troops/1000).toFixed(1)}k</text></g>`});
+ svg.innerHTML=h}
+function applyView(){$("#map").style.transform=`translate(${view.x}px,${view.y}px) scale(${view.s})`}
+function fitMap(center){const w=$("#mapwrap"),W=w.clientWidth,H=w.clientHeight;view.s=cl(Math.min(W/1000,H/860)*1.6,.3,3);const c=center??G.cities.find(c=>c.n=="平原");view.x=W/2-c.x*view.s;view.y=H/2-c.y*view.s;applyView()}
+(function(){const w=$("#mapwrap");const P=new Map();let moved=0,downT=null,pinch=null;
+ w.addEventListener("pointerdown",e=>{P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size==1){moved=0;downT=e.target}else moved=99;pinch=null});
+ w.addEventListener("pointermove",e=>{if(!P.has(e.pointerId))return;const p=P.get(e.pointerId);const dx=e.clientX-p.x,dy=e.clientY-p.y;
+  if(P.size==1){moved+=Math.abs(dx)+Math.abs(dy);if(moved>8){view.x+=dx;view.y+=dy;applyView()}}
+  else if(P.size==2){const [a,b]=[...P.values()];const d0=Math.hypot(a.x-b.x,a.y-b.y);p.x=e.clientX;p.y=e.clientY;const [a2,b2]=[...P.values()];const d1=Math.hypot(a2.x-b2.x,a2.y-b2.y);const r=w.getBoundingClientRect();const mx=(a2.x+b2.x)/2-r.left,my=(a2.y+b2.y)/2-r.top;zoomAt(mx,my,d1/d0);return}
+  p.x=e.clientX;p.y=e.clientY});
+ const up=e=>{if(!P.has(e.pointerId))return;P.delete(e.pointerId);if(P.size==0&&moved<=8&&downT){const g=downT.closest&&downT.closest("[data-c]");if(g)selectCity(+g.dataset.c)}};
+ w.addEventListener("pointerup",up);w.addEventListener("pointercancel",e=>{P.delete(e.pointerId)});
+ w.addEventListener("wheel",e=>{e.preventDefault();const r=w.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.15:1/1.15)},{passive:false});
+ document.addEventListener("gesturestart",e=>e.preventDefault());})();
+function zoomAt(mx,my,k){const ns=cl(view.s*k,.3,4);k=ns/view.s;view.x=mx-(mx-view.x)*k;view.y=my-(my-view.y)*k;view.s=ns;applyView()}
+// ---------- UI ----------
+function render(){$("#date").innerHTML=`${G.year}年 ${G.month}月　<span style="color:#9f9">劉備軍</span> ${facCities(0).length}城`;drawMap();renderPanel()}
+function selectCity(i){selCity=i;drawMap();renderPanel()}
+function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(0);p.innerHTML=`<h2>主公 劉備</h2><div style="padding:0 10px 10px;font-size:14px">點選地圖上的城市以下達命令。雙指縮放、拖曳移動地圖。<br>我方城市：${cs.map(c=>`<button data-sel="${c.id}" style="margin:3px">${c.n}</button>`).join("")}<h4 style="color:#ffd77a">戰報</h4>${G.log.slice(0,12).map(l=>`<div style="font-size:12px;opacity:.85">${l}</div>`).join("")}</div>`;p.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectCity(+b.dataset.sel);fitMap(C(+b.dataset.sel))});return}
+ const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
+ p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small><button id="pClose" style="margin-left:auto">✕</button></h2>
+ <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
+ ${mine?`<div class="cmds">${["開發","徵兵","訓練","搜索","登用","計略","移動","輸送","出征","褒賞"].map(k=>`<button data-k="${k}">${k}</button>`).join("")}</div>`:""}
+ <div class="olist">${os.map(o=>`<div class="orow ${o.done&&mine?"done":""}"><span class="nm">${o.n}${isLord(o)?"👑":""}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag">忠${o.loy}</span>${o.item?`<span class="tag">${o.item}</span>`:""}${mine&&o.done?'<span class="tag">已行動</span>':""}</div>`).join("")||"<div class='orow'>無武將</div>"}
+ ${free.map(o=>`<div class="orow"><span class="nm">${o.n}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag">在野</span></div>`).join("")}</div>`;
+ $("#pClose").onclick=()=>{selCity=null;render()};p.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>command(b.dataset.k,c))}
+async function pickOff(c,title,multi){const av=offsIn(c.id,0).filter(o=>!o.done);if(!av.length){toast("此城沒有可行動的武將");return null}return pick(title,av.map(offItem),multi)}
+async function command(k,c){
+ const enemyAdj=adj(c.id).filter(j=>C(j).f!=0).map(C),ownAdj=adj(c.id).filter(j=>C(j).f==0).map(C);
+ if(k=="開發"){const o=await pickOff(c,"開發：選擇武將");if(!o)return;const t=await pick("開發項目",[{label:"農業",sub:c.agri,v:"agri"},{label:"商業",sub:c.com,v:"com"},{label:"城防",sub:c.def,v:"def"}]);if(!t)return;if(c.gold<50)return toast("金不足（需50）");c.gold-=50;const g=Math.round((t=="def"?(o.p+o.t)/8:o.p/4)+ri(2,8));c[t]=Math.min(999,c[t]+g);o.done=true;toast(`${o.n} 開發 ${({agri:"農業",com:"商業",def:"城防"})[t]} +${g}`)}
+ if(k=="徵兵"){const o=await pickOff(c,"徵兵：選擇武將");if(!o)return;const a=await pick("徵兵數量",[1000,2000,3000,5000].map(n=>({label:`${n}人`,sub:`金${n/10}`,v:n,dis:c.gold<n/10||c.pop<n*10})));if(!a)return;const got=Math.round(a*(1+o.m/250));c.gold-=a/10;c.pop-=got;c.train=Math.round((c.train*c.troops+20*got)/(c.troops+got));c.troops+=got;c.loy=Math.max(0,c.loy-Math.round(a/1000)*2);o.done=true;toast(`${o.n} 徵得 ${got} 兵`)}
+ if(k=="訓練"){const o=await pickOff(c,"訓練：選擇武將");if(!o)return;const g=Math.round(o.t/8+ri(1,4));c.train=Math.min(100,c.train+g);o.done=true;toast(`${o.n} 訓練 +${g}（${c.train}）`)}
+ if(k=="搜索"){const o=await pickOff(c,"搜索：選擇武將");if(!o)return;o.done=true;const hid=G.offs.filter(x=>x.st=="hidden"&&x.c==c.id&&!x.dead);
+  if(hid.length&&R()<.35+o.z/250){const h=hid[0];h.st="free";await modal("搜索",`${o.n} 發現了在野武將 <b>${h.n}</b>！<br>統${h.t} 武${h.w} 智${h.z} 政${h.p} 魅${h.m}<br>可用「登用」招攬。`)}
+  else if(G.items.length&&R()<.12){const it=G.items.splice(ri(0,G.items.length-1),1)[0];const d=ITEMS.find(x=>x[0]==it);o.item=it;o[d[1]]=Math.min(100,o[d[1]]+d[2]);await modal("寶物",`${o.n} 獲得寶物 <b>${it}</b>！（${({t:"統率",w:"武力",z:"智力",m:"魅力"})[d[1]]}+${d[2]}）`)}
+  else if(R()<.5){const g=ri(50,250);c.gold+=g;toast(`${o.n} 找到金 ${g}`)}else toast(`${o.n} 搜索無所獲`)}
+ if(k=="登用"){const o=await pickOff(c,"登用：選擇使者");if(!o)return;const ts=[...G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"),...enemyAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x)))];
+  const t=await pick("登用對象",ts.map(x=>({...offItem(x),label:`${x.n}（${x.st=="free"?"在野":fname(x.f)+"·"+C(x.c).n}）`})));if(!t)return;o.done=true;
+  const p=t.st=="free"?.35+o.m/160:(o.m-t.loy)/100+.08;if(R()<p){t.f=0;t.st="serve";t.c=c.id;t.loy=ri(70,90);t.done=true;await modal("登用成功",`${t.n}：「願為主公效犬馬之勞！」`);logMsg(`${t.n} 加入劉備軍`)}else toast(`${t.n} 拒絕了登用`)}
+ if(k=="計略"){const o=await pickOff(c,"計略：選擇武將");if(!o)return;const ty=await pick("計略",[{label:"離間",sub:"降低敵將忠誠",v:1},{label:"煽動",sub:"降低敵城民忠與兵力",v:2}]);if(!ty)return;
+  if(ty==1){const t=await pick("離間對象",enemyAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x))).map(offItem));if(!t)return;o.done=true;if(R()<.45+(o.z-t.z)/100){const d=ri(6,16);t.loy=Math.max(0,t.loy-d);toast(`離間成功！${t.n} 忠誠 -${d}（${t.loy}）`)}else toast("離間失敗")}
+  else{const t=await pick("煽動目標",enemyAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 民忠${e.loy} 兵${e.troops}`,v:e})));if(!t)return;o.done=true;if(R()<.45+(o.z-60)/100){t.loy=Math.max(0,t.loy-ri(6,15));t.troops=Math.round(t.troops*.9);toast(`煽動成功！${t.n} 民心動搖`)}else toast("煽動失敗")}}
+ if(k=="移動"){const os=await pickOff(c,"移動：選擇武將（可多選）",10);if(!os||!os.length)return;const t=await pick("移動至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;os.forEach(o=>{o.c=t.id;o.done=true});toast(`${os.length}名武將移動至${t.n}`)}
+ if(k=="輸送"){const o=await pickOff(c,"輸送：選擇武將");if(!o)return;const t=await pick("輸送至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;const a=await pick("輸送內容",[{label:"金 半數",sub:Math.floor(c.gold/2),v:"gold"},{label:"糧 半數",sub:Math.floor(c.food/2),v:"food"},{label:"兵力 半數",sub:Math.floor(c.troops/2),v:"troops"}]);if(!a)return;const n=Math.floor(c[a]/2);c[a]-=n;t[a]+=n;o.done=true;toast(`已輸送至${t.n}`)}
+ if(k=="褒賞"){const o=await pick("褒賞（金100，忠誠上升）",offsIn(c.id,0).filter(x=>!isLord(x)).map(offItem));if(!o)return;if(c.gold<100)return toast("金不足");c.gold-=100;o.loy=Math.min(100,o.loy+ri(5,12));toast(`${o.n} 忠誠 ${o.loy}`)}
+ if(k=="出征"){if(!enemyAdj.length)return toast("沒有鄰接的敵城");const t=await pick("出征目標",enemyAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 兵${e.troops} 城防${e.def} 武將${offsIn(e.id).length}`,v:e})));if(!t)return;
+  const os=await pickOff(c,"出征武將（最多5名）",5);if(!os||!os.length)return;const r=await pick("出兵比例",[.5,.7,.9].map(x=>({label:`${x*100}%`,sub:`${Math.floor(c.troops*x)}人`,v:x})));if(!r)return;const tr=Math.floor(c.troops*r);if(tr<500)return toast("兵力不足");
+  const food=Math.min(c.food,Math.ceil(tr/5));c.troops-=tr;c.food-=food;os.forEach(o=>o.done=true);await war(0,c,t,os,tr,true);}
+ render()}
+// ---------- battle engine ----------
+const BW=8,BH=6;
+function makeBattle(af,from,to,aoffs,atroops){const df=to.f;let doffs=offsIn(to.id,df<0?undefined:df).filter(o=>o.f==df);doffs=[...doffs].sort((a,b)=>b.t-a.t).slice(0,5);
+ if(!doffs.length)doffs=[{id:-1,n:"守備隊",t:50,w:50,z:40,p:40,m:40,f:df,pseudo:1}];
+ const B={af,df,turn:1,max:20,units:[],log:[],defMult:1+to.def/1500,trA:1+(from.train)/200,trD:1+(to.train)/200,cells:[]};
+ for(let y=0;y<BH;y++)for(let x=0;x<BW;x++)B.cells.push(x==BW-1?"w":(R()<.12&&x>0&&x<BW-2?"f":""));
+ const place=(offs,tr,side)=>{const tot=offs.reduce((s,o)=>s+o.t,0);const ys=[2,3,1,4,0,5];offs.forEach((o,i)=>{B.units.push({o,side,troops:Math.max(100,Math.round(tr*o.t/tot)),x:side=="A"?(i<3?1:0):(i<3?BW-2:BW-1),y:ys[i],done:false,stun:0})})};
+ place(aoffs,atroops,"A");place(doffs,to.troops,"D");return B}
+const alive=(B,s)=>B.units.filter(u=>u.troops>0&&(!s||u.side==s));
+const uAt=(B,x,y)=>B.units.find(u=>u.troops>0&&u.x==x&&u.y==y);
+const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+function reach(B,u){const out=new Map([[u.x+","+u.y,0]]);let fr=[[u.x,u.y]];for(let s=1;s<=3;s++){const nf=[];fr.forEach(([x,y])=>[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const nx=x+dx,ny=y+dy,k=nx+","+ny;if(nx<0||ny<0||nx>=BW||ny>=BH||out.has(k)||uAt(B,nx,ny))return;if(B.cells[ny*BW+nx]=="f"&&s==3)return;out.set(k,s);nf.push([nx,ny])}));fr=nf}return[...out.keys()].map(k=>k.split(",").map(Number))}
+function power(B,u){return(u.o.t*.6+u.o.w*.4)*(u.side=="A"?B.trA:B.trD)}
+function dmgOf(B,a,d,k){let v=a.troops*.12*power(B,a)/(d.o.t*.7+35)*(.85+R()*.3)*k;if(d.side=="D")v/=B.defMult;if(B.cells[d.y*BW+d.x]=="f")v*=.85;return Math.max(60,Math.round(v))}
+function bAttack(B,a,d){const v=Math.min(d.troops,dmgOf(B,a,d,1));d.troops-=v;let msg=`${a.o.n} 攻擊 ${d.o.n}，造成 ${v} 損傷`;fx(B,d,"-"+v);if(d.troops>0){const c=Math.min(a.troops,Math.round(dmgOf(B,d,a,1)*.4));a.troops-=c;msg+=`，反擊 ${c}`}if(d.troops<=0)msg+=`。${d.o.n} 部隊潰散！`;B.log.unshift(msg);return msg}
+function bTactic(B,a,d,kind){const p=.45+(a.o.z-d.o.z)/90;let msg;if(R()<cl(p,.1,.95)){if(kind=="火計"){const v=Math.min(d.troops,Math.round((300+a.o.z*14)*(.8+R()*.4)/(d.side=="D"?B.defMult:1)));d.troops-=v;fx(B,d,"🔥"+v);msg=`${a.o.n} 施展火計！${d.o.n} 損失 ${v}`;if(d.troops<=0)msg+="，部隊潰散！"}else{d.stun=2;fx(B,d,"混亂");msg=`${a.o.n} 施展混亂！${d.o.n} 陷入混亂`}}else msg=`${a.o.n} 的${kind}被 ${d.o.n} 識破了`;B.log.unshift(msg);return msg}
+function bDuel(B,a,d){const lines=[];if(d.o.w<a.o.w-12&&R()<.6){lines.push(`${d.o.n}：「匹夫之勇，不足掛齒！」（拒絕單挑）`);B.log.unshift(lines[0]);return{lines,res:0}}
+ let ha=100,hd=100;lines.push(`${a.o.n}：「${d.o.n}，可敢與我一戰！」`);for(let r=1;r<=12&&ha>0&&hd>0;r++){const x=Math.round(ri(4,12)*a.o.w/d.o.w*(R()<.12?2:1)),y=Math.round(ri(4,12)*d.o.w/a.o.w*(R()<.12?2:1));hd-=x;ha-=y;lines.push(`第${r}回合：${a.o.n}(${Math.max(0,ha)}) ⚔ ${d.o.n}(${Math.max(0,hd)})`)}
+ let res=0;if(hd<=0&&hd<ha){res=1;d.troops=0;d.duelLost=1;lines.push(`${a.o.n} 勝！${d.o.n} 敗走，部隊潰散！`)}else if(ha<=0){res=-1;a.troops=0;a.duelLost=1;lines.push(`${d.o.n} 勝！${a.o.n} 敗走，部隊潰散！`)}else lines.push("勝負未分，各自收兵。");B.log.unshift(lines[lines.length-1]);return{lines,res}}
+function bEnd(B){if(!alive(B,"A").length)return"D";if(!alive(B,"D").length)return"A";if(B.turn>B.max)return"D";return null}
+function aiUnit(B,u){if(u.troops<=0)return null;if(u.stun){u.stun--;return null}const foes=alive(B,u.side=="A"?"D":"A");if(!foes.length)return null;
+ const inR=foes.filter(f=>dist(u,f)<=3);if(u.o.z>=72&&inR.length&&R()<.4){const t=inR.sort((a,b)=>a.troops-b.troops)[0];return bTactic(B,u,t,R()<.7?"火計":"混亂")}
+ let t=foes.sort((a,b)=>dist(u,a)-dist(u,b)||a.troops-b.troops)[0];
+ if(dist(u,t)>1){let best=null,bd=99;reach(B,u).forEach(([x,y])=>{const d=Math.abs(x-t.x)+Math.abs(y-t.y);if(d<bd){bd=d;best=[x,y]}});if(best){u.x=best[0];u.y=best[1]}}
+ const adjF=foes.filter(f=>dist(u,f)==1).sort((a,b)=>a.troops-b.troops);if(!adjF.length)return null;t=adjF[0];
+ if(u.o.w>=t.o.w+10&&!u.o.pseudo&&!t.o.pseudo&&R()<.12){const r=bDuel(B,u,t);return r.lines.slice(-1)[0]}return bAttack(B,u,t)}
+function autoResolve(B){while(!bEnd(B)){for(const s of["A","D"]){alive(B,s).forEach(u=>aiUnit(B,u));if(bEnd(B))break}B.turn++}return bEnd(B)}
+// ---------- battle UI ----------
+let BUI=null;
+function fx(B,u,t){if(!BUI||BUI.B!==B)return;const cell=$("#grid").children[u.y*BW+u.x];if(!cell)return;const e=document.createElement("div");e.className="fx";e.textContent=t;cell.appendChild(e);setTimeout(()=>e.remove(),800)}
+function runBattle(B,pside){return new Promise(res=>{BUI={B,pside,sel:null,mode:null,moved:false,auto:false,busy:false,res};$("#battle").style.display="flex";bStartTurn()})}
+async function bStartTurn(){const U=BUI,B=U.B;alive(B).forEach(u=>u.done=false);const enemy=U.pside=="A"?"D":"A";if(U.pside=="D"){await bAiPhase("A");if(await bCheck())return}bRender();if(U.auto)bAuto()}
+async function bAiPhase(s){const U=BUI;U.busy=true;bRender();for(const u of alive(U.B,s)){aiUnit(U.B,u);u.done=true;bRender();await sleep(U.auto?120:320);if(bEnd(U.B))break}U.busy=false}
+async function bCheck(){const w=bEnd(BUI.B);if(!w)return false;const U=BUI;bRender();await sleep(400);await modal(w==U.pside?"勝利！":"敗北…",w==U.pside?"我軍大獲全勝！":"我軍敗退了……");$("#battle").style.display="none";BUI=null;U.res(w);return true}
+async function bEndTurn(){const U=BUI;if(U.busy)return;U.sel=null;U.mode=null;const enemy=U.pside=="A"?"D":"A";if(U.pside=="A"){await bAiPhase("D");if(await bCheck())return}U.B.turn++;if(await bCheck())return;bStartTurn()}
+async function bAuto(){const U=BUI;U.auto=true;U.busy=true;for(const u of alive(U.B,U.pside).filter(u=>!u.done)){aiUnit(U.B,u);u.done=true;bRender();await sleep(120);if(bEnd(U.B))break}U.busy=false;if(await bCheck())return;bEndTurn()}
+function bRender(){const U=BUI;if(!U)return;const B=U.B;const sumA=alive(B,"A").reduce((s,u)=>s+u.troops,0),sumD=alive(B,"D").reduce((s,u)=>s+u.troops,0);
+ $("#bhead").innerHTML=`<span style="color:#f88">攻 ${fname(B.af)} ${sumA}</span><b>第${Math.min(B.turn,B.max)}/${B.max}回合</b><span style="color:#8af">守 ${fname(B.df)} ${sumD}</span>`;
+ $("#blog").innerHTML=B.log.slice(0,3).join("<br>");const g=$("#grid");g.style.gridTemplateColumns=`repeat(${BW},1fr)`;
+ let rs=[],ts=[];if(U.sel&&U.mode=="move")rs=reach(B,U.sel);if(U.sel&&U.mode&&U.mode.startsWith("t:")){const k=U.mode.slice(2),r=k=="攻擊"||k=="單挑"?1:3;ts=alive(B,U.pside=="A"?"D":"A").filter(f=>dist(f,U.sel)<=r&&(k!="單挑"||!f.o.pseudo))}
+ g.innerHTML="";for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){const c=document.createElement("div");c.className="cell "+B.cells[y*BW+x];if(rs.some(p=>p[0]==x&&p[1]==y))c.classList.add("reach");const u=uAt(B,x,y);if(u){if(ts.includes(u))c.classList.add("tgt");c.innerHTML=`<div class="unit ${u.side} ${U.sel===u?"sel":""} ${u.done&&u.side==U.pside?"dn":""} ${u.stun?"stun":""}">${u.o.n.slice(0,3)}<span class="tp">${u.troops}</span></div>`}c.onclick=()=>bTap(x,y);g.appendChild(c)}
+ const s=U.sel;$("#binfo").innerHTML=s?`<b>${s.o.n}</b> 統${s.o.t} 武${s.o.w} 智${s.o.z}　兵 ${s.troops}　${U.mode=="move"?"點藍格移動，或直接選擇行動":U.mode&&U.mode.startsWith("t:")?"點紅框目標":"選擇行動"}`:(U.busy?"敵軍行動中…":"點選我軍部隊（紅=攻方，藍=守方）。我方："+(U.pside=="A"?"紅":"藍"));
+ const dis=!s||U.busy;$("#bact").innerHTML="";[["攻擊",dis],["戰法",dis||s.o.z<50],["單挑",dis||s.o.pseudo],["待機",dis],["回合結束",U.busy],["自動",U.busy]].forEach(([k,d])=>{const b=document.createElement("button");b.textContent=k;b.disabled=!!d;if(k=="自動")b.className="pri";b.onclick=()=>bAct(k);$("#bact").appendChild(b)})}
+async function bTap(x,y){const U=BUI;if(!U||U.busy)return;const B=U.B,u=uAt(B,x,y);
+ if(U.mode&&U.mode.startsWith("t:")&&u&&u.side!=U.pside){const k=U.mode.slice(2),s=U.sel;const r=k=="攻擊"||k=="單挑"?1:3;if(dist(u,s)>r)return;
+  if(k=="攻擊")bAttack(B,s,u);else if(k=="單挑"){const d=bDuel(B,s,u);await modal("單挑",d.lines.join("<br>"))}else{const t=await pick("戰法",[{label:"火計",sub:"以智力造成大量損傷",v:"火計"},{label:"混亂",sub:"使敵軍無法行動",v:"混亂"}]);if(!t)return;bTactic(B,s,u,t)}
+  s.done=true;U.sel=null;U.mode=null;bRender();if(await bCheck())return;if(!alive(B,U.pside).some(v=>!v.done))bEndTurn();return}
+ if(U.sel&&U.mode=="move"&&!u){if(reach(B,U.sel).some(p=>p[0]==x&&p[1]==y)){U.sel.x=x;U.sel.y=y;U.mode="act";bRender()}return}
+ if(u&&u.side==U.pside&&!u.done){if(u.stun){toast("部隊混亂中，無法行動");return}U.sel=u;U.mode="move";bRender();return}
+ if(u){toast(`${u.o.n} 統${u.o.t} 武${u.o.w} 智${u.o.z} 兵${u.troops}`)}}
+async function bAct(k){const U=BUI;if(!U||U.busy)return;if(k=="回合結束")return bEndTurn();if(k=="自動")return bAuto();if(!U.sel)return;if(k=="待機"){U.sel.done=true;U.sel=null;U.mode=null;bRender();if(!alive(U.B,U.pside).some(v=>!v.done&&!v.stun))bEndTurn();return}U.mode="t:"+k;bRender()}
+// ---------- war resolution ----------
+async function war(af,from,to,aoffs,atroops,interactive,pside){const df=to.f;const B=makeBattle(af,from,to,aoffs,atroops);let w;
+ if(interactive){if(df>=0||true)await modal("出陣",`${fname(af)}軍 ${aoffs.map(o=>o.n).join("、")} 率兵 ${atroops} 進攻 ${to.n}（${fname(df)}，兵 ${to.troops}）`,[{t:"開戰",v:1,cls:"pri"}]);w=await runBattle(B,pside||"A")}else w=autoResolve(B);
+ const remA=alive(B,"A").reduce((s,u)=>s+u.troops,0),remD=alive(B,"D").reduce((s,u)=>s+u.troops,0);const captives=[];const capBy=w=="A"?af:df;
+ const flee=(o,f)=>{const cs=facCities(f).filter(c=>c.id!=to.id);if(cs.length){o.c=cs[ri(0,cs.length-1)].id;return true}return false};
+ if(w=="A"){const allDef=offsIn(to.id).filter(o=>o.f==df);to.f=af;to.troops=remA;to.loy=Math.max(10,to.loy-10);to.gold=Math.floor(to.gold*.7);aoffs.forEach(o=>o.c=to.id);
+  allDef.forEach(o=>{const u=B.units.find(x=>x.o===o);const p=u?(u.troops<=0?.7:.35):.3;if(R()<p||!flee(o,df))captives.push(o)});
+  logMsg(`${fname(af)}軍攻陷 ${to.n}（原屬${fname(df)}）`)}
+ else{to.troops=remD;from.troops+=remA;B.units.filter(u=>u.side=="A"&&u.troops<=0&&!u.o.pseudo).forEach(u=>{if(R()<.4)captives.push(u.o)});aoffs.forEach(o=>{if(!captives.includes(o))o.c=from.id});if(from.f!=af)aoffs.forEach(o=>{if(!captives.includes(o)&&!flee(o,af))captives.push(o)});logMsg(`${fname(df)}軍擊退 ${fname(af)}軍於 ${to.n}`)}
+ captives.forEach(o=>{o.st="captive";o.c=to.id});
+ for(const o of captives)await handleCaptive(o,capBy);
+ checkFactions();render();return w}
+async function handleCaptive(o,by){const of=o.f;if(by==0){const lord=O(G.factions[0].lord);let can=true;while(true){const v=await modal("俘虜處置",`俘虜了 <b>${o.n}</b>（${fname(of)}${isLord(o)?"君主":""}）<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m} 忠${o.loy}`,[...(can?[{t:"登用",v:1,cls:"pri"}]:[]),{t:"釋放",v:2},{t:"斬首",v:3}]);
+  if(v==1){const p=isLord(o)?0:cl(.3+(lord.m-o.loy)/110,.08,.92);if(R()<p){o.f=0;o.st="serve";o.loy=ri(65,85);await modal("登用成功",`${o.n}：「蒙主公不殺之恩，願效死力！」`);logMsg(`${o.n} 歸順劉備軍`);return}await modal("拒絕",`${o.n}：「忠臣不事二主！」`);can=false;continue}
+  if(v==2){release(o);return}if(v==3){kill(o);logMsg(`${o.n} 被斬首`);return}}}
+ else{if(!isLord(o)&&R()<.45){o.f=by;o.st="serve";o.loy=ri(60,80)}else if(R()<.15&&!(o.f==0&&isLord(o))){kill(o);logMsg(`${o.n} 被${fname(by)}斬首`)}else release(o)}}
+function release(o){o.st="serve";const cs=o.f>=0?facCities(o.f):[];if(cs.length)o.c=cs[ri(0,cs.length-1)].id;else{o.st="free";o.f=-1}}
+function kill(o){o.dead=true;o.st="dead";if(o.f>=0&&G.factions[o.f].lord==o.id)succession(o.f)}
+function succession(f){const F=G.factions[f];const cand=G.offs.filter(o=>!o.dead&&o.f==f&&o.st=="serve").sort((a,b)=>b.m-a.m);if(cand.length){F.lord=cand[0].id;logMsg(`${cand[0].n} 繼承${F.n}勢力`);F.n=cand[0].n}else destroy(f)}
+function destroy(f){const F=G.factions[f];if(!F.alive)return;F.alive=false;facCities(f).forEach(c=>c.f=-1);G.offs.filter(o=>!o.dead&&o.f==f).forEach(o=>{if(o.st=="captive")return;o.f=-1;o.st="free"});logMsg(`${F.n}勢力滅亡`)}
+function checkFactions(){G.factions.forEach((F,f)=>{if(F.alive&&!facCities(f).length)destroy(f)})}
+// ---------- AI ----------
+function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;for(const c of facCities(f)){const os=offsIn(c.id,f);
+ for(const o of os){const r=R();if(c.troops<Math.min(c.pop/15,6000+c.com*15)&&c.gold>300&&r<.5){const a=2000;c.gold-=a/10;c.troops+=Math.round(a*(1+o.m/250));c.pop-=a;c.loy=Math.max(0,c.loy-4)}
+  else if(c.gold>=50&&r<.8){const k=["agri","com","def"][ri(0,2)];c.gold-=50;c[k]=Math.min(999,c[k]+Math.round(o.p/4+ri(2,8)))}else c.train=Math.min(100,c.train+Math.round(o.t/8))}
+ const fr=G.offs.find(x=>!x.dead&&x.c==c.id&&(x.st=="free"||x.st=="hidden"));if(fr&&os.length&&R()<.08){fr.f=f;fr.st="serve";fr.loy=ri(70,90)}
+ if(os.length>=1&&G.month+G.year*12>190*12+2&&R()<.33){const tg=adj(c.id).map(C).filter(t=>t.f!=f).sort((a,b)=>a.troops*(1+a.def/1000)-b.troops*(1+b.def/1000))[0];
+  if(tg&&c.troops*.75>1.3*tg.troops*(1+tg.def/1500)+1000){const att=[...os].sort((a,b)=>b.t-a.t).slice(0,Math.min(3,Math.max(1,os.length-1)));const tr=Math.floor(c.troops*.75);c.troops-=tr;
+   if(tg.f==0&&offsIn(tg.id,0).length)queue.push({f,from:c,to:tg,att,tr});else{war(f,c,tg,att,tr,false);if(tg.f==f&&tg.f!=0&&false){}}}}}
+ // empty cities get an officer
+ facCities(f).forEach(c=>{if(!offsIn(c.id,f).length){const src=facCities(f).find(s=>offsIn(s.id,f).length>2&&adj(s.id).includes(c.id));if(src)offsIn(src.id,f)[1].c=c.id}})}
+// ---------- turn ----------
+let ending=false;
+async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;try{const queue=[];
+ for(let f=1;f<G.factions.length;f++)aiTurn(f,queue);
+ for(const a of queue){if(a.to.f!=0||!G.factions[a.f].alive||a.att.some(o=>o.dead||o.f!=a.f)){a.from.troops+=a.tr;continue}
+  if(!offsIn(a.to.id,0).length){await war(a.f,a.from,a.to,a.att,a.tr,false);continue}
+  await modal("敵軍來襲！",`${fname(a.f)}軍 ${a.att.map(o=>o.n).join("、")} 率兵 ${a.tr} 進攻我方 ${a.to.n}！`,[{t:"迎擊",v:1,cls:"pri"}]);await war(a.f,a.from,a.to,a.att,a.tr,true,"D")}
+ G.month++;if(G.month>12){G.month=1;G.year++}
+ const rep=[];G.cities.forEach(c=>{if(G.month==1){const g=Math.round(c.com*1.6*(.5+c.loy/200)+c.pop/2000);c.gold+=g;if(c.f==0)rep.push(`${c.n} 金+${g}`)}
+  if(G.month==7){const g=Math.round(c.agri*9*(.5+c.loy/200)+c.pop/300);c.food+=g;if(c.f==0)rep.push(`${c.n} 糧+${g}`)}
+  c.food-=Math.ceil(c.troops/60);if(c.food<0){c.food=0;c.troops=Math.floor(c.troops*.9);if(c.f==0)rep.push(`${c.n} 缺糧，士兵逃亡！`)}
+  c.pop=Math.round(c.pop*(1+c.agri/150000));if(c.f>=0&&c.loy<100&&R()<.3)c.loy++});
+ G.offs.forEach(o=>{o.done=false;if(o.st=="serve"&&o.f>0&&!isLord(o)&&o.loy<35&&R()<.1){o.f=-1;o.st="free";logMsg(`${o.n} 出奔下野`)}});
+ checkFactions();save("auto");render();
+ if(!facCities(0).length){await modal("遊戲結束","劉備軍已無城池……天下大勢已去。",[{t:"回到標題",v:1}]);location.reload();return}
+ if(facCities(0).length==G.cities.length){await modal("天下統一！",`${G.year}年，劉備終於一統天下，開創太平盛世！`,[{t:"再玩一次",v:1}]);location.reload();return}
+ const head=G.month==1?"新年・金收入":G.month==7?"秋收・糧收入":"";if(rep.length||head)await modal(`${G.year}年${G.month}月 ${head}`,rep.join("<br>")+"<hr>"+G.log.slice(0,6).join("<br>"));else toast(`${G.year}年${G.month}月`);
+ }finally{ending=false;$("#bEnd").disabled=false}}
+// ---------- save/load ----------
+function save(slot){localStorage.setItem("sango_"+slot,JSON.stringify(G));}
+function load(slot){const s=localStorage.getItem("sango_"+slot);if(!s)return false;G=JSON.parse(s);return true}
+async function menu(){const v=await pick("選單",[{label:"存檔 1",v:"s1"},{label:"存檔 2",v:"s2"},{label:"讀取 1",v:"l1",dis:!localStorage.getItem("sango_1")},{label:"讀取 2",v:"l2",dis:!localStorage.getItem("sango_2")},{label:"讀取自動存檔",v:"la",dis:!localStorage.getItem("sango_auto")},{label:"戰報",v:"log"},{label:"新遊戲",v:"new"}]);if(!v)return;
+ if(v[0]=="s"){save(v[1]);toast("已存檔")}else if(v[0]=="l"){load(v[1]=="a"?"auto":v[1]);selCity=null;render();fitMap();toast("已讀取")}else if(v=="log")modal("戰報",G.log.join("<br>")||"無");else if(v=="new"){if(await modal("新遊戲","確定重新開始？",[{t:"取消",v:0},{t:"確定",v:1,cls:"pri"}])){newGame();selCity=null;render();fitMap()}}}
+function officerTable(){const os=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve").sort((a,b)=>b.t+b.w+b.z-a.t-a.w-a.z);modal(`劉備軍武將（${os.length}名）`,`<table><tr><th>姓名</th><th>城</th><th>統</th><th>武</th><th>智</th><th>政</th><th>魅</th><th>忠</th></tr>${os.map(o=>`<tr><td>${o.n}</td><td>${C(o.c).n}</td><td>${o.t}</td><td>${o.w}</td><td>${o.z}</td><td>${o.p}</td><td>${o.m}</td><td>${o.loy}</td></tr>`).join("")}</table>`)}
+function facTable(){modal("勢力一覽",`<table><tr><th>勢力</th><th>城</th><th>武將</th><th>兵力</th><th>金</th></tr>${G.factions.map((F,f)=>F.alive?`<tr><td><span class="dot" style="background:${F.col}"></span> ${F.n}</td><td>${facCities(f).length}</td><td>${G.offs.filter(o=>!o.dead&&o.f==f&&o.st=="serve").length}</td><td>${facCities(f).reduce((s,c)=>s+c.troops,0)}</td><td>${facCities(f).reduce((s,c)=>s+c.gold,0)}</td></tr>`:"").join("")}</table>`)}
+$("#bEnd").onclick=endTurn;$("#bMenu").onclick=menu;$("#bOff").onclick=officerTable;$("#bFac").onclick=facTable;
+function start(){$("#title").style.display="none";selCity=null;render();fitMap()}
+$("#tNew").onclick=()=>{newGame();start();modal("西元190年","董卓專權，天下大亂。<br>身為平原相的劉備，與關羽、張飛立誓匡扶漢室。<br><br>每月每名武將可執行一項命令。1月收金，7月收糧。<br>攻佔全部城池即可統一天下！",[{t:"出發",v:1,cls:"pri"}])};
+$("#tLoad").onclick=()=>{if(load("1")||load("auto"))start();else toast("沒有存檔")};
+addEventListener("resize",()=>G&&setTimeout(()=>fitMap(selCity!=null?C(selCity):null),100));
+window.__T={get G(){return G},war,makeBattle,autoResolve,endTurn,command,selectCity};
+</script></body></html>
