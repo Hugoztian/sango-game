@@ -72,7 +72,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:5px 4px;b
 #blog{font-size:12px;opacity:.85;max-height:52px;overflow:hidden;padding:0 10px}
 .fx{position:absolute;color:#ff6;font-weight:bold;font-size:14px;animation:up .8s forwards;pointer-events:none;z-index:5}
 @keyframes up{to{transform:translateY(-24px);opacity:0}}
-#mapwrap{background:#2b4a6b}</style></head><body>
+#mapwrap{background:#2b4a6b}.sbar button{min-height:36px;padding:2px 8px;font-size:13px}.st th .arw{font-size:10px;opacity:.6;margin-left:2px}</style></head><body>
 <div id="app">
  <div id="top"><span id="date"></span><button id="bOff">武將</button><button id="bFac">勢力</button><button id="bCity">城市</button><button id="bMus" aria-label="音樂">♪</button><button id="bMenu">選單</button><button id="bEnd" class="pri">結束回合</button></div>
  <div id="main"><div id="mapwrap"><svg id="map" width="1000" height="860" viewBox="0 0 1000 860"></svg></div><div id="panel"></div></div>
@@ -126,7 +126,8 @@ function logMsg(t){G.log.unshift(`${G.year}年${G.month}月 ${t}`);G.log.length=
 // ---------- modal ----------
 function modal(title,body,buttons){return new Promise(res=>{$("#mt").textContent=title;const mb=$("#mb");mb.innerHTML="";if(typeof body=="string")mb.innerHTML=body;else mb.appendChild(body);const ft=$("#mf");ft.innerHTML="";(buttons||[{t:"確定",v:true}]).forEach(b=>{const e=document.createElement("button");e.textContent=b.t;if(b.cls)e.className=b.cls;e.onclick=()=>{close();res(b.v)};ft.appendChild(e)});const m=$("#modal");m.style.display="flex";function close(){m.style.display="none"}modal.close=v=>{close();res(v)}})}
 function pick(title,items,multi=0){const box=document.createElement("div");const sel=new Set();if(!items.length)box.innerHTML="<p>沒有可選擇的項目。</p>";
- items.forEach((it,i)=>{const b=document.createElement("button");b.className="pick";b.disabled=!!it.dis;b.innerHTML=`<span>${it.label}</span><small>${it.sub||""}</small>`;b.onclick=()=>{if(!multi){modal.close(it.v)}else{if(sel.has(i)){sel.delete(i);b.classList.remove("on")}else if(sel.size<multi){sel.add(i);b.classList.add("on")}}};box.appendChild(b)});
+ const isO=items.length>1&&items.every(it=>it.v&&it.v.n!=null&&it.v.t!=null&&it.v.loy!=null);const btnOf=new Map();
+ items.forEach((it,i)=>{const b=document.createElement("button");b.className="pick";btnOf.set(it.v,b);b.disabled=!!it.dis;b.innerHTML=`<span>${it.label}</span><small>${it.sub||""}</small>`;b.onclick=()=>{if(!multi){modal.close(it.v)}else{if(sel.has(i)){sel.delete(i);b.classList.remove("on")}else if(sel.size<multi){sel.add(i);b.classList.add("on")}}};box.appendChild(b)});if(isO)box.prepend(sortBar(()=>items.map(x=>x.v),vs=>vs.forEach(v=>box.appendChild(btnOf.get(v)))));
  const btns=[{t:"取消",v:null}];if(multi&&items.length)btns.push({t:"確定",v:"ok",cls:"pri"});
  return modal(title,box,btns).then(v=>{if(multi&&v=="ok")return[...sel].map(i=>items[i].v);if(v=="ok")return null;return v})}
 const offItem=o=>({label:`${o.n}${isLord(o)?" 👑":""}`,sub:`統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m} 忠${o.loy}`,v:o});
@@ -158,7 +159,7 @@ function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(
  p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small>${mine?`<button id="pAuto" class="${c.auto?"pri":""}" style="margin-left:auto">自治 ${c.auto?"ON":"OFF"}</button>`:""}<button id="pClose" style="${mine?"":"margin-left:auto"}">✕</button></h2>
  <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>月收入<b>金+${c.f>=0?goldInc(c):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>月耗糧<b>${Math.ceil(c.troops/60)}</b></div><div>繁榮度<b>${prosper(c).toFixed(2)}</b></div><div>上月成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上月遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
  ${mine?`<div class="cmds">${["開發","徵兵","訓練","搜索","登用","計略","移動","輸送","出征","褒賞"].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
- <div class="olist">${os.map(o=>`<div class="orow ${o.done&&mine?"done":""}"><span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag">${RANKS[rk(o)]}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag">忠${o.loy}</span>${its(o).map(x=>`<span class="tag">${x.n}</span>`).join("")}${mine&&o.done?'<span class="tag">已行動</span>':""}</div>`).join("")||"<div class='orow'>無武將</div>"}
+ <div class="msbar sbar" style="padding:0 10px">${OSORT.map((x,i)=>`<button onclick="psort(${i})" class="${PS.k===i?"pri":""}">${x[0]}${PS.k===i?(PS.d<0?"▼":"▲"):""}</button>`).join("")}</div><div class="olist">${psorted(os).map(o=>`<div class="orow ${o.done&&mine?"done":""}"><span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag">${RANKS[rk(o)]}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag">忠${o.loy}</span>${its(o).map(x=>`<span class="tag">${x.n}</span>`).join("")}${mine&&o.done?'<span class="tag">已行動</span>':""}</div>`).join("")||"<div class='orow'>無武將</div>"}
  ${mine&&G.offs.some(o=>!o.dead&&o.c==c.id&&o.st=="hidden")?`<div class="orow" style="color:#ffd77a">💡 傳聞此地有在野賢才，試試「搜索」</div>`:""}${free.map(o=>{const nw=o.foundAt==nowM();return`<div class="orow ${nw?"newrow":""}"><span class="nm">${o.n}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag" style="${nw?"background:#0aa":""}">${nw?"本月發現":"在野"}</span></div>`}).join("")}</div>`;
  $("#pClose").onclick=()=>{selCity=null;render()};if($("#pAuto"))$("#pAuto").onclick=()=>{c.auto=!c.auto;if(!c.auto)G.autoAll=false;renderPanel();toast(`${c.n} 自治 ${c.auto?"ON：每月自動執行內政":"OFF"}`)};p.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>command(b.dataset.k,c))}
 async function pickOff(c,title,multi){const av=offsIn(c.id,0).filter(o=>!o.done);if(!av.length){toast("此城沒有可行動的武將");return null}return pick(title,av.map(offItem),multi)}
@@ -238,7 +239,7 @@ function pickOffs(c,title,sk,extra,pre=1){const av=offsIn(c.id,0).filter(o=>!o.d
  const cnt=document.createElement("span");cnt.className="mscnt";
  const upd=()=>{rows.forEach((b,i)=>{const on=sel.has(av[i]);b.classList.toggle("on",on);b.querySelector(".cb").textContent=on?"☑":"☐"});cnt.textContent=`已選 ${sel.size}/${av.length}`};
  [["全選",()=>av.forEach(o=>sel.add(o))],["最適",()=>{sel.clear();const best=av[0][sk];av.filter(o=>o[sk]>=Math.max(65,best-15)).forEach(o=>sel.add(o));if(!sel.size)sel.add(av[0])}],["清除",()=>sel.clear()]].forEach(([t,f])=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{f();upd()};bar.appendChild(b)});
- bar.appendChild(cnt);box.appendChild(bar);rows.forEach(b=>box.appendChild(b));if(pre)bar.children[1].click();upd();
+ bar.appendChild(cnt);box.appendChild(bar);box.appendChild(sortBar(()=>av,vs=>vs.forEach(o=>box.appendChild(rows[av.indexOf(o)])),{t:2,w:3,z:4,p:5,m:6}[sk]));rows.forEach(b=>box.appendChild(b));if(pre)bar.children[1].click();upd();
  return modal(title,box,[{t:"取消",v:null},{t:"執行",v:"ok",cls:"pri"}]).then(v=>v=="ok"&&sel.size?av.filter(o=>sel.has(o)):(v=="ok"&&toast("未選擇武將"),null))}
 // ---------- 自治 ----------
 const AUTO_RESERVE=300;
@@ -484,24 +485,42 @@ async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.
  if(v==3){if(await modal("開除",`確定開除 ${o.n}？將成為在野武將。`,[{t:"取消",v:0},{t:"開除",v:1,cls:"pri"}])){dismiss(o);logMsg(`${o.n} 被開除`);render();return officerTable()}}
  if(v==4){const it=await pick(`賜予 ${o.n} 寶物（忠誠+10）`,G.vault.map(n=>{const d=itemDef(n),old=sameStat(o,n);return{label:n,sub:`${SKN[d[1]]}+${d[2]}`+(old?`（將替換 ${old.n}）`:""),v:n}}));if(it){const old=sameStat(o,it);if(old&&!(await modal("替換寶物",`${o.n} 已持有${SKN[itemDef(it)[1]]}寶物「${old.n}」，每項能力只限一件。要以「${it}」替換嗎？（${old.n} 將收回寶物庫）`,[{t:"取消",v:0},{t:"替換",v:1,cls:"pri"}])))return;grantItem(o,it);toast(`賜予 ${o.n}「${it}」${old?`（收回 ${old.n}）`:""}，忠誠 ${o.loy}`)}}
  if(v==5){const L=its(o);const it=L.length==1?L[0].n:await pick(`沒收 ${o.n} 的寶物（忠誠-10）`,L.map(x=>({label:x.n,sub:`${SKN[itemDef(x.n)[1]]}+${x.b}`,v:x.n})));if(!it)return;revokeItem(o,false,it);toast(`沒收 ${o.n} 的「${it}」，忠誠 ${o.loy}`)}}}
-function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length);modal("寶物庫",`<h4 style="margin:4px 0;color:#ffd77a">庫存（${G.vault.length}）</h4>${G.vault.map(n=>{const d=itemDef(n);return`<div class="orow">${n}　${SKN[d[1]]}+${d[2]}</div>`}).join("")||"<div class='orow'>無</div>"}<h4 style="margin:8px 0 4px;color:#ffd77a">已賜予</h4>${eq.flatMap(o=>its(o).map(x=>`<div class="orow">${x.n}　→ ${o.n}（${SKN[itemDef(x.n)[1]]}+${x.b}）</div>`)).join("")||"<div class='orow'>無</div>"}<p style="font-size:12px;opacity:.7">在「人事」點選武將即可賜予或沒收。搜索可能發現新寶物。</p>`)}
+function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length).flatMap(o=>its(o).map(x=>({n:x.n,b:x.b,o})));const box=document.createElement("div");
+ box.innerHTML=`<h4 style="margin:4px 0;color:#ffd77a">庫存（${G.vault.length}）</h4><div id="v1"></div><h4 style="margin:8px 0 4px;color:#ffd77a">已賜予（${eq.length}）</h4><div id="v2"></div><p style="font-size:12px;opacity:.7">在「人事」點選武將即可賜予或沒收（每項能力限一件）。搜索可能發現新寶物。</p>`;
+ box.querySelector("#v1").appendChild(stEl([{h:"寶物",v:r=>r},{h:"能力",v:r=>SKN[itemDef(r)[1]]},{h:"加成",v:r=>itemDef(r)[2]}],G.vault.slice(),{hint:false,sort:2}));
+ box.querySelector("#v2").appendChild(stEl([{h:"寶物",v:r=>r.n},{h:"能力",v:r=>SKN[itemDef(r.n)[1]]},{h:"加成",v:r=>r.b},{h:"持有者",v:r=>r.o.n},{h:"城",v:r=>C(r.o.c).n}],eq,{hint:false,sort:2}));
+ return modal("寶物庫",box)}
 // ---------- 一覽表（可排序、橫向捲動、首欄固定） ----------
-function sortTable(title,cols,rows,onRow,filters,extra){let key=null,dir=-1,flt=filters?filters[0][1]:null;const box=document.createElement("div");
- const draw=()=>{let rs=filters?rows.filter(r=>filters.find(f=>f[1]===flt)[2](r)):rows.slice();if(key!=null){const c=cols[key];rs.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir})}
-  box.innerHTML=(filters?`<div class="msbar">${filters.map(f=>`<button data-f="${f[1]}" class="${f[1]===flt?"pri":""}">${f[0]}</button>`).join("")}<span class="mscnt">${rs.length}筆</span></div>`:"")+`<div class="tw"><table class="st"><thead><tr>${cols.map((c,i)=>`<th data-k="${i}">${c.h}${key===i?(dir<0?"▼":"▲"):""}</th>`).join("")}</tr></thead><tbody>${rs.map((r,ri)=>`<tr data-r="${rows.indexOf(r)}">${cols.map(c=>`<td>${c.f?c.f(r):c.v(r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><div style="font-size:12px;opacity:.7;margin-top:4px">點欄名排序，點列查看詳情</div>`;
-  box.querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=+th.dataset.k;if(key===k)dir=-dir;else{key=k;dir=-1}draw()});
+// 通用可排序表格：點欄名切換 ▼降冪/▲升冪
+function stEl(cols,rows,o={}){let key=o.sort??null,dir=o.dir||-1,flt=o.filters?o.filters[0][1]:null;const box=document.createElement("div");
+ const draw=()=>{let rs=o.filters?rows.filter(r=>o.filters.find(f=>f[1]===flt)[2](r)):rows.slice();if(key!=null){const c=cols[key];rs.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(typeof x=="number"&&typeof y=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir})}
+  box.innerHTML=(o.filters?`<div class="msbar">${o.filters.map(f=>`<button data-f="${f[1]}" class="${f[1]===flt?"pri":""}">${f[0]}</button>`).join("")}<span class="mscnt">${rs.length}筆</span></div>`:"")+`<div class="tw"><table class="st"><thead><tr>${cols.map((c,i)=>`<th data-k="${i}">${c.h}<span class="arw">${key===i?(dir<0?"▼":"▲"):"⇅"}</span></th>`).join("")}</tr></thead><tbody>${rs.map(r=>`<tr data-r="${rows.indexOf(r)}">${cols.map(c=>`<td>${c.f?c.f(r):c.v(r)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${cols.length}">無</td></tr>`}</tbody></table></div>`+(o.hint===false?"":`<div style="font-size:12px;opacity:.7;margin-top:4px">點欄名排序${o.onRow?"，點列查看詳情":""}</div>`);
+  box.querySelectorAll("th").forEach(th=>th.onclick=e=>{e.stopPropagation();const k=+th.dataset.k;if(key===k)dir=-dir;else{key=k;dir=-1}draw()});
   box.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;draw()});
-  box.querySelectorAll("tbody tr").forEach(tr=>tr.onclick=()=>onRow(rows[+tr.dataset.r]))};
- draw();return modal(title,box,[...(extra||[]),{t:"關閉",v:null}])}
+  if(o.onRow)box.querySelectorAll("tbody tr[data-r]").forEach(tr=>tr.onclick=()=>o.onRow(rows[+tr.dataset.r]))};
+ draw();return box}
+function sortTable(title,cols,rows,onRow,filters,extra,opt={}){return modal(title,stEl(cols,rows,{onRow,filters,...opt}),[...(extra||[]),{t:"關閉",v:null}])}
+let PS={k:null,d:-1};function psort(i){if(PS.k===i)PS.d=-PS.d;else{PS.k=i;PS.d=-1}render()}
+const psorted=os=>{if(PS.k==null)return os;const f=OSORT[PS.k][1];return os.slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*PS.d})};
+// 按鈕清單排序列（用於選擇武將等清單）
+const OSORT=[["姓名",o=>o.n],["品級",o=>rk(o)],["統",o=>o.t],["武",o=>o.w],["智",o=>o.z],["政",o=>o.p],["魅",o=>o.m],["忠",o=>o.loy]];
+function sortBar(get,apply,init){let key=init??null,dir=-1;const bar=document.createElement("div");bar.className="msbar sbar";
+ const draw=()=>{bar.innerHTML=OSORT.map((x,i)=>`<button data-s="${i}" class="${key===i?"pri":""}">${x[0]}${key===i?(dir<0?"▼":"▲"):""}</button>`).join("");bar.querySelectorAll("button").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=+b.dataset.s;if(key===k)dir=-dir;else{key=k;dir=-1}draw();run()})};
+ const run=()=>{if(key==null)return;const f=OSORT[key][1];apply(get().slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir}))};
+ draw();return bar}
 const taishu=c=>{const os=offsIn(c.id,c.f>=0?c.f:undefined).filter(o=>o.f==c.f);if(!os.length)return null;return os.find(isLord)||os.sort((a,b)=>(b.t+b.w+b.z+b.p+b.m)-(a.t+a.w+a.z+a.p+a.m))[0]};
 const capital=f=>{const l=O(G.factions[f].lord);const cs=facCities(f);return cs.find(c=>c.id==l.c)||cs[0]};
-function facTable(){const rows=G.factions.map((F,f)=>({F,f})).filter(r=>r.F.alive);const sum=(f,k)=>facCities(f).reduce((s,c)=>s+c[k],0);
- sortTable("勢力一覽",[
+// 綜合實力＝城數×10 ＋ 人口(萬)×1 ＋ 武將總值(全武將五維合計)÷100×2 ＋ 兵力(千)×3 ＋ 糧(萬)×2 ＋ 金(千)×2 ＋ 開發總值(各城農+商+防)÷100×1 ＋ 寶物件數×3
+const facStat=f=>{const cs=facCities(f),sum=k=>cs.reduce((s,c)=>s+c[k],0);const os=G.offs.filter(o=>!o.dead&&o.f==f&&o.st=="serve");return{cities:cs.length,pop:sum("pop"),offv:os.reduce((t,o)=>t+o.t+o.w+o.z+o.p+o.m,0),offn:os.length,troops:sum("troops"),food:sum("food"),gold:sum("gold"),dev:cs.reduce((t,c)=>t+c.agri+c.com+c.def,0),items:os.reduce((t,o)=>t+its(o).length,0)+(f==0?G.vault.length:0)}};
+function facPower(f){const x=facStat(f);return Math.round(x.cities*10+x.pop/10000+x.offv/100*2+x.troops/1000*3+x.food/10000*2+x.gold/1000*2+x.dev/100+x.items*3)}
+function facTable(){const rows=G.factions.map((F,f)=>({F,f})).filter(r=>r.F.alive);rows.forEach(r=>{r.x=facStat(r.f);r.pw=facPower(r.f)});
+ sortTable("勢力一覽（依綜合實力）",[
   {h:"勢力",v:r=>r.F.n,f:r=>`<span class="dot" style="background:${r.F.col}"></span> ${r.F.n}`},
-  {h:"君主",v:r=>O(r.F.lord).n},{h:"城",v:r=>facCities(r.f).length},{h:"武將",v:r=>G.offs.filter(o=>!o.dead&&o.f==r.f&&o.st=="serve").length},
-  {h:"兵力",v:r=>sum(r.f,"troops")},{h:"金",v:r=>sum(r.f,"gold")},{h:"糧",v:r=>sum(r.f,"food")},{h:"人口",v:r=>sum(r.f,"pop"),f:r=>(sum(r.f,"pop")/10000).toFixed(1)+"萬"},{h:"本城",v:r=>(capital(r.f)||{n:"-"}).n}],rows,r=>facDetail(r.f))}
+  {h:"綜合",v:r=>r.pw,f:r=>`<b style="color:#ffd77a">${r.pw}</b>`},{h:"君主",v:r=>O(r.F.lord).n},{h:"城池",v:r=>r.x.cities},{h:"人口",v:r=>r.x.pop,f:r=>(r.x.pop/10000).toFixed(1)+"萬"},
+  {h:"武將",v:r=>r.x.offn},{h:"武將總值",v:r=>r.x.offv},{h:"兵力",v:r=>r.x.troops},{h:"糧",v:r=>r.x.food},{h:"金",v:r=>r.x.gold},{h:"開發",v:r=>r.x.dev},{h:"寶物",v:r=>r.x.items},{h:"本城",v:r=>(capital(r.f)||{n:"-"}).n}],rows,r=>facDetail(r.f),null,null,{sort:1})}
+const POWER_NOTE="綜合實力＝城池×10＋人口(萬)×1＋武將總值÷100×2＋兵力(千)×3＋糧(萬)×2＋金(千)×2＋開發總值÷100×1＋寶物×3";
 function facDetail(f){const F=G.factions[f];const cs=facCities(f);const os=G.offs.filter(o=>!o.dead&&o.f==f&&o.st=="serve").sort((a,b)=>(b.t+b.w+b.z)-(a.t+a.w+a.z));
- const box=document.createElement("div");box.innerHTML=`<h4 style="margin:4px 0;color:#ffd77a">城市（${cs.length}）</h4><div class="msbar">${cs.map(c=>`<button data-c="${c.id}">${c.n} ${(c.troops/1000).toFixed(1)}k</button>`).join("")}</div><h4 style="margin:8px 0 4px;color:#ffd77a">武將（${os.length}）</h4><div class="tw"><table class="st"><thead><tr><th>姓名</th><th>城</th><th>統</th><th>武</th><th>智</th><th>政</th><th>魅</th><th>忠</th></tr></thead><tbody>${os.map(o=>`<tr><td>${o.n}${isLord(o)?"👑":""}</td><td>${C(o.c).n}</td><td>${o.t}</td><td>${o.w}</td><td>${o.z}</td><td>${o.p}</td><td>${o.m}</td><td>${o.loy}</td></tr>`).join("")}</tbody></table></div>`;
+ const box=document.createElement("div");box.innerHTML=`<h4 style="margin:4px 0;color:#ffd77a">城市（${cs.length}）</h4><div class="msbar">${cs.map(c=>`<button data-c="${c.id}">${c.n} ${(c.troops/1000).toFixed(1)}k</button>`).join("")}</div><h4 style="margin:8px 0 4px;color:#ffd77a">武將（${os.length}）</h4><div id="fdo"></div><p style="font-size:12px;opacity:.7">${POWER_NOTE}：<b>${facPower(f)}</b></p>`;box.querySelector("#fdo").appendChild(stEl([{h:"姓名",v:o=>o.n,f:o=>o.n+(isLord(o)?"👑":"")},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"城",v:o=>C(o.c).n},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"忠",v:o=>o.loy}],os,{hint:false}));
  box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{modal.close(null);openCity(+b.dataset.c)});return modal(`${F.n}勢力`,box,[{t:"返回",v:1},{t:"關閉",v:null}]).then(v=>{if(v)facTable()})}
 function openCity(id){selectCity(id);fitMap(C(id))}
 function cityTable(){const rows=G.cities.slice();const freeN=c=>G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free").length;
