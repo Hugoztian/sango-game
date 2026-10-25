@@ -210,7 +210,7 @@ function selectCity(i){selCity=i;drawMap();renderPanel()}
 function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(0);p.innerHTML=`<h2>主公 ${fname(0)}<small style="font-size:13px;margin-left:6px;color:#ddd">${titleName(0)}・名聲${frep(0)}・名望×${fame(0)}</small></h2><div style="padding:0 10px 10px;font-size:14px">點選地圖上的城市以下達命令。雙指縮放、拖曳移動地圖。<br><button id="pAutoAll" class="${G.autoAll?"pri":""}" style="margin:6px 0">全部自治 ${G.autoAll?"ON":"OFF"}</button><br>我方城市：${cs.map(c=>`<button data-sel="${c.id}" style="margin:3px">${c.n}${c.auto?" ⚙":""}</button>`).join("")}<h4 style="color:#ffd77a">戰報</h4>${G.log.slice(0,12).map(l=>`<div style="font-size:12px;opacity:.85">${l}</div>`).join("")}</div>`;p.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectCity(+b.dataset.sel);fitMap(C(+b.dataset.sel))});$("#pAutoAll").onclick=()=>setAutoAll(!G.autoAll);return}
  const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
  p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small>${mine?`<button id="pAuto" class="${c.auto?"pri":""}" style="margin-left:auto">自治 ${c.auto?"ON":"OFF"}</button>`:""}<button id="pClose" style="${mine?"":"margin-left:auto"}">✕</button></h2>
- <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>月收入<b>金+${c.f>=0?goldInc(c):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>旬耗糧<b>${foodUse(c)}</b><small style="font-size:11px;display:block">月${foodUse(c)*3}</small></div><div>繁榮度<b>${prosper(c).toFixed(2)}</b></div><div>上旬成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上旬遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
+ <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>月收入<b>金+${c.f>=0?Math.round(goldInc(c)*1.44):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>旬耗糧<b>${foodUse(c)}</b><small style="font-size:11px;display:block">月${foodUse(c)*3}</small></div><div>繁榮度<b>${prosper(c).toFixed(2)}</b></div><div>上旬成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上旬遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
  ${mine?`<div class="cmds">${["開發","徵兵","訓練","搜索","登用","計略","移動","輸送","出征","褒賞"].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
  <div class="msbar sbar" style="padding:0 10px">${OSORT.map((x,i)=>`<button onclick="psort(${i})" class="${PS.k===i?"pri":""}">${x[0]}${PS.k===i?(PS.d<0?"▼":"▲"):""}</button>`).join("")}</div><div class="olist">${psorted(os).map(o=>`<div class="orow ${o.done&&mine?"done":""}"><span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag">${RANKS[rk(o)]}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag">忠${o.loy}</span>${its(o).map(x=>`<span class="tag">${x.n}</span>`).join("")}${mine&&o.done?'<span class="tag">已行動</span>':""}</div>`).join("")||"<div class='orow'>無武將</div>"}
  ${mine&&G.offs.some(o=>!o.dead&&o.c==c.id&&o.st=="hidden")?`<div class="orow" style="color:#ffd77a">💡 傳聞此地有在野賢才，試試「搜索」</div>`:""}${free.map(o=>{const nw=o.foundAt==nowM();return`<div class="orow ${nw?"newrow":""}"><span class="nm">${o.n}</span><span>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span><span class="tag" style="${nw?"background:#0aa":""}">${nw?"本月發現":"在野"}</span></div>`}).join("")}</div>`;
@@ -289,7 +289,7 @@ const trainCost=o=>({g:Math.round(20+40*rk(o)/9),f:Math.round(40+80*rk(o)/9)});
 function doTrain(o,c){const tc=trainCost(o);if(c.gold<tc.g||c.food<tc.f)return`${o.n}：金糧不足（需金${tc.g}・糧${tc.f}），未訓練`;c.gold-=tc.g;c.food-=tc.f;if(R()<failP(o.w)){const l=Math.max(1,Math.round(trainGain(o.w)*.5));c.train=Math.max(0,c.train-l);o.done=true;gainExp(o,1);return`<span style="color:#f88">${o.n}（武力${o.w}）訓練失敗！操練失序，訓練 −${l}（訓練度${c.train}）</span>`}const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));o.done=true;gainExp(o,(c.train-old)*4);return`${o.n}（武力${o.w}）訓練 +${c.train-old}（訓練度${c.train}）`}
 const searchP=z=>cl(.4*expo(z),.05,.95); // 發現率：智力每30點翻倍（30=25%、50=40%、70=63%、90+=95%）
 const nowM=()=>G.year*12+G.month;
-const foodUse=c=>Math.ceil(c.troops/180*1.3);
+const foodUse=c=>Math.ceil(c.troops/180*2.6);
 // 回合＝旬（每月上・中・下三旬）。月結項目（俸祿・秋收・新武將）只在每月上旬結算；其餘按月率÷3
 const XUN=["上旬","中旬","下旬"],MNM=["正","二","三","四","五","六","七","八","九","十","十一","十二"],SEAS="春夏秋冬";
 const dateStr=(y=G.year,m=G.month,x=G.xun||0)=>`${y}年${SEAS[(m-1)/3|0]}${MNM[m-1]}月${XUN[x]}`;
@@ -338,7 +338,7 @@ const terDef=c=>c=="f"?.85:c=="m"?.8:1;
 const FOODF={"":1,f:1.2,m:1.5,l:1,w:1};
 function genTerrain(B){B.cells=[];for(let i=0;i<BW*BH;i++)B.cells.push((i%BW)==BW-1?"w":"");const blob=(t,n,sz)=>{for(let k=0;k<n;k++){let x=ri(3,BW-4),y=ri(0,BH-1);for(let s=0;s<sz;s++){if(x>=2&&x<=BW-3)B.cells[y*BW+x]=t;x=cl(x+ri(-1,1),2,BW-3);y=cl(y+ri(-1,1),0,BH-1)}}};blob("f",4,7);blob("m",3,6);blob("l",2,5);
  for(let x=2;x<BW-2;x++){let open=0;for(let y=0;y<BH;y++)if(B.cells[y*BW+x]!="l")open++;if(open<4)for(let y=0;y<BH;y++)if(B.cells[y*BW+x]=="l")B.cells[y*BW+x]=""}}
-function foodTick(B,s){const k=s=="A"?"foodA":"foodD";const need=Math.ceil(alive(B,s).reduce((t,u)=>t+u.troops/200*FOODF[B.cells[u.y*BW+u.x]],0)*(s=="A"?1.75:1)); /* 攻方遠征耗糧×1.75，守方×1 */B[k]-=need;if(B[k]<0){B[k]=0;alive(B,s).forEach(u=>{const v=Math.ceil(u.troops*.05);u.troops-=v});B.log.unshift(`${s=="A"?"攻方":"守方"}糧盡，士兵逃散！`)}}
+function foodTick(B,s){const k=s=="A"?"foodA":"foodD";const need=Math.ceil(alive(B,s).reduce((t,u)=>t+u.troops/200*FOODF[B.cells[u.y*BW+u.x]],0)*(s=="A"?3.5:2)); /* 攻方遠征耗糧×3.5，守方×2（軍糧消耗翻倍） */B[k]-=need;if(B[k]<0){B[k]=0;alive(B,s).forEach(u=>{const v=Math.ceil(u.troops*.05);u.troops-=v});B.log.unshift(`${s=="A"?"攻方":"守方"}糧盡，士兵逃散！`)}}
 const TER_LEGEND="地形：平原（騎兵+15%）・🌲林（移2/騎3、騎-25%、步+10%、受傷-15%、耗糧×1.2）・⛰️山（移2/騎3、弓+25%、騎-30%、受傷-20%、耗糧×1.5）・🌊湖（不可通行）";
 
 const TY={騎:{n:"騎兵",ic:"🐎",mv:4,r:[1,1]},步:{n:"步兵",ic:"🛡️",mv:2,r:[1,1]},弓:{n:"弓兵",ic:"🏹",mv:2,r:[2,3]}};
@@ -539,9 +539,9 @@ async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;t
   if(!offsIn(a.to.id,0).length){await war(a.f,a.from,a.to,a.att,a.tr,false);continue}
   await modal("敵軍來襲！",`${fname(a.f)}軍 ${a.att.map(o=>o.n).join("、")} 率兵 ${a.tr} 進攻我方 ${a.to.n}！`,[{t:"迎擊",v:1,cls:"pri"}]);await war(a.f,a.from,a.to,a.att,a.tr,true,"D")}
  G.xun=(G.xun||0)+1;const newM=G.xun>2;if(newM){G.xun=0;G.month++;if(G.month>12){G.month=1;G.year++}}const debut=newM?yearEvents():[];
- const rep=[...autoLines];let gsum=0;G.cities.forEach(c=>{if(c.f>=0){const g=Math.round(goldInc(c)*1.2/3);c.gold+=g; /* 每旬金收入＝月基準×1.2÷3（=×0.4） */if(c.f==0)gsum+=g}
+ const rep=[...autoLines];let gsum=0;G.cities.forEach(c=>{if(c.f>=0){const g=Math.round(goldInc(c)*1.44/3);c.gold+=g; /* 每旬金收入＝月基準×1.44÷3（=×0.48） */if(c.f==0)gsum+=g}
   if(newM&&G.month==7){const g=foodInc(c);c.food+=g;if(c.f==0)rep.push(`${c.n} 糧+${g}`)}
-  c.food-=foodUse(c); /* 每旬耗糧＝兵/180×1.3 */if(c.food<0){c.food=0;c.troops=Math.floor(c.troops*.9);if(c.f==0)rep.push(`${c.n} 缺糧，士兵逃亡！`)}
+  c.food-=foodUse(c); /* 每旬耗糧＝兵/180×2.6 */if(c.food<0){c.food=0;c.troops=Math.floor(c.troops*.9);if(c.f==0)rep.push(`${c.n} 缺糧，士兵逃亡！`)}
   if(c.f>=0&&c.loy<100&&R()<.1)c.loy++});
  if(newM)payroll(rep);riotTick(rep);popTick(rep);gatherFree(rep);{const pl=promoList();if(pl.length)rep.push(`📜 可晉升：${pl.map(o=>o.n).join("、")}（至「人事」批准）`)}G.offs.forEach(o=>{o.done=false;if(o.st=="serve"&&o.f>=0&&!isLord(o)&&o.loy<(o.f==0?25:35)&&R()<.1/3){if(o.f==0)rep.push(`⚠️ ${o.n} 不滿待遇，出奔下野`);revokeItem(o,true);o.f=-1;o.st="free";logMsg(`${o.n} 出奔下野`)}});
  checkFactions();await titleTick();save("auto");render();
@@ -577,7 +577,7 @@ function payroll(rep){let paid=0;const un=[];G.offs.forEach(o=>{if(o.dead||o.st!
 // 暴動：民忠<30 時機率 (30-民忠)/60；開發-10%、金糧-20%、人口流失5%
 function riotTick(rep){G.cities.forEach(c=>{if(c.f<0||c.loy>=30||R()>=(30-c.loy)/180)return;c.agri=Math.round(c.agri*.9);c.com=Math.round(c.com*.9);c.gold=Math.floor(c.gold*.8);c.food=Math.floor(c.food*.8);const lost=Math.round(c.pop*.05);c.pop-=lost;logMsg(`${c.n} 發生暴動`);if(c.f==0&&rep)rep.push(`🔥 ${c.n} 民忠${c.loy}，發生暴動！開發-10%、金糧-20%、人口流失${lost}（請派魅力高的武將「安撫」）`)})}
 function goldInc(c){return Math.round(60*cExp(c.com)*(.5+c.loy/200)+c.pop/20000)}
-function foodInc(c){return Math.round(2700*cExp(c.agri)*(.5+c.loy/200)+c.pop/300)}
+function foodInc(c){return 2*Math.round(2700*cExp(c.agri)*(.5+c.loy/200)+c.pop/300)}
 const nextHarvest=()=>G.month<7?`${7-G.month}個月後（7月）`:G.month==7?"本月已收":`${19-G.month}個月後（明年7月）`;
 // ---------- save/load ----------
 function save(slot){localStorage.setItem("sango_"+slot,JSON.stringify(G));}
