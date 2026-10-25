@@ -237,8 +237,8 @@ async function command(k,c){
  if(k=="訓練"){const os=await pickOffs(c,"訓練：選擇武將","w",o=>{const k2=trainCost(o);return`金${k2.g} 糧${k2.f} 預計+${trainGain(o.w)}`},1,o=>{const k2=trainCost(o);return c.gold<k2.g||c.food<k2.f});if(!os)return;await summary("訓練結果",os.map(o=>doTrain(o,c)))}
  if(k=="搜索"){const os=await pickOffs(c,"搜索：選擇武將","z",o=>`發現率${Math.round(Math.min(.98,searchP(o.z)*fame(0))*100)}%`,1);if(!os)return;await summary("搜索結果",os.map(o=>doSearch(o,c)))}
  if(k=="登用"){const o=await pickOff(c,"登用：選擇使者");if(!o)return;const ts=[...G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"),...enemyAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x)))];
-  const t=await pick("登用對象",ts.map(x=>({...offItem(x),label:`${x.foundAt==nowM()?"🆕":""}${x.n}（${x.st=="free"?"在野":fname(x.f)+"·"+C(x.c).n}）`})));if(!t)return;o.done=true;
-  const p=Math.min(.95,(t.st=="free"?.35+o.m/160:(o.m-t.loy)/100+.08)*fame(0));if(R()<p){t.f=0;t.st="serve";t.c=c.id;t.loy=ri(70,90);recruitRank(t);t.done=true;await modal("登用成功",`${t.n}：「願為主公效犬馬之勞！」`);logMsg(`${t.n} 加入${fname(0)}軍`)}else toast(`${t.n} 拒絕了登用`)}
+  const t=await pick("登用對象",ts.map(x=>({...offItem(x),label:`${x.foundAt==nowM()?"🆕":""}${x.n}（${x.st=="free"?(x.fired?"已開除・在野":"在野"):fname(x.f)+"·"+C(x.c).n}）`})));if(!t)return;o.done=true;
+  const p=Math.min(.95,(t.st=="free"?.35+o.m/160:(o.m-t.loy)/100+.08)*fame(0));if(R()<p){t.f=0;t.st="serve";t.c=c.id;t.loy=ri(70,90);recruitRank(t);t.done=true;delete t.fired;await modal("登用成功",`${t.n}：「願為主公效犬馬之勞！」`);logMsg(`${t.n} 加入${fname(0)}軍`)}else toast(`${t.n} 拒絕了登用`)}
  if(k=="計略"){const plotAdj=enemyAdj.filter(e=>e.f>=0); /* 無主城不可計謀 */if(!plotAdj.length)return toast("沒有鄰接的敵方城池（無主城不可計謀）");const o=await pickOff(c,"計略：選擇武將");if(!o)return;const ty=await pick("計略",[{label:"離間",sub:"降低敵將忠誠",v:1},{label:"煽動",sub:"降低敵城民忠與兵力",v:2},{label:"掠奪",sub:"劫掠鄰城金糧",v:3}]);if(!ty)return;
   if(ty==1){const t=await pick("離間對象",plotAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x))).map(offItem));if(!t)return;o.done=true;if(R()<.45+(o.z-t.z)/100){const d=ri(6,16);t.loy=Math.max(0,t.loy-d);const xe=gainExp(o,XP.plot,o.z);toast(`離間成功！${t.n} 忠誠 -${d}（${t.loy}） 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`離間失敗 經驗+${xe}`)}}
   else if(ty==2){const t=await pick("煽動目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 軍師智${shiZ(e)}・民忠${e.loy}`,v:e})));if(!t)return;o.done=true;if(R()<.45+(o.z-60)/100){t.loy=Math.max(0,t.loy-ri(6,15));t.troops=Math.round(t.troops*.9);const xe=gainExp(o,XP.plot,o.z);toast(`煽動成功！${t.n} 民心動搖 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`煽動失敗 經驗+${xe}`)}}
@@ -306,7 +306,7 @@ function autoEquipFind(it){const d=itemDef(it),k=d[1],lord=myLord();const cur=o=
  const take=o=>{const old=sameStat(o,it);if(old)revokeItem(o,true,old.n);G.vault.splice(G.vault.indexOf(it),1);applyItem(o,it);return o};
  if(lord&&d[2]>cur(lord))return take(lord);
  const c=myOffs().filter(o=>o!==lord&&d[2]>cur(o)).sort((a,b)=>itScore(b,k)-itScore(a,k)||rk(b)-rk(a)||a.id-b.id)[0];return c?take(c):null}
-function dismiss(o){while(its(o).length)revokeItem(o,true);o.f=-1;o.st="free";o.loy=0;o.done=true}
+function dismiss(o){while(its(o).length)revokeItem(o,true);o.f=-1;o.st="free";o.loy=0;o.done=true;o.fired=1}
 const loyRecF=loy=>cl(Math.pow(2,(loy-70)/15),.1,1.5);
 const recCap=c=>{const k=nowM();if(c._rm!==k){c._rm=k;c._rn=0}return Math.max(0,Math.floor(c.pop*.015)-c._rn)}; // 每城每月徵兵上限＝人口1.5% // 徵兵：民忠每15點翻倍（70=1倍、40=0.25倍、上限1.5倍）；基礎產量×0.5
 // ---------- 內政指令（可多人執行／自治共用） ----------
@@ -358,7 +358,7 @@ const AUTO_RESERVE=300;
 const cmdMaxed=(c,k)=>k=="訓練"?c.train>=100:k=="開發"?(c.agri>=999&&c.com>=999&&c.def>=999&&c.loy>=100):false;
 function autoCity(c){const lines=[];const os=offsIn(c.id,0).filter(o=>!o.done);if(!os.length)return lines;const pool=[...os];const take=(sk)=>{pool.sort((a,b)=>b[sk]-a[sk]);return pool.shift()};
  if(G.offs.some(x=>!x.dead&&x.c==c.id&&x.st=="hidden")&&pool.length){lines.push(doSearch(take("z"),c))}
- /* 自治不徵兵；在野武將自動登用 */for(const t of G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free")){if(!pool.length)break;const o=take("m");o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);lines.push(`${o.n} 登用 ${t.n} 成功`+xpT(xe));logMsg(`${t.n} 加入${fname(0)}軍`)}else{const xe=gainExp(o,XP.fail,o.m);lines.push(`${o.n} 登用 ${t.n} 失敗`+xpT(xe))}}
+ /* 自治不徵兵；在野武將自動登用（被開除者除外，須主公手動登用） */for(const t of G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"&&!x.fired)){if(!pool.length)break;const o=take("m");o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);lines.push(`${o.n} 登用 ${t.n} 成功`+xpT(xe));logMsg(`${t.n} 加入${fname(0)}軍`)}else{const xe=gainExp(o,XP.fail,o.m);lines.push(`${o.n} 登用 ${t.n} 失敗`+xpT(xe))}}
  if(c.loy<50&&c.loy<100&&pool.length){const o=take("m");if(c.gold-BUDGET[rk(o)]>=AUTO_RESERVE)lines.push(doDev(o,c,"loy"))}
  while(pool.length){const o=pool.shift();
   if(o.p>=o.w){const t=c.agri>=999?"com":c.com>=999?"agri":c.agri<=c.com?"agri":"com";if(c[t]<999&&c.gold-BUDGET[rk(o)]>=AUTO_RESERVE){lines.push(doDev(o,c,t));continue}}
@@ -547,7 +547,7 @@ function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;const mine=fac
    if(!k&&c.gold>=B0+60){k=c.food<needFood*2&&c.agri<999?"agri":c.gold<500&&c.com<999?"com":front&&c.def<999&&myDef<thr*1.6?"def":c.agri<=c.com&&c.agri<999?"agri":c.com<999?"com":c.def<999?"def":null}
    if(k){const cap=k=="loy"?100:999;c.gold-=B0;const g=Math.min(cap-c[k],devPrev(o,c,k));c[k]+=g;gainExp(o,k=="loy"?XP.loy:XP.dev,k=="loy"?o.m:k=="def"?o.w:o.p)}
    else{const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));gainExp(o,c.train>old?XP.train:XP.fail,o.w)}}
-  const fr=G.offs.find(x=>!x.dead&&x.c==c.id&&(x.st=="free"||x.st=="hidden"));if(fr&&os.length&&R()<.12*fame(f)){fr.f=f;fr.st="serve";fr.loy=ri(70,90);recruitRank(fr)}}
+  const fr=G.offs.find(x=>!x.dead&&x.c==c.id&&!x.fired&&(x.st=="free"||x.st=="hidden"));if(fr&&os.length&&R()<.12*fame(f)){fr.f=f;fr.st="serve";fr.loy=ri(70,90);recruitRank(fr)}}
  // 後勤：後方城把多餘資源送往最受威脅的己方鄰城
  for(const c of mine){if(adj(c.id).some(j=>C(j).f!=f))continue;const dst=adj(c.id).map(C).filter(d=>d.f==f&&adj(d.id).some(j=>C(j).f!=f)).sort((a,b)=>aiThreat(b,f)/Math.max(1,aiDefPow(b))-aiThreat(a,f)/Math.max(1,aiDefPow(a)))[0];if(!dst)continue;
   const tr=Math.floor(Math.max(0,c.troops-2000)*.4);if(tr>0){c.troops-=tr;dst.troops+=tr}const fd=Math.floor(Math.max(0,c.food-foodUse(c)*12)*.4);if(fd>0){c.food-=fd;dst.food+=fd}const gd=Math.floor(Math.max(0,c.gold-500)*.3);if(gd>0){c.gold-=gd;dst.gold+=gd}
