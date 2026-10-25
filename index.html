@@ -625,12 +625,12 @@ function yearEvents(){if(G.month!=1)return[];const deb=[];G.offs.forEach(o=>{if(
  else if(o.d&&G.year>=o.d&&o.st!="future"&&!isLord(o)&&R()<.35){const was=o.st=="serve"?fname(o.f):"在野";o.dead=true;o.st="dead";logMsg(`${o.n}（${was}）病逝`)}});return deb}
 // 城市數值指數效果：每300點翻倍，以300為標準（999約5倍）
 const cExp=v=>Math.pow(2,(v-300)/300);
-// 人口：繁榮度=商業與農業的指數效果×民忠；每月自然成長0.124%＋0.2%×繁榮度，並沿道路由較不繁榮的城市移入較繁榮的城市
+// 人口：繁榮度=商業與農業的指數效果×民忠；年成長＝1%×繁榮度（繁榮5.0→年5%，上限8%），並沿道路遷徙
 const prosper=c=>(cExp(c.com)+cExp(c.agri))/2*(.5+c.loy/200);
-const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1; // 自然成長年1.5%（月約0.124%）
-const growY=c=>{const a=(c.agri+c.com)/2;return a<450?0:.015*Math.pow(Math.min(1,(a-450)/549),.6)}; // 農商平均<450:0；450→999 平滑升至年1.5%（600≈0.7%）
+const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1;
+const growY=c=>Math.max(0,Math.min(.08,.01*prosper(c))); // 繁榮度5.0→年成長5%；超過則最高年8%
 const growM=c=>Math.pow(1+growY(c),1/12)-1;
-const growK=c=>cl(((c.agri+c.com)/2-450)/150,0,1); // 開發(農商平均)<450 自然成長0，450→600 平滑升至全額
+const growK=c=>cl(prosper(c)/5,0,1); // 相對繁榮5.0的成長係數
 // 人口：自然成長＋繁榮遷徙；人口與鄰城差距過大時由密往疏遷徙（負反饋）
 function popTick(rep){const net=G.cities.map(()=>0);
  G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c)/3);const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
@@ -654,7 +654,7 @@ function gatherFree(rep){G.offs.forEach(o=>{if(o.dead||(o.st!="free"&&o.st!="hid
 function payroll(rep){let paid=0;const un=[];G.offs.forEach(o=>{if(o.dead||o.st!="serve"||o.f<0||isLord(o))return;const c=C(o.c),s=SALARY[rk(o)];if(c.gold>=s){c.gold-=s;if(o.f==0)paid+=s}else{o.loy=Math.max(0,o.loy-5);if(o.f==0)un.push(o.n)}});if(rep){if(paid)rep.push(`俸祿支出 金${paid}`);if(un.length)rep.push(`⚠️ 俸祿未發：${un.join("、")}（忠誠-5）`)}}
 // 暴動：民忠<30 時機率 (30-民忠)/60；開發-10%、金糧-20%、人口流失5%
 function riotTick(rep){G.cities.forEach(c=>{if(c.f<0||c.loy>=30||R()>=(30-c.loy)/180)return;c.agri=Math.round(c.agri*.9);c.com=Math.round(c.com*.9);c.gold=Math.floor(c.gold*.8);c.food=Math.floor(c.food*.8);const lost=Math.round(c.pop*.05);c.pop-=lost;logMsg(`${c.n} 發生暴動`);if(c.f==0&&rep)rep.push(`🔥 ${c.n} 民忠${c.loy}，發生暴動！開發-10%、金糧-20%、人口流失${lost}（請派魅力高的武將「安撫」）`)})}
-function goldInc(c){return Math.round(60*cExp(c.com)*(.5+c.loy/200)+c.pop/10000)}
+function goldInc(c){return Math.round((60*cExp(c.com)*(.5+c.loy/200)+c.pop/10000)*1.2)}
 function foodInc(c){return 2*Math.round(2700*cExp(c.agri)*(.5+c.loy/200)+c.pop/300)}
 const nextHarvest=()=>G.month<7?`${7-G.month}個月後（7月）`:G.month==7?"本月已收":`${19-G.month}個月後（明年7月）`;
 // ---------- save/load ----------
