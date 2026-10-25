@@ -274,7 +274,7 @@ const promoList=()=>G?G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve"&&canPromot
 const expMul=st=>st==null?1:cl(Math.pow(2,(st-70)/20),.05,2);
 /* 武將經驗基準（能力70時 expMul=1，即為實得值）：
    一般行動成功40、失敗10；計略成功80、失敗10；戰後＝殺敵/30＋殲滅×45＋(勝60|敗20)×品級×能力；
-   搜索（×8後夾20～150）：寶物144>武將96>金糧48>無所獲20 */
+   搜索（×8後夾20～150）：寶物144>武將96>金糧・流民48>無所獲20 */
 const XP={dev:40,loy:40,train:40,fail:10,recBase:30,recMax:60,plot:80,win:60,lose:20};
 const rankMul=o=>.75+rk(o)*.1; /* 不入流0.75～一品1.65 */
 const ensureCombat=o=>{if(!o||o.pseudo)return o;for(const k of["kill","wipe","duelW","duelL","died","routed"])if(o[k]==null)o[k]=0;return o};
@@ -336,9 +336,11 @@ const dateStr=(y=G.year,m=G.month,x=G.xun||0)=>`${y}年${SEAS[(m-1)/3|0]}${MNM[m
 function doSearch(o,c){o.done=true;const hid=G.offs.filter(x=>x.st=="hidden"&&x.c==c.id&&!x.dead).sort((a,b)=>(b.t+b.w+b.z+b.p+b.m)-(a.t+a.w+a.z+a.p+a.m));
  const zt=`（智力${o.z}）`;if(hid.length&&R()<Math.min(.98,searchP(o.z)*fame(o.f))){const h=hid[0];h.st="free";h.foundAt=nowM();const xe=gainExp(o,12*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 發現在野武將 <b class="newf">${h.n}</b>（統${h.t} 武${h.w} 智${h.z} 政${h.p} 魅${h.m}），可「登用」`+xpT(xe)}
  if(G.items.length&&R()<.12){const it=G.items.splice(ri(0,G.items.length-1),1)[0];const d=itemDef(it);G.vault.push(it);const ow=o.f==0?autoEquipFind(it):null;const xe=gainExp(o,18*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 獲得寶物 <b>${it}</b>（${SKN[d[1]]}${itemBonusTxt(d)}），${ow?`已自動交予 <b>${ow.n}</b> 裝備（最適）`:"已存入寶物庫，可於寶物庫→最適分配"}`+xpT(xe)}
- if(R()<findP(o.z)){const xe=gainExp(o,6*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);if(R()<.5){const g=findGold(c);c.gold+=g;return`${o.n}${zt} 於城中尋得 <b>金 +${g}</b>（${c.gold}）`+xpT(xe)}const f=findFood(c);c.food+=f;return`${o.n}${zt} 於城中尋得 <b>糧 +${f}</b>（${c.food}）`+xpT(xe)}
+ if(R()<findP(o.z)){const xe=gainExp(o,6*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);const r3=R(),rg=Math.min(findRef(o,c),POPMAX-c.pop);if(r3<1/3&&rg>=1){c.pop+=rg;return`${o.n}${zt} 發現流民 <b>人口 +${rg}</b>（人口${c.pop}）`+xpT(xe)}if(r3<2/3||(r3<1/3&&R()<.5)){const g=findGold(c);c.gold+=g;return`${o.n}${zt} 於城中尋得 <b>金 +${g}</b>（${c.gold}）`+xpT(xe)}const f=findFood(c);c.food+=f;return`${o.n}${zt} 於城中尋得 <b>糧 +${f}</b>（${c.food}）`+xpT(xe)}
  const xe=gainExp(o,2.5*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 搜索無所獲`+xpT(xe)}
 // 搜索得金糧：機率隨智力指數上升（智30≈16%、50=25%、70≈40%、90+≈60%上限），量隨開發；上限＝現存5%（最少金30/糧150），絕對上限金200/糧1000
+// 搜索流民：智力×開發（農商平均），上限500、不超人口上限
+const findRef=(o,c)=>Math.max(1,Math.min(500,Math.round(80*expo(o.z)*((cExp(c.agri)+cExp(c.com))/2))));
 const findP=z=>cl(.25*expo(z),.05,.6);
 const findGold=c=>Math.max(1,Math.min(Math.round(ri(20,40)*cExp(c.com)),Math.max(30,Math.floor(c.gold*.05)),200));
 const findFood=c=>Math.max(1,Math.min(Math.round(ri(100,200)*cExp(c.agri)),Math.max(150,Math.floor(c.food*.05)),1000));
@@ -629,11 +631,19 @@ const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1; // 自然成長
 const growY=c=>{const a=(c.agri+c.com)/2;return a<450?0:.015*Math.pow(Math.min(1,(a-450)/549),.6)}; // 農商平均<450:0；450→999 平滑升至年1.5%（600≈0.7%）
 const growM=c=>Math.pow(1+growY(c),1/12)-1;
 const growK=c=>cl(((c.agri+c.com)/2-450)/150,0,1); // 開發(農商平均)<450 自然成長0，450→600 平滑升至全額
+// 人口：自然成長＋繁榮遷徙；人口與鄰城差距過大時由密往疏遷徙（負反饋）
 function popTick(rep){const net=G.cities.map(()=>0);
  G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c)/3);const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
- ROADS.forEach(([an,bn])=>{const a=G.cities.find(c=>c.n==an),b=G.cities.find(c=>c.n==bn);const pa=prosper(a)*fame(a.f),pb=prosper(b)*fame(b.f); /* 遷徙吸引力＝繁榮度×君主名聲（無主城×1） */const gap=(pa-pb)/(pa+pb);if(Math.abs(gap)<.05)return;
-  const [rich,poor]=gap>0?[a,b]:[b,a];const mv=Math.max(0,Math.min(Math.round(poor.pop*.01/3*Math.abs(gap)),poor.pop-POPMIN,POPMAX-rich.pop));if(!mv)return;poor.pop-=mv;rich.pop+=mv;net[rich.id]+=mv;net[poor.id]-=mv});
- G.cities.forEach(c=>{c._m=net[c.id];if(rep&&c.f==0&&Math.abs(net[c.id])>=1500)rep.push(net[c.id]>0?`${c.n} 繁榮吸引移民 +${net[c.id]}人`:`${c.n} 人口外流 ${net[c.id]}人`)})}
+ const dense=G.cities.map(()=>0);
+ // 鄰城遷徙（單一迴圈）：先進的城市總是人們要去的地方
+ // ①繁榮差|pGap|≥0.05：流向繁榮度（開發×民忠×名聲）高者；base＝來源人口×1%/3×|pGap|，mul＝1.15−目的地人口佔比×0.5（0.55~1.25，只調強弱不反向）
+ // ②繁榮相近：人口差|oGap|≥0.12 時由密往疏，mv＝密城人口×1.2%/3×(|oGap|−0.12)/0.88
+ ROADS.forEach(([an,bn])=>{const a=G.cities.find(c=>c.n==an),b=G.cities.find(c=>c.n==bn);const pa=prosper(a)*fame(a.f),pb=prosper(b)*fame(b.f);
+  const pGap=(pa-pb)/(pa+pb+1e-9),oGap=(a.pop-b.pop)/(a.pop+b.pop+1e-9);let src,dst,raw,byPop=false;
+  if(Math.abs(pGap)>=.05){[dst,src]=pGap>0?[a,b]:[b,a];const dens=dst.pop/(src.pop+dst.pop+1e-9);raw=src.pop*.01/3*Math.abs(pGap)*Math.max(.55,Math.min(1.25,1.15-dens*.5))}
+  else if(Math.abs(oGap)>=.12){[src,dst]=oGap>0?[a,b]:[b,a];raw=src.pop*.012/3*(Math.abs(oGap)-.12)/.88;byPop=true}else return;
+  const mv=Math.max(0,Math.min(Math.round(raw),src.pop-POPMIN,POPMAX-dst.pop));if(!mv)return;src.pop-=mv;dst.pop+=mv;net[dst.id]+=mv;net[src.id]-=mv;if(byPop)dense[src.id]+=mv});
+ G.cities.forEach(c=>{c._m=net[c.id];if(rep&&c.f==0&&Math.abs(net[c.id])>=1500)rep.push(net[c.id]>0?`${c.n} 吸引移民 +${net[c.id]}人`:(dense[c.id]>=-net[c.id]/2?`${c.n} 人稠外流 ${net[c.id]}人`:`${c.n} 人口外流 ${net[c.id]}人`))})}
 // 開發難度：收益÷2^((現值-300)/300)，最少+1；花費 50×√倍率
 const devAt=(st,cur)=>Math.max(1,Math.round(devGain(st)/cExp(cur)));
 const devCost=cur=>Math.round(50*Math.sqrt(cExp(cur)));
@@ -644,7 +654,7 @@ function gatherFree(rep){G.offs.forEach(o=>{if(o.dead||(o.st!="free"&&o.st!="hid
 function payroll(rep){let paid=0;const un=[];G.offs.forEach(o=>{if(o.dead||o.st!="serve"||o.f<0||isLord(o))return;const c=C(o.c),s=SALARY[rk(o)];if(c.gold>=s){c.gold-=s;if(o.f==0)paid+=s}else{o.loy=Math.max(0,o.loy-5);if(o.f==0)un.push(o.n)}});if(rep){if(paid)rep.push(`俸祿支出 金${paid}`);if(un.length)rep.push(`⚠️ 俸祿未發：${un.join("、")}（忠誠-5）`)}}
 // 暴動：民忠<30 時機率 (30-民忠)/60；開發-10%、金糧-20%、人口流失5%
 function riotTick(rep){G.cities.forEach(c=>{if(c.f<0||c.loy>=30||R()>=(30-c.loy)/180)return;c.agri=Math.round(c.agri*.9);c.com=Math.round(c.com*.9);c.gold=Math.floor(c.gold*.8);c.food=Math.floor(c.food*.8);const lost=Math.round(c.pop*.05);c.pop-=lost;logMsg(`${c.n} 發生暴動`);if(c.f==0&&rep)rep.push(`🔥 ${c.n} 民忠${c.loy}，發生暴動！開發-10%、金糧-20%、人口流失${lost}（請派魅力高的武將「安撫」）`)})}
-function goldInc(c){return Math.round(60*cExp(c.com)*(.5+c.loy/200)+c.pop/20000)}
+function goldInc(c){return Math.round(60*cExp(c.com)*(.5+c.loy/200)+c.pop/10000)}
 function foodInc(c){return 2*Math.round(2700*cExp(c.agri)*(.5+c.loy/200)+c.pop/300)}
 const nextHarvest=()=>G.month<7?`${7-G.month}個月後（7月）`:G.month==7?"本月已收":`${19-G.month}個月後（明年7月）`;
 // ---------- save/load ----------
@@ -740,7 +750,7 @@ function cityTable(){const rows=G.cities.slice();const freeN=c=>G.offs.filter(o=
 $("#bEnd").onclick=endTurn;$("#bMenu").onclick=menu;$("#bOff").onclick=officerTable;$("#bFac").onclick=facTable;$("#bCity").onclick=cityTable;
 function start(){$("#title").style.display="none";selCity=null;render();fitMap()}
 const intro=()=>modal(`西元${G.scen||190}年`,(G.scen==194?(G.player=="田郎"?"董卓已死，李傕・郭汜亂長安，群雄割據。<br>江東錢塘，人口十五萬。豪傑田郎聚眾起事，欲以此為基業，逐鹿中原。":"董卓已死，群雄割據。<br>陶謙病逝，劉備受讓徐州，北有呂布・曹操爭兗州，南有袁術虎視。"):(G.player=="田郎"?"董卓專權，天下大亂。<br>江東錢塘，人口十五萬。豪傑田郎聚眾起事，欲以此為基業，逐鹿中原。":"董卓專權，天下大亂。<br>身為平原相的劉備，與關羽、張飛立誓匡扶漢室。"))+"<br><br>"+HELP,[{t:"出發",v:1,cls:"pri"}]);
-const HELP="每旬（上・中・下旬，三旬一月）每名武將可執行一項命令：農業・商業開發看政治、城防開發與訓練看武力、徵兵看統率、安撫看魅力、搜索看智力（能力越高效果呈指數成長）。<br>官職分十級（不入流～一品）：品級決定每月俸祿、內政資金與帶兵上限；累積經驗並經主公批准可晉升（「人事」）。<br>內政花費＝品級資金（不入流50～一品150），效果只看能力，成功約40、計略80、戰後依殺敵/殲滅（勝約5×起、多殺不封頂）、失敗10、搜索寶物最大・依結果20～150。徵兵量隨民忠指數變化；民忠過低會暴動。<br>戰爭會降低城市開發、城防、民忠；守城失敗損失慘重。戰場有平原、林、山、湖地形。";
+const HELP="每旬（上・中・下旬，三旬一月）每名武將可執行一項命令：農業・商業開發看政治、城防開發與訓練看武力、徵兵看統率、安撫看魅力、搜索看智力，可得金糧・流民（能力越高效果呈指數成長）。<br>官職分十級（不入流～一品）：品級決定每月俸祿、內政資金與帶兵上限；累積經驗並經主公批准可晉升（「人事」）。<br>內政花費＝品級資金（不入流50～一品150），效果只看能力，成功約40、計略80、戰後依殺敵/殲滅（勝約5×起、多殺不封頂）、失敗10、搜索寶物最大・依結果20～150。徵兵量隨民忠指數變化；民忠過低會暴動。<br>戰爭會降低城市開發、城防、民忠；守城失敗損失慘重。戰場有平原、林、山、湖地形。";
 $("#tNew").onclick=()=>{newGame("田郎");start();intro()};$("#tNew2").onclick=()=>{newGame("劉備");start();intro()};
 $("#tScen").onclick=()=>{SCEN_YEAR=SCEN_YEAR==194?190:194;$("#tSub").textContent=`群雄割據 · 西元${SCEN_YEAR}年`;$("#tScen").textContent=SCEN_YEAR==194?"劇本：194年 群雄割據（點此切換190年）":"劇本：190年 反董卓聯軍（點此切換194年）";$("#tNew2").textContent=`新遊戲：劉備（${SCEN_YEAR==194?"下邳":"平原"}）`};
 $("#tLoad").onclick=()=>{if(load("1")||load("auto"))start();else if(!localStorage.getItem("sango_1")&&!localStorage.getItem("sango_auto"))toast("沒有存檔");else{newGame();start();}};
