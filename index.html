@@ -74,7 +74,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:5px 4px;b
 @keyframes up{to{transform:translateY(-24px);opacity:0}}
 #mapwrap{background:#2b4a6b}.sbar button{min-height:36px;padding:2px 8px;font-size:13px}.st th .arw{font-size:10px;opacity:.6;margin-left:2px}.ttl{color:#ffd77a;font-weight:bold;white-space:nowrap}</style></head><body>
 <div id="app">
- <div id="top"><span id="date"></span><button id="bOff">武將</button><button id="bFac">勢力</button><button id="bCity">城市</button><button id="bMus" aria-label="音樂">♪</button><button id="bMenu">選單</button><button id="bEnd" class="pri">結束回合</button></div>
+ <div id="top"><span id="date"></span><button id="bOff">武將</button><button id="bFac">勢力</button><button id="bCity">城市</button><button id="bMenu">選單</button><button id="bEnd" class="pri">結束回合</button></div>
  <div id="main"><div id="mapwrap"><div id="mapc"><canvas id="mapcv"></canvas><svg id="map" width="1600" height="1600" viewBox="0 0 1600 1600"></svg></div></div><div id="panel"></div></div>
 </div>
 <div id="battle"><div id="bhead"></div><div id="blog"></div><div id="blegend"></div><div id="bfield"><div id="grid"></div></div><div id="bzoom"><button id="bzIn">＋</button><button id="bzOut">－</button></div><div id="binfo"></div><div id="bact"></div></div>
@@ -221,7 +221,7 @@ async function command(k,c){
  if(k=="開發"){const t=await pick("開發項目（資金依武將品級）",[{label:"🌾 農業（政治）",sub:`${c.agri}`+(c.agri>=999?"（已達上限）":""),v:"agri",dis:c.agri>=999},{label:"💰 商業（政治）",sub:`${c.com}`+(c.com>=999?"（已達上限）":""),v:"com",dis:c.com>=999},{label:"🏯 城防（武力）",sub:`${c.def}`+(c.def>=999?"（已達上限）":""),v:"def",dis:c.def>=999},{label:"😊 安撫（魅力）",sub:`民忠 ${c.loy}`+(c.loy>=100?"（已達上限）":""),v:"loy",dis:c.loy>=100}]);if(!t)return;
   const sk=t=="def"?"w":t=="loy"?"m":"p";const os=await pickOffs(c,`${t=="loy"?"安撫":"開發"+TNM[t]}：選擇武將`,sk,o=>`${RANKS[rk(o)]} 金${BUDGET[rk(o)]} 預計+${devPrev(o,c,t)}`);if(!os)return;await summary(t=="loy"?"安撫結果":"開發結果",os.map(o=>doDev(o,c,t)))}
  if(k=="徵兵"){const os=await pickOffs(c,"徵兵：選擇武將","t",o=>`金${recCost(o)} 最多${recYield(o,c)}人（民忠${c.loy}・本月城上限剩${recCap(c)}）`);if(!os)return;const a=await pick(`徵兵數量（每名武將，共${os.length}名）`,[0,1000,2000,3000,5000].map(n=>({label:n?`上限 ${n}人`:"盡量徵兵",sub:`每名武將金${BUDGET[0]*4}～${BUDGET[9]*4}（依品級）・每250兵民忠-1`,v:n||-1})));if(!a)return;await summary("徵兵結果",os.map(o=>doRec(o,c,a<0?0:a)))}
- if(k=="訓練"){const os=await pickOffs(c,"訓練：選擇武將","w",o=>`預計+${trainGain(o.w)}`);if(!os)return;await summary("訓練結果",os.map(o=>doTrain(o,c)))}
+ if(k=="訓練"){const os=await pickOffs(c,"訓練：選擇武將","w",o=>{const k2=trainCost(o);return`金${k2.g} 糧${k2.f} 預計+${trainGain(o.w)}`},1,o=>{const k2=trainCost(o);return c.gold<k2.g||c.food<k2.f});if(!os)return;await summary("訓練結果",os.map(o=>doTrain(o,c)))}
  if(k=="搜索"){const os=await pickOffs(c,"搜索：選擇武將","z",o=>`發現率${Math.round(Math.min(.98,searchP(o.z)*fame(0))*100)}%`,1);if(!os)return;await summary("搜索結果",os.map(o=>doSearch(o,c)))}
  if(k=="登用"){const o=await pickOff(c,"登用：選擇使者");if(!o)return;const ts=[...G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"),...enemyAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x)))];
   const t=await pick("登用對象",ts.map(x=>({...offItem(x),label:`${x.foundAt==nowM()?"🆕":""}${x.n}（${x.st=="free"?"在野":fname(x.f)+"·"+C(x.c).n}）`})));if(!t)return;o.done=true;
@@ -252,7 +252,7 @@ const its=o=>o.items||(o.items=[]);
 const baseStat=(o,k)=>o[k]-its(o).filter(x=>itemDef(x.n)[1]==k).reduce((t,x)=>t+x.b,0);
 // 君主固定一品；唯田郎由不入流起步，依經驗與自身批准晉升
 const fixedLord=o=>isLord(o)&&o.n!="田郎";
-const maxRank=o=>fixedLord(o)?9:cl(Math.floor((Math.max(...["t","w","z","p","m"].map(k=>baseStat(o,k)))-55)/5)+1,1,9);
+const maxRank=o=>fixedLord(o)?9:cl(Math.floor((Math.max(...["t","w","z","p","m"].map(k=>o[k]))-55)/5)+1,1,9); // 官職上限依「含寶物」的有效能力
 const rk=o=>o.rk||0;
 const canPromote=o=>o.f>=0&&!fixedLord(o)&&rk(o)<maxRank(o)&&(o.exp||0)>=expReq(rk(o)+1);
 const promoList=()=>G?G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve"&&canPromote(o)):[];
@@ -284,7 +284,9 @@ const recYield=(o,c)=>Math.round(5000*Math.pow(4,(rk(o)-9)/9)*Math.pow(2,(cl(o.t
 const recCost=o=>BUDGET[rk(o)]*4;
 const recPrev=(o,c,a)=>Math.max(0,Math.min(a||99999,recYield(o,c),recCap(c)));
 function doRec(o,c,a){const got=recPrev(o,c,a);const rc=recCost(o);if(c.gold<rc)return`${o.n}：金不足（需${rc}），未徵兵`;if(got<1)return`${o.n}：本月徵兵已達上限（人口1.5%）或民忠不足，未徵兵`;c.gold-=rc;c.pop-=got;c._rn+=got;c.train=Math.round((c.train*c.troops+20*got)/(c.troops+got));c.troops+=got;c.loy=Math.max(0,c.loy-Math.max(1,Math.round(got/250)));o.done=true;gainExp(o,got/25);return`${o.n}（統率${o.t}・民忠${c.loy}）徵得 ${got} 兵（兵力${c.troops}）`}
-function doTrain(o,c){if(R()<failP(o.w)){const l=Math.max(1,Math.round(trainGain(o.w)*.5));c.train=Math.max(0,c.train-l);o.done=true;gainExp(o,1);return`<span style="color:#f88">${o.n}（武力${o.w}）訓練失敗！操練失序，訓練 −${l}（訓練度${c.train}）</span>`}const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));o.done=true;gainExp(o,(c.train-old)*4);return`${o.n}（武力${o.w}）訓練 +${c.train-old}（訓練度${c.train}）`}
+// 訓練花費：依品級線性 金20→60、糧40→120（不入流→一品）；效果仍看武力
+const trainCost=o=>({g:Math.round(20+40*rk(o)/9),f:Math.round(40+80*rk(o)/9)});
+function doTrain(o,c){const tc=trainCost(o);if(c.gold<tc.g||c.food<tc.f)return`${o.n}：金糧不足（需金${tc.g}・糧${tc.f}），未訓練`;c.gold-=tc.g;c.food-=tc.f;if(R()<failP(o.w)){const l=Math.max(1,Math.round(trainGain(o.w)*.5));c.train=Math.max(0,c.train-l);o.done=true;gainExp(o,1);return`<span style="color:#f88">${o.n}（武力${o.w}）訓練失敗！操練失序，訓練 −${l}（訓練度${c.train}）</span>`}const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));o.done=true;gainExp(o,(c.train-old)*4);return`${o.n}（武力${o.w}）訓練 +${c.train-old}（訓練度${c.train}）`}
 const searchP=z=>cl(.4*expo(z),.05,.95); // 發現率：智力每30點翻倍（30=25%、50=40%、70=63%、90+=95%）
 const nowM=()=>G.year*12+G.month;
 const foodUse=c=>Math.ceil(c.troops/180*1.3);
@@ -294,15 +296,20 @@ const dateStr=(y=G.year,m=G.month,x=G.xun||0)=>`${y}年${SEAS[(m-1)/3|0]}${MNM[m
 function doSearch(o,c){o.done=true;const hid=G.offs.filter(x=>x.st=="hidden"&&x.c==c.id&&!x.dead).sort((a,b)=>(b.t+b.w+b.z+b.p+b.m)-(a.t+a.w+a.z+a.p+a.m));
  const zt=`（智力${o.z}）`;if(hid.length&&R()<Math.min(.98,searchP(o.z)*fame(o.f))){const h=hid[0];h.st="free";h.foundAt=nowM();gainExp(o,30);return`${o.n}${zt} 發現在野武將 <b class="newf">${h.n}</b>（統${h.t} 武${h.w} 智${h.z} 政${h.p} 魅${h.m}），可「登用」`}
  if(G.items.length&&R()<.12){const it=G.items.splice(ri(0,G.items.length-1),1)[0];const d=itemDef(it);G.vault.push(it);gainExp(o,20);return`${o.n}${zt} 獲得寶物 <b>${it}</b>（${SKN[d[1]]}+${d[2]}），已存入寶物庫，可於「人事」賜予武將`}
+ if(R()<findP(o.z)){gainExp(o,10);if(R()<.5){const g=findGold(c);c.gold+=g;return`${o.n}${zt} 於城中尋得 <b>金 +${g}</b>（${c.gold}）`}const f=findFood(c);c.food+=f;return`${o.n}${zt} 於城中尋得 <b>糧 +${f}</b>（${c.food}）`}
  gainExp(o,5);return`${o.n}${zt} 搜索無所獲`}
+// 搜索得金糧：機率隨智力指數上升（智30≈16%、50=25%、70≈40%、90+≈60%上限），量隨開發；上限＝現存5%（最少金30/糧150），絕對上限金200/糧1000
+const findP=z=>cl(.25*expo(z),.05,.6);
+const findGold=c=>Math.max(1,Math.min(Math.round(ri(20,40)*cExp(c.com)),Math.max(30,Math.floor(c.gold*.05)),200));
+const findFood=c=>Math.max(1,Math.min(Math.round(ri(100,200)*cExp(c.agri)),Math.max(150,Math.floor(c.food*.05)),1000));
 function summary(title,lines){return modal(`${title}（${lines.length}名）`,lines.map(l=>`<div class="orow">${l}</div>`).join(""))}
-function pickOffs(c,title,sk,extra,pre=1){const av=offsIn(c.id,0).filter(o=>!o.done).sort((a,b)=>b[sk]-a[sk]);if(!av.length){toast("此城沒有可行動的武將");return Promise.resolve(null)}
+function pickOffs(c,title,sk,extra,pre=1,dis){const av=offsIn(c.id,0).filter(o=>!o.done&&!(dis&&dis(o))).sort((a,b)=>b[sk]-a[sk]);const dv=dis?offsIn(c.id,0).filter(o=>!o.done&&dis(o)):[];if(!av.length&&dv.length){toast("金糧不足，無法執行");return Promise.resolve(null)}if(!av.length){toast("此城沒有可行動的武將");return Promise.resolve(null)}
  const sel=new Set();const box=document.createElement("div");const bar=document.createElement("div");bar.className="msbar";
  const rows=av.map(o=>{const b=document.createElement("button");b.className="pick ms";b.innerHTML=`<span class="cb">☐</span><span>${o===av[0]?"<b style=\"color:#ffd77a\">★</b>":""}<b>${o.n}</b> ${SKN[sk]}<b style="color:#ffd77a">${o[sk]}</b></span><small>${extra?extra(o):""}</small>`;b.onclick=()=>{sel.has(o)?sel.delete(o):sel.add(o);upd()};return b});
  const cnt=document.createElement("span");cnt.className="mscnt";
  const upd=()=>{rows.forEach((b,i)=>{const on=sel.has(av[i]);b.classList.toggle("on",on);b.querySelector(".cb").textContent=on?"☑":"☐"});cnt.textContent=`已選 ${sel.size}/${av.length}`};
  [["全選",()=>av.forEach(o=>sel.add(o))],["最適",()=>{sel.clear();const best=av[0][sk];av.filter(o=>o[sk]>=Math.max(65,best-15)).forEach(o=>sel.add(o));if(!sel.size)sel.add(av[0])}],["清除",()=>sel.clear()]].forEach(([t,f])=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{f();upd()};bar.appendChild(b)});
- bar.appendChild(cnt);box.appendChild(bar);box.appendChild(sortBar(()=>av,vs=>vs.forEach(o=>box.appendChild(rows[av.indexOf(o)])),{t:2,w:3,z:4,p:5,m:6}[sk]));rows.forEach(b=>box.appendChild(b));if(pre)bar.children[1].click();upd();
+ bar.appendChild(cnt);box.appendChild(bar);box.appendChild(sortBar(()=>av,vs=>vs.forEach(o=>box.appendChild(rows[av.indexOf(o)])),{t:2,w:3,z:4,p:5,m:6}[sk]));rows.forEach(b=>box.appendChild(b));dv.forEach(o=>{const b=document.createElement("button");b.className="pick ms";b.disabled=true;b.innerHTML=`<span>${o.n} ${SKN[sk]}${o[sk]}</span><small>${extra?extra(o):""}・金糧不足</small>`;box.appendChild(b)});if(pre)bar.children[1].click();upd();
  return modal(title,box,[{t:"取消",v:null},{t:"執行",v:"ok",cls:"pri"}]).then(v=>v=="ok"&&sel.size?av.filter(o=>sel.has(o)):(v=="ok"&&toast("未選擇武將"),null))}
 // ---------- 自治 ----------
 const AUTO_RESERVE=300;
@@ -370,7 +377,7 @@ function reach(B,u){const mv=TY[u.ty].mv;const best=new Map([[u.x+","+u.y,0]]);c
 function power(B,u){return(u.o.t*.85+u.o.w*.15)*(u.side=="A"?B.trA:B.trD)}
 function dmgOf(B,a,d,k){let v=a.troops*.12*power(B,a)/(d.o.t*.7+35)*(.85+R()*.3)*k*ctr(a.ty,d.ty);if(a.side=="A")v*=B.atkPen;if(d.side=="D")v/=B.defMult;v*=terAtk(a.ty,B.cells[a.y*BW+a.x])*terDef(B.cells[d.y*BW+d.x]);
  const af=a.fx,df=d.fx;if(af.rage)v*=1.4;if(af.cheer)v*=1.2;if(df.guard)v*=.6;if(df.rage)v*=1.2;if(df.spear&&a.ty=="騎")v*=.5;return Math.max(60,Math.round(v))}
-function hit(B,a,d,v,mark){v=Math.min(d.troops,v);if(typeof BGM!="undefined"&&BGM.scene=="war"&&Date.now()-(hit._t||0)>120){hit._t=Date.now();BGM.sfx("hit")}d.troops-=v;if(a&&a!==d)a.dmg=(a.dmg||0)+v;fx(B,d,(mark||"-")+v);return v}
+function hit(B,a,d,v,mark){v=Math.min(d.troops,v);d.troops-=v;if(a&&a!==d)a.dmg=(a.dmg||0)+v;fx(B,d,(mark||"-")+v);return v}
 function bAttack(B,a,d,noCounter){const v=hit(B,a,d,dmgOf(B,a,d,1));let msg=`${TY[a.ty].ic}${a.o.n} 攻擊 ${TY[d.ty].ic}${d.o.n}，損傷 ${v}`;const m=ctr(a.ty,d.ty);if(m!=1)msg+=m>1?"（相剋！）":"（被剋）";
  if(d.troops>0&&!noCounter&&inRange(d,a)){let c=Math.round(dmgOf(B,d,a,1)*.4*(d.fx.spear&&a.ty=="騎"?2:1));c=hit(B,d,a,c);msg+=`，反擊 ${c}`}if(d.troops<=0)msg+=`。${d.o.n} 部隊潰散！`;B.log.unshift(msg);return msg}
 function useTac(B,a,n,d){const T=TAC[n];a.q-=T.c;let msg;const ok=p=>R()<cl(p,.15,.95);
@@ -582,7 +589,7 @@ function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serv
   {h:"姓名",v:o=>o.n,f:o=>`${canPromote(o)?"⬆️":""}${o.n}${isLord(o)?"👑":""}`},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"經驗",v:o=>o.exp||0,f:o=>`${o.exp||0}/${rk(o)>=9?"-":expReq(rk(o)+1)}`},{h:"上限",v:o=>maxRank(o),f:o=>RANKS[maxRank(o)]},
   {h:"俸祿",v:o=>isLord(o)?0:SALARY[rk(o)]},{h:"資金",v:o=>BUDGET[rk(o)]},{h:"帶兵",v:o=>TCAP[rk(o)]},{h:"寶物",v:o=>its(o).map(x=>x.n).join("、")},{h:"忠",v:o=>o.loy},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"城",v:o=>C(o.c).n}],
   rows,o=>officerDetail(o),[["全部","all",()=>true],["可晉升","promo",o=>canPromote(o)]],[{t:`全部晉升(${promoList().length})`,v:"all"},{t:`寶物庫(${G.vault.length})`,v:"vault"}]).then(async v=>{if(v=="all"){const l=promoList();l.forEach(promote);if(l.length)await modal("晉升",l.map(o=>`${o.n} 晉升為 <b>${RANKS[rk(o)]}</b>（忠誠${o.loy}）`).join("<br>"));render();officerTable()}else if(v=="vault")vaultView()})}
-async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}）　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（每項能力限一件）：${its(o).map(x=>`${x.n}（${SKN[itemDef(x.n)[1]]}+${x.b}）`).join("、")||"無"}`;
+async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}，依含寶物能力）<br>能力（含寶物）：${["t","w","z","p","m"].map(k=>{const d=o[k]-baseStat(o,k);return SKN[k]+o[k]+(d?`<span style="color:#ffd77a">(+${d})</span>`:"")}).join(" ")}　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（每項能力限一件）：${its(o).map(x=>`${x.n}（${SKN[itemDef(x.n)[1]]}+${x.b}）`).join("、")||"無"}`;
  const b=[{t:"返回",v:0}];if(canPromote(o))b.push({t:`晉升→${RANKS[nx]}`,v:1,cls:"pri"});if(!isLord(o)&&rk(o)>0)b.push({t:"降級",v:2});if(G.vault.length)b.push({t:"賜予寶物",v:4});if(its(o).length)b.push({t:"沒收寶物",v:5});if(!isLord(o))b.push({t:"開除",v:3});
  const v=await modal("武將",info,b);if(!v){render();return officerTable()}
  if(v==1){promote(o);toast(`${o.n} 晉升為 ${RANKS[rk(o)]}，忠誠 ${o.loy}`)}
@@ -594,6 +601,10 @@ function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length).f
  box.innerHTML=`<h4 style="margin:4px 0;color:#ffd77a">庫存（${G.vault.length}）</h4><div id="v1"></div><h4 style="margin:8px 0 4px;color:#ffd77a">已賜予（${eq.length}）</h4><div id="v2"></div><p style="font-size:12px;opacity:.7">在「人事」點選武將即可賜予或沒收（每項能力限一件）。搜索可能發現新寶物。</p>`;
  box.querySelector("#v1").appendChild(stEl([{h:"寶物",v:r=>r},{h:"能力",v:r=>SKN[itemDef(r)[1]]},{h:"加成",v:r=>itemDef(r)[2]}],G.vault.slice(),{hint:false,sort:2}));
  box.querySelector("#v2").appendChild(stEl([{h:"寶物",v:r=>r.n},{h:"能力",v:r=>SKN[itemDef(r.n)[1]]},{h:"加成",v:r=>r.b},{h:"持有者",v:r=>r.o.n},{h:"城",v:r=>C(r.o.c).n}],eq,{hint:false,sort:2}));
+ const hold={};G.offs.forEach(o=>{if(o.dead)return;its(o).forEach(x=>(hold[x.n]=hold[x.n]||[]).push(o))});
+ const own=n=>hold[n]?hold[n].map(o=>`${o.n}（${o.f>=0?fname(o.f):"在野"}）`).join("、"):G.vault.includes(n)?"我方庫存":"無（未發現）";
+ const all=ITEMS.map(x=>x[0]);const h3=document.createElement("div");h3.innerHTML=`<h4 style="margin:8px 0 4px;color:#ffd77a">天下寶物一覽（${all.length}）・持有者</h4>`;
+ h3.appendChild(stEl([{h:"寶物",v:n=>n},{h:"能力",v:n=>SKN[itemDef(n)[1]]},{h:"加成",v:n=>itemDef(n)[2]},{h:"持有者",v:n=>own(n)}],all,{hint:false,sort:2}));box.insertBefore(h3,box.lastElementChild);
  return modal("寶物庫",box)}
 // ---------- 一覽表（可排序、橫向捲動、首欄固定） ----------
 // 通用可排序表格：點欄名切換 ▼降冪/▲升冪
@@ -643,33 +654,5 @@ $("#tScen").onclick=()=>{SCEN_YEAR=SCEN_YEAR==194?190:194;$("#tSub").textContent
 $("#tLoad").onclick=()=>{if(load("1")||load("auto"))start();else if(!localStorage.getItem("sango_1")&&!localStorage.getItem("sango_auto"))toast("沒有存檔");else{newGame();start();}};
 addEventListener("resize",()=>G&&setTimeout(()=>fitMap(selCity!=null?C(selCity):null),100));
 
-// ---------- 音樂（Web Audio 合成，無外部檔案） ----------
-const BGM=(()=>{let ctx=null,master=null,cur=null,timer=null,scene="map",on=localStorage.getItem("sango_mus")!=="0";
- const PENTA=[0,2,4,7,9];const hz=(n)=>220*Math.pow(2,n/12);
- function pluck(t,f,v,dest,dec=1.2){const o=ctx.createOscillator(),o2=ctx.createOscillator(),g=ctx.createGain(),lp=ctx.createBiquadFilter();o.type="triangle";o2.type="sawtooth";o.frequency.value=f;o2.frequency.value=f*2.001;lp.type="lowpass";lp.frequency.setValueAtTime(f*8,t);lp.frequency.exponentialRampToValueAtTime(f*1.5,t+dec);const g2=ctx.createGain();g2.gain.value=.25;o2.connect(g2).connect(lp);o.connect(lp);lp.connect(g).connect(dest);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0005,t+dec);o.start(t);o2.start(t);o.stop(t+dec+.05);o2.stop(t+dec+.05)}
- function drum(t,f,v,dest,dec=.35){const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(f*2.2,t);o.frequency.exponentialRampToValueAtTime(f,t+.08);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0005,t+dec);o.connect(g).connect(dest);o.start(t);o.stop(t+dec+.05)}
- function noise(t,v,dest,dec=.08){const n=ctx.sampleRate*dec|0,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const s=ctx.createBufferSource(),g=ctx.createGain(),hp=ctx.createBiquadFilter();hp.type="highpass";hp.frequency.value=2500;s.buffer=b;g.gain.value=v;s.connect(hp).connect(g).connect(dest);s.start(t)}
- function makeBus(){const g=ctx.createGain();g.gain.value=0;g.connect(master);return g}
- // 地圖：五聲音階古箏撥弦＋低音持續；戰鬥：戰鼓節奏
- function mapLoop(bus){const beat=.5;let step=0,deg=2;const dr=ctx.createOscillator(),dg=ctx.createGain();dr.type="sine";dr.frequency.value=hz(-24);dg.gain.value=.05;dr.connect(dg).connect(bus);dr.start();const dr2=ctx.createOscillator();dr2.type="sine";dr2.frequency.value=hz(-17);const dg2=ctx.createGain();dg2.gain.value=.03;dr2.connect(dg2).connect(bus);dr2.start();
-  return{tick(t){if(step%16==0)pluck(t,hz(-12),.18,bus,2.5);if(Math.random()<.72){deg=cl(deg+[-2,-1,-1,1,1,2][ri(0,5)],0,9);const n=PENTA[deg%5]+12*Math.floor(deg/5);pluck(t,hz(n),.13,bus,1.4);if(Math.random()<.18)pluck(t+beat/2,hz(n+(deg%5==4?3:2)),.07,bus,.9)}step++;return beat},stop(t){dr.stop(t);dr2.stop(t)}}}
- function warLoop(bus){const beat=.24;let step=0;const pat=[1,0,0,1,0,1,0,0,1,0,1,0,1,1,0,1];
-  return{tick(t){const i=step%16;if(pat[i])drum(t,i%4==0?55:70,i%4==0?.55:.32,bus);if(i%2==1)noise(t,.05,bus);if(step%32==0)pluck(t,hz(-5),.12,bus,1.6);if(step%32==16)pluck(t,hz(-3),.12,bus,1.6);if(step%8==4&&Math.random()<.5)pluck(t,hz(PENTA[ri(0,4)]+12),.08,bus,.6);step++;return beat},stop(){}}}
- let next=0;
- function sched(){if(!ctx||!cur)return;while(next<ctx.currentTime+.3){next+=cur.loop.tick(next)}}
- function play(sc){if(!ctx)return;const t=ctx.currentTime;if(cur){const old=cur;old.bus.gain.cancelScheduledValues(t);old.bus.gain.setValueAtTime(old.bus.gain.value,t);old.bus.gain.linearRampToValueAtTime(0,t+1.5);setTimeout(()=>{old.loop.stop(ctx.currentTime);old.bus.disconnect()},1700)}
-  const bus=makeBus();bus.gain.linearRampToValueAtTime(sc=="war"?.9:.8,t+1.5);cur={sc,bus,loop:sc=="war"?warLoop(bus):mapLoop(bus)};next=t+.05}
- function init(){if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();master=ctx.createGain();master.gain.value=on?.35:0;master.connect(ctx.destination);timer=setInterval(sched,100);play(scene)}
- function setScene(sc){if(sc==scene)return;scene=sc;if(ctx&&on)play(sc)}
- function toggle(){on=!on;localStorage.setItem("sango_mus",on?"1":"0");if(!ctx)init();if(ctx){if(ctx.state=="suspended")ctx.resume();master.gain.setTargetAtTime(on?.35:0,ctx.currentTime,.2);if(on&&(!cur||cur.sc!=scene))play(scene)}upd()}
- function upd(){const b=document.getElementById("bMus");if(b){b.textContent=on?"♪":"♪̸";b.style.opacity=on?1:.5}}
- function sfx(k){if(!ctx||!on)return;const t=ctx.currentTime;if(k=="click")pluck(t,hz(19),.06,master,.25);else if(k=="hit"){drum(t,90,.4,master,.2);noise(t,.12,master,.1)}}
- // iOS：首次觸控後才啟動
- const first=()=>{init();if(ctx&&ctx.state=="suspended")ctx.resume();removeEventListener("touchend",first);removeEventListener("click",first)};
- addEventListener("touchend",first,{passive:true});addEventListener("click",first);
- return{setScene,toggle,upd,sfx,get on(){return on},get ctx(){return ctx},get scene(){return scene}}})();
-setInterval(()=>{const b=document.getElementById("battle");BGM.setScene(b&&getComputedStyle(b).display!="none"?"war":"map")},500);
-document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("button"))BGM.sfx("click")},true);
-$("#bMus").onclick=()=>BGM.toggle();BGM.upd();
-window.__T={get G(){return G},BGM,war,makeBattle,autoResolve,endTurn,command,selectCity};
+window.__T={get G(){return G},war,makeBattle,autoResolve,endTurn,command,selectCity};
 </script></body></html>
