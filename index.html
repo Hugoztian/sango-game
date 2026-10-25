@@ -243,8 +243,8 @@ async function command(k,c){
   if(ty==1){const t=await pick("離間對象",plotAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x))).map(offItem));if(!t)return;o.done=true;if(R()<.45+(o.z-t.z)/100){const d=ri(6,16);t.loy=Math.max(0,t.loy-d);const xe=gainExp(o,XP.plot,o.z);toast(`離間成功！${t.n} 忠誠 -${d}（${t.loy}） 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`離間失敗 經驗+${xe}`)}}
   else if(ty==2){const t=await pick("煽動目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 軍師智${shiZ(e)}・民忠${e.loy}`,v:e})));if(!t)return;o.done=true;if(R()<.45+(o.z-60)/100){t.loy=Math.max(0,t.loy-ri(6,15));t.troops=Math.round(t.troops*.9);const xe=gainExp(o,XP.plot,o.z);toast(`煽動成功！${t.n} 民心動搖 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`煽動失敗 經驗+${xe}`)}}
   else{const t=await pick("掠奪目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 主帥${(getShuai(e)||{n:"無"}).n}(${shuaiPow(e)})・成功${Math.round(plunderP(o,e)*100)}%・金${e.gold} 糧${e.food}`,v:e})));if(!t)return;o.done=true;const ok=R()<plunderP(o,t);if(ok){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,4));const xe=gainExp(o,XP.plot,o.t);toast(`掠奪成功！自${t.n}奪得 金+${sg} 糧+${sf} 經驗+${xe}`);logMsg(`${o.n} 掠奪${t.n} 金${sg}・糧${sf}`)}else{const xe=gainExp(o,XP.fail,o.t);toast(`掠奪失敗 經驗+${xe}`)}}}
- if(k=="移動"){const os=await pickOff(c,"移動：選擇武將（可多選）",10);if(!os||!os.length)return;const t=await pick("移動至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;os.forEach(o=>{o.c=t.id;o.done=true});syncPosts();toast(`${os.length}名武將移動至${t.n}`)}
- if(k=="輸送"){const o=await pickOff(c,"輸送：選擇武將");if(!o)return;const t=await pick("輸送至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;const a=await pick("輸送內容",[{label:"金 半數",sub:Math.floor(c.gold/2),v:"gold"},{label:"糧 半數",sub:Math.floor(c.food/2),v:"food"},{label:"兵力 半數",sub:Math.floor(c.troops/2),v:"troops"}]);if(!a)return;const n=Math.floor(c[a]/2);c[a]-=n;t[a]+=n;o.done=true;toast(`已輸送至${t.n}`)}
+ if(k=="移動"){const os=await pickOff(c,"移動：選擇武將（可多選）",10);if(!os||!os.length)return;const near=new Set(adj(c.id));const dests=facCities(0).filter(e=>e.id!=c.id);if(!dests.length)return toast("沒有其他己方城池");const t=await pick("移動至（己方任意城）",dests.map(e=>({label:e.n,sub:near.has(e.id)?"鄰接":"遠城",v:e})));if(!t)return;os.forEach(o=>{o.c=t.id;o.done=true});syncPosts();toast(`${os.length}名武將移動至${t.n}`)}
+ if(k=="輸送"){const o=await pickOff(c,"輸送：選擇武將");if(!o)return;if(!ownAdj.length)return toast("沒有鄰接的己方城池");const t=await pick("輸送至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;const pct=await pick("輸送比例",[{label:"25%",v:.25},{label:"50%",v:.5},{label:"75%",v:.75},{label:"100%",v:1}]);if(!pct)return;const kinds=await pick("輸送內容（可多選）",[{label:"金",sub:Math.floor(c.gold*pct),v:"gold",dis:Math.floor(c.gold*pct)<1},{label:"糧",sub:Math.floor(c.food*pct),v:"food",dis:Math.floor(c.food*pct)<1},{label:"兵力",sub:Math.floor(c.troops*pct),v:"troops",dis:Math.floor(c.troops*pct)<1}],3);if(!kinds||!kinds.length)return;const got=[];for(const a of kinds){const n=Math.floor(c[a]*pct);if(n<1)continue;c[a]-=n;t[a]+=n;got.push((a=="gold"?"金":a=="food"?"糧":"兵")+n)}o.done=true;toast(got.length?`已輸送至${t.n}：${got.join("・")}`:`無可輸送`)}
  if(k=="褒賞"){const o=await pick("褒賞（金100，忠誠上升）",offsIn(c.id,0).filter(x=>!isLord(x)).map(offItem));if(!o)return;if(c.gold<100)return toast("金不足");c.gold-=100;o.loy=Math.min(100,o.loy+ri(5,12));toast(`${o.n} 忠誠 ${o.loy}`)}
  if(k=="出征"){if(!enemyAdj.length)return toast("沒有鄰接的敵城");const t=await pick("出征目標",enemyAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 兵${e.troops} 城防${e.def} 武將${offsIn(e.id).length}`,v:e})));if(!t)return;
   const os=await pickOff(c,"出征武將（最多5名）",5);if(!os||!os.length)return;const capS=os.reduce((s,o)=>s+TCAP[rk(o)],0);const r=await pick(`出兵比例（帶兵上限合計 ${capS}）`,[.5,.7,.9].map(x=>({label:`${x*100}%`,sub:`${Math.min(capS,Math.floor(c.troops*x))}人`,v:x})));if(!r)return;const tr=Math.min(capS,Math.floor(c.troops*r));if(tr<500)return toast("兵力不足");
@@ -266,8 +266,8 @@ const its=o=>o.items||(o.items=[]);
 const baseStat=(o,k)=>o[k]-its(o).filter(x=>itemDef(x.n)[1]==k).reduce((t,x)=>t+x.b,0);
 // 君主固定一品；唯田郎由不入流起步，依經驗與自身批准晉升
 const fixedLord=o=>isLord(o)&&o.n!="田郎";
-const maxRank=o=>fixedLord(o)?9:cl(Math.floor((Math.max(...["t","w","z","p","m"].map(k=>o[k]))-55)/5)+1,1,9); // 官職上限依「含寶物」的有效能力
-const rk=o=>o.rk||0;
+const maxRank=o=>fixedLord(o)?9:cl(Math.floor((Math.max(...["t","w","z","p","m"].map(k=>o[k]))-60)/5)+1,1,9); /* 上限依最高能力(含寶物)：60九品→95二品→100一品；僅≥100可一品 */
+const rk=o=>Math.min(o.rk||0,maxRank(o)); /* 超過上限時按新分類降檔顯示 */
 const canPromote=o=>o.f>=0&&!fixedLord(o)&&rk(o)<maxRank(o)&&(o.exp||0)>=expReq(rk(o)+1);
 const promoList=()=>G?G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve"&&canPromote(o)):[];
 // 經驗＝基礎×能力係數×(1+經驗寶%)；能力係數＝2^((能力-70)/20)，限0.05～2（70=1倍、50≈0.5、30=0.25、90=2倍）——能力差者經驗指數級下降
@@ -635,14 +635,14 @@ const growK=c=>cl(prosper(c)/5,0,1); // 相對繁榮5.0的成長係數
 function popTick(rep){const net=G.cities.map(()=>0);
  G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c)/3);const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
  const dense=G.cities.map(()=>0);
- // 鄰城遷徙（單一迴圈）：先進的城市總是人們要去的地方
- // ①繁榮差|pGap|≥0.05：流向繁榮度（開發×民忠×名聲）高者；base＝來源人口×1%/3×|pGap|，mul＝1.15−目的地人口佔比×0.5（0.55~1.25，只調強弱不反向）
- // ②繁榮相近：人口差|oGap|≥0.12 時由密往疏，mv＝密城人口×1.2%/3×(|oGap|−0.12)/0.88
+ // 鄰城遷徙：每月每城外流合計≤人口3%（每旬均分）；先進城吸引；繁榮相近則密→疏
+ // ①繁榮差|pGap|≥0.05：流向繁榮度高者；②|oGap|≥0.12：密往疏
+ const outLeft=G.cities.map(c=>Math.max(0,Math.floor(c.pop*.03/3))); /* 本旬剩餘可外流額度：每月≤3% */
  ROADS.forEach(([an,bn])=>{const a=G.cities.find(c=>c.n==an),b=G.cities.find(c=>c.n==bn);const pa=prosper(a)*fame(a.f),pb=prosper(b)*fame(b.f);
   const pGap=(pa-pb)/(pa+pb+1e-9),oGap=(a.pop-b.pop)/(a.pop+b.pop+1e-9);let src,dst,raw,byPop=false;
   if(Math.abs(pGap)>=.05){[dst,src]=pGap>0?[a,b]:[b,a];const dens=dst.pop/(src.pop+dst.pop+1e-9);raw=src.pop*.01/3*Math.abs(pGap)*Math.max(.55,Math.min(1.25,1.15-dens*.5))}
   else if(Math.abs(oGap)>=.12){[src,dst]=oGap>0?[a,b]:[b,a];raw=src.pop*.012/3*(Math.abs(oGap)-.12)/.88;byPop=true}else return;
-  const mv=Math.max(0,Math.min(Math.round(raw),src.pop-POPMIN,POPMAX-dst.pop));if(!mv)return;src.pop-=mv;dst.pop+=mv;net[dst.id]+=mv;net[src.id]-=mv;if(byPop)dense[src.id]+=mv});
+  const mv=Math.max(0,Math.min(Math.round(raw),outLeft[src.id],src.pop-POPMIN,POPMAX-dst.pop));if(!mv)return;src.pop-=mv;dst.pop+=mv;outLeft[src.id]-=mv;net[dst.id]+=mv;net[src.id]-=mv;if(byPop)dense[src.id]+=mv});
  G.cities.forEach(c=>{c._m=net[c.id];if(rep&&c.f==0&&Math.abs(net[c.id])>=1500)rep.push(net[c.id]>0?`${c.n} 吸引移民 +${net[c.id]}人`:(dense[c.id]>=-net[c.id]/2?`${c.n} 人稠外流 ${net[c.id]}人`:`${c.n} 人口外流 ${net[c.id]}人`))})}
 // 開發難度：收益÷2^((現值-300)/300)，最少+1；花費 50×√倍率
 const devAt=(st,cur)=>Math.max(1,Math.round(devGain(st)/cExp(cur)));
