@@ -245,7 +245,7 @@ const recGot=(n,st)=>Math.round(n*expo(st));
 // ---------- 官職・經驗・寶物 ----------
 const RANKS=["不入流","九品","八品","七品","六品","五品","四品","三品","二品","一品"];
 const SALARY=[2,4,6,9,13,18,25,34,45,60];      // 每月俸祿（金）
-const BUDGET=[50,61,72,83,94,106,117,128,139,150] /* 內政花費：不入流50→一品150（3倍，線性）；效果只取決於能力，與資金無關 */; // 每次內政資金（金）
+const BUDGET=[50,61,72,83,94,106,117,128,139,150] /* 內政花費：不入流50→一品150（3倍，線性）；效果×資金/50（與能力指數相乘） */; // 每次內政資金（金）
 const TCAP=[1000,2000,3000,4000,5000,6500,8000,10000,12000,15000]; // 帶兵上限
 const expReq=r=>r<=0?0:100*(Math.pow(2,r)-1);  // 累積經驗門檻：每級翻倍
 const its=o=>o.items||(o.items=[]);
@@ -274,8 +274,10 @@ const recCap=c=>{const k=nowM();if(c._rm!==k){c._rm=k;c._rn=0}return Math.max(0,
 const failP=st=>st>=70?0:Math.min(.4,.4*Math.pow((70-st)/50,1.5));
 const SKN={t:"統率",w:"武力",z:"智力",p:"政治",m:"魅力"};
 const TNM={agri:"農業",com:"商業",def:"城防",loy:"民忠"};
-// 內政效果＝能力指數÷難度（與資金無關）；資金(品級決定)只是花費；多人執行時逐一套用、每人重新計算難度
-function devPrev(o,c,t){if(t=="loy")return Math.max(1,Math.round(8*expo(o.m)/Math.pow(2,(c.loy-60)/40)));return Math.max(1,Math.round(devGain(t=="def"?o.w:o.p)/cExp(c[t])))}
+// 內政效果＝能力指數÷難度（×資金÷50）；資金(品級決定)同時是花費與效果倍率；多人執行時逐一套用、每人重新計算難度
+/* 內政效果＝基準×(資金/50)×2^((能力-50)/30)÷難度；品級越高花費與效果同步提高（一品3倍） */
+const bF=o=>BUDGET[rk(o)]/50;
+function devPrev(o,c,t){if(t=="loy")return Math.max(1,Math.round(8*bF(o)*expo(o.m)/Math.pow(2,(c.loy-60)/40)));return Math.max(1,Math.round(14*bF(o)*expo(t=="def"?o.w:o.p)/cExp(c[t])))}
 function doDev(o,c,t){const cost=BUDGET[rk(o)];const nm=TNM[t];const cap=t=="loy"?100:999;if(c[t]>=cap)return`${o.n}：${nm}已達上限`;if(c.gold<cost)return`${o.n}：金不足（需${cost}），未執行`;c.gold-=cost;const sk=t=="def"?"武力":t=="loy"?"魅力":"政治",st=t=="def"?o.w:t=="loy"?o.m:o.p;o.done=true;if(R()<failP(st)){const l=Math.max(1,Math.round(devPrev(o,c,t)*.5));c[t]=Math.max(0,c[t]-l);gainExp(o,1);return`<span style="color:#f88">${o.n}（${sk}${st}・資金${cost}）${t=="loy"?"安撫":"開發"}失敗！處置失當，${nm} −${l}（${c[t]}）</span>`}const g=Math.min(cap-c[t],devPrev(o,c,t));c[t]+=g;gainExp(o,t=="loy"?g*4:g*2);return`${o.n}（${RANKS[rk(o)]}・${sk}${st}・資金${cost}）${t=="loy"?"安撫":"開發"}${nm} +${g}（${c[t]}）`}
 // 徵兵：一品・統率100・民忠100 每次最多5000；×品級係數4^((品級-9)/9)(不入流0.25→一品1,指數)；費用＝資金×4(不入流200→一品400,線性)×2^((統率-100)/30)×2^((民忠-100)/50)；並受每月人口1.5%上限
 const recYield=(o,c)=>Math.round(5000*Math.pow(4,(rk(o)-9)/9)*Math.pow(2,(cl(o.t,1,110)-100)/30)*Math.pow(2,(c.loy-100)/50));
