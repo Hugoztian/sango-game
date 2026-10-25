@@ -143,7 +143,7 @@ function newGame(choice,year){choice=choice||"田郎";year=year||SCEN_YEAR;const
  const FO=FACX.map((x,i)=>FACX.find((y,j)=>PI(j)==i));const factions=FO.map(([n,col],i)=>({n,col,lord:offs.find(o=>o.n==n).id,alive:true}));
  factions.forEach(f=>O0(offs,f.lord).loy=100);
  G={ver:4,player:choice,scen:year,year,month:1,xun:0,cities,offs,factions,adj:adjl,items:ITEMS.map(x=>x[0]),vault:[],log:[]};
- offs.forEach(o=>{o.maxRk=rollMaxRk(o);o.rk=0;o.exp=0;if(o.f>=0){o.rk=fixedLord(o)?9:isLord(o)?0:Math.max(0,maxRank(o)-4);o.exp=expReq(o.rk)}if(o.f>=0&&ITEM0[o.n])ITEM0[o.n].split("|").forEach(it=>{if(G.items.includes(it)&&applyItem(o,it))G.items.splice(G.items.indexOf(it),1)})});
+ offs.forEach(o=>{o.rk=0;o.exp=0;if(o.f>=0){o.rk=fixedLord(o)?9:isLord(o)?0:Math.max(0,maxRank(o)-4);o.exp=expReq(o.rk)}if(o.f>=0&&ITEM0[o.n])ITEM0[o.n].split("|").forEach(it=>{if(G.items.includes(it)&&applyItem(o,it))G.items.splice(G.items.indexOf(it),1)})});
 }
 function O0(a,i){return a[i]}
 const isLord=o=>o.f>=0&&G.factions[o.f].lord==o.id;
@@ -233,7 +233,7 @@ async function command(k,c){
  if(k=="輸送"){const o=await pickOff(c,"輸送：選擇武將");if(!o)return;const t=await pick("輸送至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;const a=await pick("輸送內容",[{label:"金 半數",sub:Math.floor(c.gold/2),v:"gold"},{label:"糧 半數",sub:Math.floor(c.food/2),v:"food"},{label:"兵力 半數",sub:Math.floor(c.troops/2),v:"troops"}]);if(!a)return;const n=Math.floor(c[a]/2);c[a]-=n;t[a]+=n;o.done=true;toast(`已輸送至${t.n}`)}
  if(k=="褒賞"){const o=await pick("褒賞（金100，忠誠上升）",offsIn(c.id,0).filter(x=>!isLord(x)).map(offItem));if(!o)return;if(c.gold<100)return toast("金不足");c.gold-=100;o.loy=Math.min(100,o.loy+ri(5,12));toast(`${o.n} 忠誠 ${o.loy}`)}
  if(k=="出征"){if(!enemyAdj.length)return toast("沒有鄰接的敵城");const t=await pick("出征目標",enemyAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 兵${e.troops} 城防${e.def} 武將${offsIn(e.id).length}`,v:e})));if(!t)return;
-  const os=await pickOff(c,"出征武將（最多6名）",6);if(!os||!os.length)return;const capS=os.reduce((s,o)=>s+TCAP[rk(o)],0);const r=await pick(`出兵比例（帶兵上限合計 ${capS}）`,[.5,.7,.9].map(x=>({label:`${x*100}%`,sub:`${Math.min(capS,Math.floor(c.troops*x))}人`,v:x})));if(!r)return;const tr=Math.min(capS,Math.floor(c.troops*r));if(tr<500)return toast("兵力不足");
+  const os=await pickOff(c,"出征武將（最多5名）",5);if(!os||!os.length)return;const capS=os.reduce((s,o)=>s+TCAP[rk(o)],0);const r=await pick(`出兵比例（帶兵上限合計 ${capS}）`,[.5,.7,.9].map(x=>({label:`${x*100}%`,sub:`${Math.min(capS,Math.floor(c.troops*x))}人`,v:x})));if(!r)return;const tr=Math.min(capS,Math.floor(c.troops*r));if(tr<500)return toast("兵力不足");
   const types=[];for(const o of os){const ty=await pick(`${o.n} 的兵種（統${o.t} 武${o.w} 智${o.z}）`,Object.entries(TY).map(([k,T])=>({label:`${T.ic} ${T.n}`,sub:`移動${T.mv} 射程${T.r.join("-")}・剋${TY[BEATS[k]].n}${k==autoType(o)?"・推薦":""}`,v:k})));if(!ty)return;types.push(ty)}
   const food=Math.min(c.food,Math.ceil(tr/5));c.troops-=tr;c.food-=food;os.forEach(o=>o.done=true);await war(0,c,t,os,tr,true,"A",types,food);}
  render()}
@@ -252,11 +252,7 @@ const its=o=>o.items||(o.items=[]);
 const baseStat=(o,k)=>o[k]-its(o).filter(x=>itemDef(x.n)[1]==k).reduce((t,x)=>t+x.b,0);
 // 君主固定一品；唯田郎由不入流起步，依經驗與自身批准晉升
 const fixedLord=o=>isLord(o)&&o.n!="田郎";
-// 官職上限＝開局抽樣的金字塔分布（低品多、高品少，一品≈5%），存於 o.maxRk；高能力略偏高
-const MAXRK_W=[20,16,13,11,9,7,6,4,4,5]; // 不入流…一品 權重，合計95，一品5/95≈5.3%
-const MAXRK_SUM=MAXRK_W.reduce((a,b)=>a+b,0);
-function rollMaxRk(o){if(fixedLord(o)||o.n=="田郎")return 9;const best=Math.max(o.t,o.w,o.z,o.p,o.m);let u=cl(R()+(best-62)/400,0,.999),acc=0;for(let i=0;i<10;i++){acc+=MAXRK_W[i]/MAXRK_SUM;if(u<=acc)return i}return 9}
-const maxRank=o=>fixedLord(o)?9:(o.maxRk!=null?o.maxRk:9);
+const maxRank=o=>fixedLord(o)?9:cl(Math.floor((Math.max(...["t","w","z","p","m"].map(k=>o[k]))-55)/5)+1,1,9); // 官職上限依「含寶物」的有效能力
 const rk=o=>o.rk||0;
 const canPromote=o=>o.f>=0&&!fixedLord(o)&&rk(o)<maxRank(o)&&(o.exp||0)>=expReq(rk(o)+1);
 const promoList=()=>G?G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve"&&canPromote(o)):[];
@@ -586,7 +582,7 @@ function foodInc(c){return 2*Math.round(2700*cExp(c.agri)*(.5+c.loy/200)+c.pop/3
 const nextHarvest=()=>G.month<7?`${7-G.month}個月後（7月）`:G.month==7?"本月已收":`${19-G.month}個月後（明年7月）`;
 // ---------- save/load ----------
 function save(slot){localStorage.setItem("sango_"+slot,JSON.stringify(G));}
-function load(slot){const s=localStorage.getItem("sango_"+slot);if(!s)return false;let x;try{x=JSON.parse(s)}catch(e){return false}if(!x||x.ver!==4){toast("舊版存檔不相容，請開始新遊戲",3000);return false}G=x;G.cities.forEach(c=>{const d=CITY.find(z=>z[0]==c.n);if(d){c.x=d[1];c.y=d[2]}});G.offs.forEach(o=>{if(!o.items){o.items=o.item?[{n:o.item,b:o.ib||itemDef(o.item)[2]}]:[]}delete o.item;delete o.ib;if(o.maxRk==null)o.maxRk=fixedLord(o)||o.n=="田郎"?9:rollMaxRk(o)});return true}
+function load(slot){const s=localStorage.getItem("sango_"+slot);if(!s)return false;let x;try{x=JSON.parse(s)}catch(e){return false}if(!x||x.ver!==4){toast("舊版存檔不相容，請開始新遊戲",3000);return false}G=x;G.cities.forEach(c=>{const d=CITY.find(z=>z[0]==c.n);if(d){c.x=d[1];c.y=d[2]}});G.offs.forEach(o=>{if(!o.items){o.items=o.item?[{n:o.item,b:o.ib||itemDef(o.item)[2]}]:[]}delete o.item;delete o.ib;delete o.maxRk});return true}
 async function menu(){const v=await pick("選單",[{label:"存檔 1",v:"s1"},{label:"存檔 2",v:"s2"},{label:"讀取 1",v:"l1",dis:!localStorage.getItem("sango_1")},{label:"讀取 2",v:"l2",dis:!localStorage.getItem("sango_2")},{label:"讀取自動存檔",v:"la",dis:!localStorage.getItem("sango_auto")},{label:"戰報",v:"log"},{label:"寶物庫",v:"vault"},{label:"新遊戲",v:"new"}]);if(!v)return;
  if(v[0]=="s"){save(v[1]);toast("已存檔")}else if(v[0]=="l"){load(v[1]=="a"?"auto":v[1]);selCity=null;render();fitMap();toast("已讀取")}else if(v=="vault")vaultView();else if(v=="log")modal("戰報",G.log.join("<br>")||"無");else if(v=="new"){const ch=await modal("新遊戲","選擇君主重新開始：",[{t:"取消",v:0},{t:"劉備（平原）",v:"劉備"},{t:"田郎（錢塘）",v:"田郎",cls:"pri"}]);if(ch){newGame(ch);selCity=null;render();fitMap()}}}
 function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve");
@@ -594,7 +590,7 @@ function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serv
   {h:"姓名",v:o=>o.n,f:o=>`${canPromote(o)?"⬆️":""}${o.n}${isLord(o)?"👑":""}`},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"經驗",v:o=>o.exp||0,f:o=>`${o.exp||0}/${rk(o)>=9?"-":expReq(rk(o)+1)}`},{h:"上限",v:o=>maxRank(o),f:o=>RANKS[maxRank(o)]},
   {h:"俸祿",v:o=>isLord(o)?0:SALARY[rk(o)]},{h:"資金",v:o=>BUDGET[rk(o)]},{h:"帶兵",v:o=>TCAP[rk(o)]},{h:"寶物",v:o=>its(o).map(x=>x.n).join("、")},{h:"忠",v:o=>o.loy},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"城",v:o=>C(o.c).n}],
   rows,o=>officerDetail(o),[["全部","all",()=>true],["可晉升","promo",o=>canPromote(o)]],[{t:`全部晉升(${promoList().length})`,v:"all"},{t:`寶物庫(${G.vault.length})`,v:"vault"}]).then(async v=>{if(v=="all"){const l=promoList();l.forEach(promote);if(l.length)await modal("晉升",l.map(o=>`${o.n} 晉升為 <b>${RANKS[rk(o)]}</b>（忠誠${o.loy}）`).join("<br>"));render();officerTable()}else if(v=="vault")vaultView()})}
-async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}，開局天資（金字塔））<br>能力（含寶物）：${["t","w","z","p","m"].map(k=>{const d=o[k]-baseStat(o,k);return SKN[k]+o[k]+(d?`<span style="color:#ffd77a">(+${d})</span>`:"")}).join(" ")}　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（統武智政魅・經驗各限一件）：${its(o).map(x=>{const d=itemDef(x.n);return`${x.n}（${SKN[d[1]]}${itemBonusTxt(d)}）`}).join("、")||"無"}`;
+async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}，依含寶物能力）<br>能力（含寶物）：${["t","w","z","p","m"].map(k=>{const d=o[k]-baseStat(o,k);return SKN[k]+o[k]+(d?`<span style="color:#ffd77a">(+${d})</span>`:"")}).join(" ")}　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>寶物（統武智政魅・經驗各限一件）：${its(o).map(x=>{const d=itemDef(x.n);return`${x.n}（${SKN[d[1]]}${itemBonusTxt(d)}）`}).join("、")||"無"}`;
  const b=[{t:"返回",v:0}];if(canPromote(o))b.push({t:`晉升→${RANKS[nx]}`,v:1,cls:"pri"});if(!isLord(o)&&rk(o)>0)b.push({t:"降級",v:2});if(G.vault.length)b.push({t:"賜予寶物",v:4});if(its(o).length)b.push({t:"沒收寶物",v:5});if(!isLord(o))b.push({t:"開除",v:3});
  const v=await modal("武將",info,b);if(!v){render();return officerTable()}
  if(v==1){promote(o);toast(`${o.n} 晉升為 ${RANKS[rk(o)]}，忠誠 ${o.loy}`)}
