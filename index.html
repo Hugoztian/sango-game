@@ -292,6 +292,20 @@ const sameStat=(o,it)=>its(o).find(x=>itemDef(x.n)[1]==itemDef(it)[1]);
 function applyItem(o,it){const d=itemDef(it);if(sameStat(o,it))return false;its(o).push({n:it,b:d[2]});if(d[1]!="e")o[d[1]]+=d[2];return true}
 function grantItem(o,it){const old=sameStat(o,it);if(old)revokeItem(o,true,old.n);G.vault.splice(G.vault.indexOf(it),1);applyItem(o,it);o.loy=Math.min(100,o.loy+10)}
 function revokeItem(o,swap,name){const L=its(o);if(!L.length)return;const i=name?L.findIndex(x=>x.n==name):L.length-1;if(i<0)return;const x=L.splice(i,1)[0];const d=itemDef(x.n);if(d[1]!="e")o[d[1]]-=x.b;if(o.f==0)G.vault.push(x.n);if(!swap)o.loy=Math.max(0,o.loy-10)}
+function itScore(o,k){return k=="e"?["t","w","z","p","m"].reduce((t,x)=>t+baseStat(o,x),0):baseStat(o,k)}
+function myOffs(){return G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve")}
+function myLord(){return G.offs.find(o=>!o.dead&&o.f==0&&isLord(o))}
+function autoAssignTreasures(){const offs=myOffs(),lord=myLord(),before={};const pool=G.vault.slice();G.vault=[];
+ offs.forEach(o=>{const L=its(o);L.forEach(x=>{before[x.n]=o.id;pool.push(x.n);const d=itemDef(x.n);if(d[1]!="e")o[d[1]]-=x.b});L.length=0});
+ const uniq=[...new Set(pool)],ch=[];
+ ["t","w","z","p","m","e"].forEach(k=>{const L=uniq.filter(n=>itemDef(n)[1]==k).sort((a,b)=>itemDef(b)[2]-itemDef(a)[2]);
+  const cand=offs.filter(o=>o!==lord).sort((a,b)=>itScore(b,k)-itScore(a,k)||rk(b)-rk(a)||a.id-b.id);if(lord)cand.unshift(lord);
+  L.forEach((n,i)=>{const o=cand[i];if(o){applyItem(o,n);if(before[n]!==o.id)ch.push(`${o.n}←${n}`)}else G.vault.push(n)})});
+ return ch.length?ch.slice(0,12).join("、")+(ch.length>12?` 等${ch.length}項`:""):"已是最適配置"}
+function autoEquipFind(it){const d=itemDef(it),k=d[1],lord=myLord();const cur=o=>{const x=sameStat(o,it);return x?x.b:-1e9};
+ const take=o=>{const old=sameStat(o,it);if(old)revokeItem(o,true,old.n);G.vault.splice(G.vault.indexOf(it),1);applyItem(o,it);return o};
+ if(lord&&d[2]>cur(lord))return take(lord);
+ const c=myOffs().filter(o=>o!==lord&&d[2]>cur(o)).sort((a,b)=>itScore(b,k)-itScore(a,k)||rk(b)-rk(a)||a.id-b.id)[0];return c?take(c):null}
 function dismiss(o){while(its(o).length)revokeItem(o,true);o.f=-1;o.st="free";o.loy=0;o.done=true}
 const loyRecF=loy=>cl(Math.pow(2,(loy-70)/15),.1,1.5);
 const recCap=c=>{const k=nowM();if(c._rm!==k){c._rm=k;c._rn=0}return Math.max(0,Math.floor(c.pop*.015)-c._rn)}; // 每城每月徵兵上限＝人口1.5% // 徵兵：民忠每15點翻倍（70=1倍、40=0.25倍、上限1.5倍）；基礎產量×0.5
@@ -321,7 +335,7 @@ const XUN=["上旬","中旬","下旬"],MNM=["正","二","三","四","五","六",
 const dateStr=(y=G.year,m=G.month,x=G.xun||0)=>`${y}年${SEAS[(m-1)/3|0]}${MNM[m-1]}月${XUN[x]}`;
 function doSearch(o,c){o.done=true;const hid=G.offs.filter(x=>x.st=="hidden"&&x.c==c.id&&!x.dead).sort((a,b)=>(b.t+b.w+b.z+b.p+b.m)-(a.t+a.w+a.z+a.p+a.m));
  const zt=`（智力${o.z}）`;if(hid.length&&R()<Math.min(.98,searchP(o.z)*fame(o.f))){const h=hid[0];h.st="free";h.foundAt=nowM();const xe=gainExp(o,12*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 發現在野武將 <b class="newf">${h.n}</b>（統${h.t} 武${h.w} 智${h.z} 政${h.p} 魅${h.m}），可「登用」`+xpT(xe)}
- if(G.items.length&&R()<.12){const it=G.items.splice(ri(0,G.items.length-1),1)[0];const d=itemDef(it);G.vault.push(it);const xe=gainExp(o,18*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 獲得寶物 <b>${it}</b>（${SKN[d[1]]}${itemBonusTxt(d)}），已存入寶物庫，可於「人事」賜予武將`+xpT(xe)}
+ if(G.items.length&&R()<.12){const it=G.items.splice(ri(0,G.items.length-1),1)[0];const d=itemDef(it);G.vault.push(it);const ow=o.f==0?autoEquipFind(it):null;const xe=gainExp(o,18*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 獲得寶物 <b>${it}</b>（${SKN[d[1]]}${itemBonusTxt(d)}），${ow?`已自動交予 <b>${ow.n}</b> 裝備（最適）`:"已存入寶物庫，可於寶物庫→最適分配"}`+xpT(xe)}
  if(R()<findP(o.z)){const xe=gainExp(o,6*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);if(R()<.5){const g=findGold(c);c.gold+=g;return`${o.n}${zt} 於城中尋得 <b>金 +${g}</b>（${c.gold}）`+xpT(xe)}const f=findFood(c);c.food+=f;return`${o.n}${zt} 於城中尋得 <b>糧 +${f}</b>（${c.food}）`+xpT(xe)}
  const xe=gainExp(o,2.5*SEARCH_XP,o.z,SXP_MIN,SXP_MAX);return`${o.n}${zt} 搜索無所獲`+xpT(xe)}
 // 搜索得金糧：機率隨智力指數上升（智30≈16%、50=25%、70≈40%、90+≈60%上限），量隨開發；上限＝現存5%（最少金30/糧150），絕對上限金200/糧1000
@@ -642,7 +656,7 @@ function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serv
  sortTable(`人事（${rows.length}名，可晉升${promoList().length}）`,[
   {h:"",v:o=>o.n,f:o=>avHtml(o)},{h:"姓名",v:o=>o.n,f:o=>`${canPromote(o)?"⬆️":""}${o.n}${isLord(o)?"👑":""}`},{h:"品級",v:o=>rk(o),f:o=>RANKS[rk(o)]},{h:"經驗",v:o=>o.exp||0,f:o=>`${o.exp||0}/${rk(o)>=9?"-":expReq(rk(o)+1)}`},{h:"上限",v:o=>maxRank(o),f:o=>RANKS[maxRank(o)]},
   {h:"俸祿",v:o=>isLord(o)?0:SALARY[rk(o)]},{h:"資金",v:o=>BUDGET[rk(o)]},{h:"帶兵",v:o=>TCAP[rk(o)]},{h:"寶物",v:o=>its(o).map(x=>x.n).join("、")},{h:"忠",v:o=>o.loy},{h:"統",v:o=>o.t},{h:"武",v:o=>o.w},{h:"智",v:o=>o.z},{h:"政",v:o=>o.p},{h:"魅",v:o=>o.m},{h:"城",v:o=>C(o.c).n}],
-  rows,o=>officerDetail(o),[["全部","all",()=>true],["可晉升","promo",o=>canPromote(o)]],[{t:`全部晉升(${promoList().length})`,v:"all"},{t:`寶物庫(${G.vault.length})`,v:"vault"}]).then(async v=>{if(v=="all"){const l=promoList();l.forEach(promote);if(l.length)await modal("晉升",l.map(o=>`${o.n} 晉升為 <b>${RANKS[rk(o)]}</b>（忠誠${o.loy}）`).join("<br>"));render();officerTable()}else if(v=="vault")vaultView()})}
+  rows,o=>officerDetail(o),[["全部","all",()=>true],["可晉升","promo",o=>canPromote(o)]],[{t:`全部晉升(${promoList().length})`,v:"all"},{t:`寶物庫(${G.vault.length})`,v:"vault"},{t:"最適分配",v:"auto"}]).then(async v=>{if(v=="auto"){await modal("最適分配",autoAssignTreasures());render();officerTable();return}if(v=="all"){const l=promoList();l.forEach(promote);if(l.length)await modal("晉升",l.map(o=>`${o.n} 晉升為 <b>${RANKS[rk(o)]}</b>（忠誠${o.loy}）`).join("<br>"));render();officerTable()}else if(v=="vault")vaultView()})}
 async function officerDetail(o){while(true){const nx=rk(o)+1;const info=`<b>${o.n}</b>${isLord(o)?"（君主）":""}　${C(o.c).n}<br>品級 <b>${RANKS[rk(o)]}</b>（上限 ${RANKS[maxRank(o)]}，依含寶物能力）<br>能力（含寶物）：${["t","w","z","p","m"].map(k=>{const d=o[k]-baseStat(o,k);return SKN[k]+o[k]+(d?`<span style="color:#ffd77a">(+${d})</span>`:"")}).join(" ")}　經驗 ${o.exp||0}${nx<=9?` / 晉升需 ${expReq(nx)}`:""}<br>俸祿 ${isLord(o)?0:SALARY[rk(o)]}／月　內政資金 ${BUDGET[rk(o)]}　帶兵上限 ${TCAP[rk(o)]}<br>統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　忠誠 ${o.loy}<br>戰績：殺敵 ${o.kill||0}　殲滅 ${o.wipe||0}　單挑 ${o.duelW||0}勝/${o.duelL||0}負　被殺 ${o.died||0}　被殲 ${o.routed||0}<br>寶物（統武智政魅・經驗各限一件）：${its(o).map(x=>{const d=itemDef(x.n);return`${x.n}（${SKN[d[1]]}${itemBonusTxt(d)}）`}).join("、")||"無"}`;
  const b=[{t:"返回",v:0}];if(canPromote(o))b.push({t:`晉升→${RANKS[nx]}`,v:1,cls:"pri"});if(!isLord(o)&&rk(o)>0)b.push({t:"降級",v:2});if(G.vault.length)b.push({t:"賜予寶物",v:4});if(its(o).length)b.push({t:"沒收寶物",v:5});if(!isLord(o))b.push({t:"開除",v:3});
  const v=await modal("武將",info,b);if(!v){render();return officerTable()}
@@ -659,7 +673,7 @@ function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length).f
  const own=n=>hold[n]?hold[n].map(o=>`${o.n}（${o.f>=0?fname(o.f):"在野"}）`).join("、"):G.vault.includes(n)?"我方庫存":"無（未發現）";
  const all=ITEMS.map(x=>x[0]);const h3=document.createElement("div");h3.innerHTML=`<h4 style="margin:8px 0 4px;color:#ffd77a">天下寶物一覽（${all.length}）・持有者</h4>`;
  h3.appendChild(stEl([{h:"寶物",v:n=>n},{h:"能力",v:n=>SKN[itemDef(n)[1]]},{h:"加成",v:n=>itemBonusTxt(itemDef(n))},{h:"持有者",v:n=>own(n)}],all,{hint:false,sort:2}));box.insertBefore(h3,box.lastElementChild);
- return modal("寶物庫",box)}
+ return modal("寶物庫",box,[{t:"最適分配",v:"auto",cls:"pri"},{t:"關閉",v:false}]).then(async v=>{if(v=="auto"){await modal("最適分配",autoAssignTreasures());render();return vaultView()}return v})}
 // ---------- 一覽表（可排序、橫向捲動、首欄固定） ----------
 // 通用可排序表格：點欄名切換 ▼降冪/▲升冪
 function stEl(cols,rows,o={}){let key=o.sort??null,dir=o.dir||-1,flt=o.filters?o.filters[0][1]:null;const box=document.createElement("div");
