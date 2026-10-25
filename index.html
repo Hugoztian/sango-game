@@ -566,7 +566,7 @@ function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;const mine=fac
 // 四階爵位：伯(15名：縣伯5・鄉伯5・亭伯5)；開局全員「無爵」(名聲0.95)，綜合實力≥230且名聲≥110方可受封伯，先到先得・侯(7名)・公(5名)・王(3名)，統一天下為皇帝。每個封號獨一無二，名單由尊至卑排列。
 // 先達者得最尊之號，後到者依次遞補；該階已滿則留在下階等候空缺。
 // 名聲依封號尊卑：伯1.12→1.00、侯1.30→1.15、公1.50→1.35、王1.75→1.55、皇帝1.8。
-// 晉階則釋放原封號；勢力滅亡釋放封號；綜合實力跌破現階門檻50%時降一階。
+// 晉階則釋放原封號；勢力滅亡釋放封號；綜合實力跌破現階門檻75%時降一階。
 const TIER=["伯","侯","公","王"],TIER_TH=[230,450,750,1200]; // 伯≥230・侯≥450・公≥750・王≥1200（另需名聲）；未受封者「無爵」爵位倍率0.95
 const TNAMES=[
  "宜城縣 臨晉縣 安平縣 東阿縣 昌邑縣 高陽鄉 安樂鄉 平陸鄉 長社鄉 鄢陵鄉 都鄉亭 廣昌亭 武原亭 臨沮亭 新安亭".split(" "),
@@ -590,10 +590,12 @@ const tierFor=(pw,rp)=>{let t=-1;while(t<3&&pw>=TIER_TH[t+1]&&(rp==null||rp>=REP
 const freeSlot=t=>{const used=new Set(G.factions.filter(F=>F.alive&&F.tier===t).map(F=>F.slot));for(let k=0;k<TNAMES[t].length;k++)if(!used.has(k))return k;return -1};
 function seat(F,t){F.tier=null;F.slot=null;for(let tt=t;tt>=0;tt--){const k=freeSlot(tt);if(k>=0){F.tier=tt;F.slot=k;return}}F.tier=-1;F.slot=0}
 function initTitles(){const L=G.factions.map((F,f)=>({F,f,pw:F.alive?facPower(f):-1})).sort((a,b)=>b.pw-a.pw);L.forEach(x=>{x.F.tier=null;x.F.slot=null});L.forEach(x=>{if(x.F.alive){x.F.tier=-1;x.F.slot=0;if(x.F.rep==null)x.F.rep=100}})} // 開局全員無爵
-async function titleTick(){let big=null;G.factions.forEach((F,f)=>{if(F.alive)addRep(f,facCities(f).length*.1/3)});G.factions.forEach(F=>{if(!F.alive){F.tier=null;F.slot=null}});
+// 獻帝在許昌：據許昌者每旬名聲+0.5（月計+1.5）；綜合達標自動晉爵，跌破門檻75%降一階
+const XU_REP=.5,xuOwner=()=>{const c=G.cities.find(c=>c.n=="許昌");return c?c.f:-1};
+async function titleTick(){let big=null;G.factions.forEach((F,f)=>{if(F.alive)addRep(f,facCities(f).length*.1/3)});{const xo=xuOwner();if(xo>=0&&G.factions[xo]&&G.factions[xo].alive)addRep(xo,XU_REP)}G.factions.forEach(F=>{if(!F.alive){F.tier=null;F.slot=null}});
  const L=G.factions.map((F,f)=>({F,f,pw:facPower(f)})).filter(x=>x.F.alive).sort((a,b)=>b.pw-a.pw);
  for(const {F,f,pw} of L){if(F.tier==null){seat(F,tierFor(pw,frep(f)));continue}const cur=F.tier,old=titleName(f);let want=cur;
-  if(facCities(f).length==G.cities.length)want=4;else if(cur<4){const t=tierFor(pw,frep(f));if(t>cur)want=t;else if(cur>=0&&pw<TIER_TH[cur]*.5)want=cur-1}
+  if(facCities(f).length==G.cities.length)want=4;else if(cur<4){const t=tierFor(pw,frep(f));if(t>cur)want=t;else if(cur>=0&&pw<TIER_TH[cur]*.75)want=cur-1}
   if(want==cur)continue;
   if(want==4){F.tier=4;F.slot=0}else if(want>cur){let got=-1,gt=cur;for(let t=want;t>cur&&t>=0;t--){const k=freeSlot(t);if(k>=0){got=k;gt=t;break}}if(got<0)continue;F.tier=gt;F.slot=got}else if(want<0){F.tier=-1;F.slot=0}else seat(F,want);
   const nm=titleName(f);if(nm==old)continue;logMsg(`${F.n} ${F.tier>cur?"晉封":"降為"} ${nm}`);
@@ -619,7 +621,45 @@ async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;t
  if(facCities(0).length==G.cities.length){await modal("天下統一！",`${G.year}年，${fname(0)}終於一統天下，開創太平盛世！`,[{t:"再玩一次",v:1}]);location.reload();return}
  if(debut.length)await modal(`${G.year}年 新武將登場`,`<p>傳聞以下人物已出仕在野，可至該城「搜索」：</p>`+debut.map(o=>`<div class='orow'><span class='nm'>${o.n}</span><span>${C(o.c).n}　統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}</span></div>`).join(""));
  const head=newM&&G.month==7?"秋收・糧收入":"";if(rep.length||head)await modal(`${dateStr()} ${head}`,rep.join("<br>")+"<hr>"+G.log.slice(0,6).join("<br>"));else toast(`${dateStr()}　本旬金收入 +${gsum}`,2500);
+ if(newM&&G.month%3==1&&G.quizM!==G.year*100+G.month&&facCities(0).length){G.quizM=G.year*100+G.month;await quizTick();save("auto");render()}
  }finally{ending=false;$("#bEnd").disabled=false}}
+// 季度歷史問答：正、四、七、十月各一題，答對隨機獎勵
+const QUIZ=[
+["黃巾起義爆發於哪一年？",["西元184年","西元189年","西元168年","西元196年"],0],
+["黃巾軍首領「天公將軍」是誰？",["張角","張寶","張梁","張燕"],0],
+["董卓入京後廢少帝，改立何人為帝？",["劉協（獻帝）","劉辯","劉宏","劉表"],0],
+["討伐董卓的關東聯軍盟主是誰？",["袁紹","曹操","袁術","孫堅"],0],
+["王允聯合何人誅殺董卓？",["呂布","李傕","郭汜","張遼"],0],
+["曹操迎獻帝，遷都至何處？",["許昌","洛陽","長安","鄴城"],0],
+["官渡之戰中，曹操擊敗了誰？",["袁紹","袁術","劉表","呂布"],0],
+["曹操奇襲何處燒毀袁紹糧草，扭轉官渡戰局？",["烏巢","白馬","延津","倉亭"],0],
+["劉備三顧茅廬，請出了哪位謀士？",["諸葛亮","龐統","徐庶","法正"],0],
+["赤壁之戰（208年）孫劉聯軍主帥是誰？",["周瑜","魯肅","呂蒙","陸遜"],0],
+["呂布最終在何處被曹操擒殺？",["下邳","小沛","濮陽","徐州"],0],
+["孫策死後，繼承江東基業的是誰？",["孫權","孫堅","孫翊","孫皓"],0],
+["劉備取益州時，原益州之主是誰？",["劉璋","劉表","張魯","劉焉"],0],
+["關羽水淹七軍，擒獲了曹軍哪位將領？",["于禁","龐德","曹仁","徐晃"],0],
+["呂蒙「白衣渡江」奪取了何處？",["荊州","合肥","襄陽","漢中"],0],
+["夷陵之戰中大敗劉備的東吳統帥是誰？",["陸遜","呂蒙","周瑜","甘寧"],0],
+["曹丕受禪稱帝，建立魏國是在哪一年？",["西元220年","西元208年","西元222年","西元229年"],0],
+["定軍山之戰，黃忠斬殺了哪位魏將？",["夏侯淵","夏侯惇","張郃","曹洪"],0],
+["合肥之戰中以八百騎衝擊孫權大軍的是誰？",["張遼","樂進","李典","許褚"],0],
+["劉備在何處託孤於諸葛亮？",["白帝城","成都","江州","漢中"],0]];
+async function quizTick(){if(!G.quizUsed)G.quizUsed=[];let pool=QUIZ.map((_,i)=>i).filter(i=>!G.quizUsed.includes(i));if(!pool.length){G.quizUsed=[];pool=QUIZ.map((_,i)=>i)}
+ const qi=pool[Math.floor(R()*pool.length)];G.quizUsed.push(qi);const [q,opts]=QUIZ[qi];const ord=opts.map((t,i)=>({t,i})).sort(()=>R()-.5);
+ const ans=await modal(`📜 ${dateStr()} 史事問答`,`<p>${q}</p><p style="font-size:12px;opacity:.7">答對可得隨機獎賞</p>`,ord.map((o,k)=>({t:"ABCD"[k]+". "+o.t,v:o.i})));
+ const own=facCities(0);if(ans!==0){toast(`答錯了，正解是「${opts[0]}」`,3000);return}
+ if(!own.length)return;const pw=Math.max(80,facPower(0)); /* 獎賞隨綜合實力：約2～4%量級，不固定死數 */
+ const rc=()=>own[Math.floor(R()*own.length)];const rw=[
+  ()=>{const c=rc();const v=Math.round(pw*(1.5+R()*1.5));c.gold+=v;return`${c.n} 金 +${v}`},
+  ()=>{const c=rc();const v=Math.round(pw*(4+R()*4));c.food+=v;return`${c.n} 糧 +${v}`},
+  ()=>{const c=rc();const v=Math.round(pw*(2+R()*2));c.troops+=v;return`${c.n} 兵力 +${v}`},
+  ()=>{const c=rc();const v=Math.min(POPMAX-c.pop,Math.round(pw*(30+R()*40)));c.pop+=v;return`${c.n} 人口 +${v}`},
+  ()=>{const c=rc();const v=cl(Math.round(4+pw/80),4,12);c.train=Math.min(100,c.train+v);return`${c.n} 訓練 +${v}`},
+  ()=>{const v=cl(Math.round(2+pw/120),2,8);G.offs.forEach(o=>{if(o.st=="serve"&&o.f==0&&!isLord(o))o.loy=Math.min(100,o.loy+v)});return`我方全體武將忠誠 +${v}`},
+  ()=>{const v=cl(Math.round(4+pw/100),5,18);addRep(0,v);return`名聲 +${v}`}];
+ const msg=rw[Math.floor(R()*rw.length)]();logMsg(`史事問答答對：${msg}`);
+ await modal("🎉 答對了！",`<p>正解：「${opts[0]}」</p><p>獻帝嘉獎（依綜合實力 ${pw}）：<b>${msg}</b></p>`)}
 function yearEvents(){if(G.month!=1)return[];const deb=[];G.offs.forEach(o=>{if(o.dead)return;
  if(o.st=="future"&&G.year>=o.y){if(o.d&&G.year>=o.d){o.dead=true;o.st="dead";return}o.st="hidden";if(o.n!="諸葛亮"&&R()<.35){const nb=adj(o.c).map(C).sort((a,b)=>b.pop-a.pop)[0];if(nb&&nb.pop>C(o.c).pop)o.c=nb.id}deb.push(o);logMsg(`新武將 ${o.n} 登場於 ${C(o.c).n}`)}
  else if(o.d&&G.year>=o.d&&o.st!="future"&&!isLord(o)&&R()<.35){const was=o.st=="serve"?fname(o.f):"在野";o.dead=true;o.st="dead";logMsg(`${o.n}（${was}）病逝`)}});return deb}
