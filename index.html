@@ -223,7 +223,7 @@ function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(
  const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
  p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small>${mine?`<button id="pAuto" class="${c.auto?"pri":""}" style="margin-left:auto">自治 ${c.auto?"ON":"OFF"}</button>`:""}<button id="pClose" style="${mine?"":"margin-left:auto"}">✕</button></h2>
  <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div>農業<b>${c.agri}</b></div><div>商業<b>${c.com}</b></div><div>城防<b>${c.def}</b></div><div>民忠<b>${c.loy}</b></div><div>訓練<b>${c.train}</b></div><div>月收入<b>金+${c.f>=0?Math.round(goldInc(c)*1.44):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>旬耗糧<b>${foodUse(c)}</b><small style="font-size:11px;display:block">月${foodUse(c)*3}</small></div><div>繁榮度<b>${prosper(c).toFixed(2)}</b></div><div>上旬成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上旬遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
- <div class="posts" style="padding:4px 10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">主帥 <b style="color:#ffd77a">${(getShuai(c)||{n:"—"}).n}</b>${mine?`<button id="pShuai" style="min-height:32px;padding:2px 8px;font-size:12px">任命</button>`:""}　軍師 <b style="color:#ffd77a">${(getShi(c)||{n:"—"}).n}</b>${getShi(c)?`（智${getShi(c).z}）`:""}${mine?`<button id="pShi" style="min-height:32px;padding:2px 8px;font-size:12px">任命</button>`:""}</div>
+ <div class="posts" style="padding:4px 10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">主帥 <b style="color:#ffd77a">${(getShuai(c)||{n:"—"}).n}</b>${getShuai(c)?`（統${getShuai(c).t}）`:""}${mine?`<button id="pShuai" style="min-height:32px;padding:2px 8px;font-size:12px">任命</button>`:""}　軍師 <b style="color:#ffd77a">${(getShi(c)||{n:"—"}).n}</b>${getShi(c)?`（智${getShi(c).z}）`:""}${mine?`<button id="pShi" style="min-height:32px;padding:2px 8px;font-size:12px">任命</button>`:""}</div>
  ${mine?`<div class="cmds">${["開發","徵兵","訓練","搜索","登用","計略","移動","輸送","出征","褒賞"].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
  <div class="olist"><div class="otbl">${offHeadHtml()}${psorted(os).map(o=>offRowHtml(o,mine)).join("")||"<div class='ohint'>無武將</div>"}
  ${mine&&G.offs.some(o=>!o.dead&&o.c==c.id&&o.st=="hidden")?`<div class="ohint">💡 傳聞此地有在野賢才，試試「搜索」</div>`:""}${free.map(o=>{const nw=o.foundAt==nowM();return`<div class="orow ${nw?"newrow":""}">${avHtml(o)}<span class="nm">${o.n}</span><span class="tag rk">在野</span><span class="stn">${o.t}</span><span class="stn">${o.w}</span><span class="stn">${o.z}</span><span class="stn">${o.p}</span><span class="stn">${o.m}</span><span class="stn">-</span><span class="tags"><span class="tag" style="${nw?"background:#0aa":""}">${nw?"本月發現":"在野"}</span></span></div>`}).join("")}</div></div>`;
@@ -242,7 +242,7 @@ async function command(k,c){
  if(k=="計略"){const plotAdj=enemyAdj.filter(e=>e.f>=0); /* 無主城不可計謀 */if(!plotAdj.length)return toast("沒有鄰接的敵方城池（無主城不可計謀）");const o=await pickOff(c,"計略：選擇武將");if(!o)return;const ty=await pick("計略",[{label:"離間",sub:"降低敵將忠誠",v:1},{label:"煽動",sub:"降低敵城民忠與兵力",v:2},{label:"掠奪",sub:"劫掠鄰城金糧",v:3}]);if(!ty)return;
   if(ty==1){const t=await pick("離間對象",plotAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x))).map(offItem));if(!t)return;o.done=true;if(R()<.45+(o.z-t.z)/100){const d=ri(6,16);t.loy=Math.max(0,t.loy-d);const xe=gainExp(o,XP.plot,o.z);toast(`離間成功！${t.n} 忠誠 -${d}（${t.loy}） 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`離間失敗 經驗+${xe}`)}}
   else if(ty==2){const t=await pick("煽動目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 軍師智${shiZ(e)}・民忠${e.loy}`,v:e})));if(!t)return;o.done=true;if(R()<.45+(o.z-60)/100){t.loy=Math.max(0,t.loy-ri(6,15));t.troops=Math.round(t.troops*.9);const xe=gainExp(o,XP.plot,o.z);toast(`煽動成功！${t.n} 民心動搖 經驗+${xe}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`煽動失敗 經驗+${xe}`)}}
-  else{const t=await pick("掠奪目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 軍師智${shiZ(e)}・金${e.gold} 糧${e.food}`,v:e})));if(!t)return;o.done=true;const ok=R()<.4+(o.z-55)/120-Math.min(.12,t.def/2500);if(ok){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,4));const xe=gainExp(o,XP.plot,o.z);toast(`掠奪成功！自${t.n}奪得 金+${sg} 糧+${sf} 經驗+${xe}`);logMsg(`${o.n} 掠奪${t.n} 金${sg}・糧${sf}`)}else{const xe=gainExp(o,XP.fail,o.z);toast(`掠奪失敗 經驗+${xe}`)}}}
+  else{const t=await pick("掠奪目標",plotAdj.map(e=>({label:e.n,sub:`${fname(e.f)} 主帥${(getShuai(e)||{n:"無"}).n}(${shuaiPow(e)})・成功${Math.round(plunderP(o,e)*100)}%・金${e.gold} 糧${e.food}`,v:e})));if(!t)return;o.done=true;const ok=R()<plunderP(o,t);if(ok){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,4));const xe=gainExp(o,XP.plot,o.t);toast(`掠奪成功！自${t.n}奪得 金+${sg} 糧+${sf} 經驗+${xe}`);logMsg(`${o.n} 掠奪${t.n} 金${sg}・糧${sf}`)}else{const xe=gainExp(o,XP.fail,o.t);toast(`掠奪失敗 經驗+${xe}`)}}}
  if(k=="移動"){const os=await pickOff(c,"移動：選擇武將（可多選）",10);if(!os||!os.length)return;const t=await pick("移動至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;os.forEach(o=>{o.c=t.id;o.done=true});syncPosts();toast(`${os.length}名武將移動至${t.n}`)}
  if(k=="輸送"){const o=await pickOff(c,"輸送：選擇武將");if(!o)return;const t=await pick("輸送至",ownAdj.map(e=>({label:e.n,v:e})));if(!t)return;const a=await pick("輸送內容",[{label:"金 半數",sub:Math.floor(c.gold/2),v:"gold"},{label:"糧 半數",sub:Math.floor(c.food/2),v:"food"},{label:"兵力 半數",sub:Math.floor(c.troops/2),v:"troops"}]);if(!a)return;const n=Math.floor(c[a]/2);c[a]-=n;t[a]+=n;o.done=true;toast(`已輸送至${t.n}`)}
  if(k=="褒賞"){const o=await pick("褒賞（金100，忠誠上升）",offsIn(c.id,0).filter(x=>!isLord(x)).map(offItem));if(!o)return;if(c.gold<100)return toast("金不足");c.gold-=100;o.loy=Math.min(100,o.loy+ri(5,12));toast(`${o.n} 忠誠 ${o.loy}`)}
@@ -342,7 +342,7 @@ const AUTO_RESERVE=300;
 const cmdMaxed=(c,k)=>k=="訓練"?c.train>=100:k=="開發"?(c.agri>=999&&c.com>=999&&c.def>=999&&c.loy>=100):false;
 function autoCity(c){const lines=[];const os=offsIn(c.id,0).filter(o=>!o.done);if(!os.length)return lines;const pool=[...os];const take=(sk)=>{pool.sort((a,b)=>b[sk]-a[sk]);return pool.shift()};
  if(G.offs.some(x=>!x.dead&&x.c==c.id&&x.st=="hidden")&&pool.length){lines.push(doSearch(take("z"),c))}
- if(pool.length&&c.troops<c.pop*.04&&c.gold>=AUTO_RESERVE+200){const a=c.gold>=AUTO_RESERVE+600?2000:1000;lines.push(doRec(take("t"),c,a))}
+ /* 自治不徵兵；在野武將自動登用 */for(const t of G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free")){if(!pool.length)break;const o=take("m");o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);lines.push(`${o.n} 登用 ${t.n} 成功`+xpT(xe));logMsg(`${t.n} 加入${fname(0)}軍`)}else{const xe=gainExp(o,XP.fail,o.m);lines.push(`${o.n} 登用 ${t.n} 失敗`+xpT(xe))}}
  if(c.loy<50&&c.loy<100&&pool.length){const o=take("m");if(c.gold-BUDGET[rk(o)]>=AUTO_RESERVE)lines.push(doDev(o,c,"loy"))}
  while(pool.length){const o=pool.shift();
   if(o.p>=o.w){const t=c.agri>=999?"com":c.com>=999?"agri":c.agri<=c.com?"agri":"com";if(c[t]<999&&c.gold-BUDGET[rk(o)]>=AUTO_RESERVE){lines.push(doDev(o,c,t));continue}}
@@ -522,12 +522,12 @@ const aiAtkPow=(tr,os,c)=>{const ts=os.filter(o=>TCAP[rk(o)]>0);const avgT=ts.le
 const aiDefPow=t=>{const ds=offsIn(t.id).filter(o=>o.f==t.f&&TCAP[rk(o)]>0);const mT=ds.length?Math.max(...ds.map(o=>o.t)):50;return t.troops*defMultOf(t.def)*(1+t.train/200)*(.6+mT/250)+ds.length*300};
 const aiThreat=(c,f,skip)=>Math.max(0,...adj(c.id).map(C).filter(e=>e.f!=f&&e.f>=0&&e!==skip).map(e=>aiAtkPow(e.troops*.75,offsIn(e.id,e.f),e)));
 function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;const mine=facCities(f);syncPosts();
- for(const c of mine){const os=offsIn(c.id,f);if(os.length){if(c.shuai==null){const cand=[...os].sort((a,b)=>b.t-a.t)[0];if(cand)c.shuai=cand.id}if(c.shi==null){const cand=[...os].filter(o=>o.id!=c.shuai).sort((a,b)=>b.z-a.z)[0]||os[0];if(cand)c.shi=cand.id}}const front=adj(c.id).some(j=>C(j).f!=f);const thr=aiThreat(c,f);const myDef=aiDefPow(c);const needFood=foodUse(c)*9;
+ for(const c of mine){const os=offsIn(c.id,f);if(os.length){if(c.shuai==null){const cand=[...os].sort((a,b)=>b.t-a.t)[0];if(cand)c.shuai=cand.id}if(c.shi==null){const cand=[...os].filter(o=>o.id!=c.shuai).sort((a,b)=>b.z-a.z)[0];if(cand)c.shi=cand.id}}const front=adj(c.id).some(j=>C(j).f!=f);const thr=aiThreat(c,f);const myDef=aiDefPow(c);const needFood=foodUse(c)*9;
   for(const o of [...os].sort((a,b)=>b.t-a.t)){const B0=BUDGET[rk(o)];let k=null;
    if(c.loy<55&&c.gold>=B0)k="loy";
    else if(front&&myDef<thr*1.3&&c.gold>=recCost(o)+150&&recCap(c)>0&&c.food>needFood){const got=recPrev(o,c,3000);if(got>=1){c.gold-=recCost(o);c._rn+=got;c.pop-=got;c.train=Math.round((c.train*c.troops+20*got)/(c.troops+got));c.troops+=got;c.loy=Math.max(0,c.loy-Math.max(1,Math.round(got/250)));gainExp(o,Math.min(XP.recMax,XP.recBase+got/100),o.t);continue}}
    if(!k&&front&&c.train<90){const tc=trainCost(o);if(c.gold>=tc.g+100&&c.food>=tc.f+needFood){c.gold-=tc.g;c.food-=tc.f;const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));gainExp(o,c.train>old?XP.train:XP.fail,o.w);continue}}
-   if(!k&&front&&o.z>=62&&(c.gold<400||c.food<needFood*1.5)&&R()<.32){const t=adj(c.id).map(C).filter(e=>e.f!=f&&e.f>=0&&(e.gold>100||e.food>500)).sort((a,b)=>(b.gold+b.food)-(a.gold+a.food))[0];if(t){if(R()<.4+(o.z-55)/120-Math.min(.12,t.def/2500)){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,3));gainExp(o,XP.plot,o.z)}else gainExp(o,XP.fail,o.z);continue}}
+   if(!k&&front&&o.t>=62&&(c.gold<400||c.food<needFood*1.5)&&R()<.32){const t=adj(c.id).map(C).filter(e=>e.f!=f&&e.f>=0&&(e.gold>100||e.food>500)).sort((a,b)=>(b.gold+b.food)-(a.gold+a.food))[0];if(t){if(R()<plunderP(o,t)){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,3));gainExp(o,XP.plot,o.t)}else gainExp(o,XP.fail,o.t);continue}}
    if(!k&&c.gold>=B0+60){k=c.food<needFood*2&&c.agri<999?"agri":c.gold<500&&c.com<999?"com":front&&c.def<999&&myDef<thr*1.6?"def":c.agri<=c.com&&c.agri<999?"agri":c.com<999?"com":c.def<999?"def":null}
    if(k){const cap=k=="loy"?100:999;c.gold-=B0;const g=Math.min(cap-c[k],devPrev(o,c,k));c[k]+=g;gainExp(o,k=="loy"?XP.loy:XP.dev,k=="loy"?o.m:k=="def"?o.w:o.p)}
    else{const old=c.train;c.train=Math.min(100,c.train+trainGain(o.w));gainExp(o,c.train>old?XP.train:XP.fail,o.w)}}
@@ -683,22 +683,24 @@ function sortBar(get,apply,init){let key=init??null,dir=-1;const bar=document.cr
  const draw=()=>{bar.innerHTML=OSORT.map((x,i)=>`<button data-s="${i}" class="${key===i?"pri":""}">${x[0]}${key===i?(dir<0?"▼":"▲"):""}</button>`).join("");bar.querySelectorAll("button").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=+b.dataset.s;if(key===k)dir=-dir;else{key=k;dir=-1}draw();run()})};
  const run=()=>{if(key==null)return;const f=OSORT[key][1];apply(get().slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir}))};
  draw();return bar}
+const shuaiPow=c=>{const o=getShuai(c);return o?o.t:40}; /* 主帥統率 */
+const plunderP=(o,t)=>cl(.4+(o.t-55)/120-Math.min(.12,t.def/2500)-(shuaiPow(t)-60)/200,.05,.9); /* 掠奪：我統率 vs 目標主帥統率（無主帥視為40） */
 const taishu=c=>getShuai(c); /* 相容舊稱：主帥 */
 function syncPosts(){if(!G)return;G.cities.forEach(c=>{if(c.f<0){c.shuai=null;c.shi=null;return}
   const lord=O(G.factions[c.f].lord);if(lord&&!lord.dead&&lord.st=="serve"&&lord.c==c.id)c.shuai=lord.id; /* 主公所在＝主帥 */
   else if(c.shuai!=null){const o=O(c.shuai);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve")c.shuai=null}
-  if(c.shi!=null){const o=O(c.shi);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve")c.shi=null}})}
+  if(c.shi!=null){const o=O(c.shi);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve"||c.shi===c.shuai)c.shi=null}})}
 const getShuai=c=>{if(!c||c.f<0)return null;return c.shuai!=null?O(c.shuai):null};
 const getShi=c=>{if(!c||c.f<0)return null;const o=c.shi!=null?O(c.shi):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null};
 const shiZ=c=>{const o=getShi(c);return o?o.z:40}; /* 無軍師時防禦智弱（公式待定，暫供顯示） */
 async function appointPost(c,role){ /* role: shuai|shi */syncPosts();
   if(role=="shuai"){const lord=O(G.factions[c.f].lord);if(lord&&lord.c==c.id&&lord.st=="serve"&&!lord.dead)return toast("主公坐鎮，即為主帥，無需改任")}
-  const os=offsIn(c.id,c.f).filter(o=>role!="shuai"||!isLord(o)||o.c==c.id);
+  const other=role=="shuai"?c.shi:c.shuai;const os=offsIn(c.id,c.f).filter(o=>o.id!==other); /* 主帥≠軍師 */
   const cur=role=="shuai"?c.shuai:c.shi;
   const opts=[{label:"（撤銷）",v:"clear"},...os.map(o=>({label:o.n+(isLord(o)?"👑":""),sub:`統${o.t} 武${o.w} 智${o.z}`+(o.id==cur?"・現任":""),v:o.id}))];
   const v=await pick(role=="shuai"?`任命主帥（${c.n}）`:`任命軍師（${c.n}）`,opts);if(v==null)return;
   if(v=="clear"){if(role=="shuai")c.shuai=null;else c.shi=null;toast("已撤銷");renderPanel();return}
-  if(role=="shuai"){c.shuai=v;if(c.shi==v)c.shi=null}else{c.shi=v;if(c.shuai==v&&!isLord(O(v))){/* 允許兼任 */}}
+  if(role=="shuai")c.shuai=v;else c.shi=v;
   toast(`${O(v).n} 任${c.n}${role=="shuai"?"主帥":"軍師"}`);renderPanel()}
 
 const capital=f=>{const l=O(G.factions[f].lord);const cs=facCities(f);return cs.find(c=>c.id==l.c)||cs[0]};
@@ -717,7 +719,7 @@ function facDetail(f){const F=G.factions[f];const cs=facCities(f);const os=G.off
 function openCity(id){selectCity(id);fitMap(C(id))}
 function cityTable(){const rows=G.cities.slice();const freeN=c=>G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free").length;
  sortTable("城市一覽",[
-  {h:"城市",v:r=>r.n,f:r=>`<span class="dot" style="background:${fcol(r.f)}"></span> ${r.n}`},{h:"勢力",v:r=>fname(r.f)},{h:"主帥",v:r=>(getShuai(r)||{n:"-"}).n},{h:"軍師",v:r=>(getShi(r)||{n:"-"}).n},
+  {h:"城市",v:r=>r.n,f:r=>`<span class="dot" style="background:${fcol(r.f)}"></span> ${r.n}`},{h:"勢力",v:r=>fname(r.f)},{h:"主帥",v:r=>(getShuai(r)||{n:"-"}).n},{h:"帥統",v:r=>getShuai(r)?getShuai(r).t:0,f:r=>getShuai(r)?getShuai(r).t:"-"},{h:"軍師",v:r=>(getShi(r)||{n:"-"}).n},{h:"師智",v:r=>getShi(r)?getShi(r).z:0,f:r=>getShi(r)?getShi(r).z:"-"},
   {h:"人口",v:r=>r.pop,f:r=>(r.pop/10000).toFixed(1)+"萬"},{h:"農業",v:r=>r.agri},{h:"商業",v:r=>r.com},{h:"城防",v:r=>r.def},{h:"兵力",v:r=>r.troops},{h:"訓練",v:r=>r.train},{h:"民忠",v:r=>r.loy},
   {h:"金",v:r=>r.gold},{h:"糧",v:r=>r.food},{h:"武將",v:r=>offsIn(r.id).filter(o=>o.f==r.f).length},{h:"在野",v:r=>freeN(r)},{h:"自治",v:r=>r.f==0?(r.auto?1:0):-1,f:r=>r.f==0?(r.auto?"⚙ON":"OFF"):"-"}],
   rows,r=>{modal.close(null);openCity(r.id)},[["全部","all",()=>true],["我方","mine",r=>r.f==0],["他勢力","other",r=>r.f!=0]])}
