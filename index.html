@@ -372,8 +372,8 @@ const GEAR={步:"arms",弓:"bows",騎:"horses"},GNM={arms:"兵器",bows:"弓箭"
 const GEAR_K=["arms","bows","horses"];
 const gearCap=c=>(c.arms|0)+(c.bows|0)+(c.horses|0);
 function fixGear(c){["arms","bows","horses"].forEach(k=>{if(c[k]==null||c[k]<0)c[k]=0});const d=(c.troops|0)-gearCap(c);if(d>0){c.arms+=Math.ceil(d*.4);c.bows+=Math.ceil(d*.3);c.horses+=Math.ceil(d*.3)}}
-// 工房產量＝300×品級資金係數×2^((智力-50)/30)×2^((工業-300)/300)；花費＝品級金/√2^((工業-300)/300)（工業越高單價越低）；兵器／弓箭／馬僅為製造項目，不另開發
-const craftPrev=(o,c)=>Math.max(1,Math.round(300*bF(o)*expo(o.z)*cExp(devEff(c,"ind"))));
+// 工房產量＝20×品級資金係數×2^((智力-50)/30)×2^((工業-300)/300)；花費＝品級金/√2^((工業-300)/300)（工業越高單價越低）；兵器／弓箭／馬僅為製造項目，不另開發
+const craftPrev=(o,c)=>Math.max(1,Math.round(20*bF(o)*expo(o.z)*cExp(devEff(c,"ind"))));
 const craftCost=(o,c)=>Math.max(1,Math.round(BUDGET[rk(o)]/Math.sqrt(cExp(devEff(c,"ind")))));
 function doCraft(o,c,k){const cost=craftCost(o,c);if(c.gold<cost)return`${o.n}：金不足（需${cost}），未製造`;c.gold-=cost;o.done=true;if(R()<failP(o.z)){const xe=gainExp(o,XP.fail,o.z);return`<span style="color:#f88">${o.n}（智力${o.z}・資金${cost}）工房製造${GNM[k]}失敗</span>`+xpT(xe)}const g=craftPrev(o,c);c[k]=(c[k]|0)+g;const xe=gainExp(o,XP.dev,o.z);return`${o.n}（智力${o.z}・工業${c.ind|0}・資金${cost}・單價${(cost/g).toFixed(2)}）製造${GNM[k]} +${g}（${c[k]}）`+xpT(xe)}
 const scarce=c=>["arms","bows","horses"].sort((a,b)=>(c[a]|0)-(c[b]|0))[0];
