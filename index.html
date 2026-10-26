@@ -40,6 +40,23 @@ button.pri{background:linear-gradient(#b0302a,#701a14);border-color:#e0b060}
 .orow{display:flex;align-items:center;gap:6px;padding:6px;border-bottom:1px solid #3a2a18;font-size:13px;min-height:44px}
 .otbl .orow{display:grid}
 .orow .nm,.otbl .nm{font-weight:bold;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.orow.done{opacity:.5}
+.orow.rk0,.otbl .orow.rk0{background:#2a241c}.orow.rk1,.otbl .orow.rk1{background:#2c281e}
+.orow.rk2,.otbl .orow.rk2{background:#2a3020}.orow.rk3,.otbl .orow.rk3{background:#243028}
+.orow.rk4,.otbl .orow.rk4{background:#222c34}.orow.rk5,.otbl .orow.rk5{background:#2a2836}
+.orow.rk6,.otbl .orow.rk6{background:#322430}.orow.rk7,.otbl .orow.rk7{background:#342826}
+.orow.rk8,.otbl .orow.rk8{background:#383020}.orow.rk9,.otbl .orow.rk9{background:#3a3420}
+.orow.rkfree,.otbl .orow.rkfree{background:#1e2428;color:#b8c4c8}
+table.st tbody tr.rkrow td{color:#ddd4c2}table.st tbody tr.rkrow td:first-child,table.st tbody tr.rkrow td:nth-child(2){color:#ddd4c2}
+table.st tbody tr.rk0 td,table.st tbody tr.rk0 td:first-child,table.st tbody tr.rk0 td:nth-child(2){background:#2a241c}
+table.st tbody tr.rk1 td,table.st tbody tr.rk1 td:first-child,table.st tbody tr.rk1 td:nth-child(2){background:#2c281e}
+table.st tbody tr.rk2 td,table.st tbody tr.rk2 td:first-child,table.st tbody tr.rk2 td:nth-child(2){background:#2a3020}
+table.st tbody tr.rk3 td,table.st tbody tr.rk3 td:first-child,table.st tbody tr.rk3 td:nth-child(2){background:#243028}
+table.st tbody tr.rk4 td,table.st tbody tr.rk4 td:first-child,table.st tbody tr.rk4 td:nth-child(2){background:#222c34}
+table.st tbody tr.rk5 td,table.st tbody tr.rk5 td:first-child,table.st tbody tr.rk5 td:nth-child(2){background:#2a2836}
+table.st tbody tr.rk6 td,table.st tbody tr.rk6 td:first-child,table.st tbody tr.rk6 td:nth-child(2){background:#322430}
+table.st tbody tr.rk7 td,table.st tbody tr.rk7 td:first-child,table.st tbody tr.rk7 td:nth-child(2){background:#342826}
+table.st tbody tr.rk8 td,table.st tbody tr.rk8 td:first-child,table.st tbody tr.rk8 td:nth-child(2){background:#383020}
+table.st tbody tr.rk9 td,table.st tbody tr.rk9 td:first-child,table.st tbody tr.rk9 td:nth-child(2){background:#3a3420}
 .otbl .stn{text-align:center;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap}
 .otbl .rk{justify-self:center}
 .otbl .tags{display:flex;flex-wrap:nowrap;gap:3px;overflow:hidden;min-width:0}
@@ -446,23 +463,25 @@ async function autoConfig(c){ensureAutoCmd(c);const box=document.createElement("
  const btns=c.auto?[{t:"關閉自治",v:"off"},{t:"取消",v:null},{t:"完成",v:"ok",cls:"pri"}]:[{t:"取消",v:null},{t:"完成並開啟",v:"ok",cls:"pri"}];
  const v=await modal(`${c.n} 自治設定`,box,btns);if(v==null)return null;if(v=="off"){c.auto=false;G.autoAll=false;return "off"}Object.assign(c.autoCmd,state);c.auto=true;return "ok"}
 async function toggleAuto(c){const r=await autoConfig(c);if(r==null)return;renderPanel();toast(r=="off"?`${c.n} 自治 OFF`:`${c.n} 自治 ON：${autoScopeTxt(c)}`)}
-function autoCity(c){const lines=[];const os=offsIn(c.id,0).filter(o=>!o.done);if(!os.length)return lines;const pool=[...os];const take=(sk)=>{pool.sort((a,b)=>b[sk]-a[sk]);return pool.shift()};ensureAutoCmd(c);
- if(autoOn(c,"search")&&G.offs.some(x=>!x.dead&&x.c==c.id&&x.st=="hidden")&&pool.length){lines.push(doSearch(take("z"),c))}
- if(autoOn(c,"hire")){for(const t of G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"&&!x.fired)){if(!pool.length)break;const o=take("m");o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);lines.push(`${o.n} 登用 ${t.n} 成功`+xpT(xe));logMsg(`${t.n} 加入${fname(0)}軍`)}else{const xe=gainExp(o,XP.fail,o.m);lines.push(`${o.n} 登用 ${t.n} 失敗`+xpT(xe))}}}
- if(autoOn(c,"plot")&&(c.wound||0)>0&&pool.length){const o=[...pool].filter(x=>x.z>=50).sort((a,b)=>b.z-a.z)[0];if(o&&c.gold-medCost(o,o.z>=80?2:1)>=AUTO_RESERVE){const lv=o.z>=80?2:1;pool.splice(pool.indexOf(o),1);c.gold-=medCost(o,lv);o.done=true;const heal=applyWoundHeal(c,medHealPrev(o,c,lv));const xe=gainExp(o,XP.plot,o.z);const nm=lv==2?"神醫":"療傷";lines.push(`${o.n} ${nm}：傷員 −${heal} → 兵 +${heal}`+xpT(xe));logMsg(`${o.n} 於${c.n}${nm} ${heal}`)}}
- {const craftK=["arms","bows","horses"].filter(k=>autoOn(c,k));if(craftK.length){const front=adj(c.id).some(j=>C(j).f!=0);if(pool.length&&(front||gearCap(c)<c.troops*1.1||craftK.some(k=>(c[k]|0)<c.troops))){const o=[...pool].sort((a,b)=>b.z-a.z)[0];const sk=craftK.slice().sort((a,b)=>(c[a]|0)-(c[b]|0))[0];const cc=craftCost(o,c),cf=craftFood(o,c,sk);if(o&&c.gold-cc>=AUTO_RESERVE&&(!cf||c.food-cf>=foodUse(c)*6)){pool.splice(pool.indexOf(o),1);lines.push(doCraft(o,c,sk))}}}}
- if(autoOn(c,"tech")){const ty=["步","弓","騎"].filter(t=>techLv(c.f,t)<TECH_MAX).sort((a,b)=>techLv(c.f,a)-techLv(c.f,b))[0];const o=[...pool].filter(o=>o.z>=TECH_Z).sort((a,b)=>b.z-a.z)[0];if(ty&&o){const k=techCost(techLv(c.f,ty));if(c.gold-k.g>=AUTO_RESERVE&&c.food-k.f>=foodUse(c)*6){pool.splice(pool.indexOf(o),1);lines.push(doTech(o,c,ty))}}}
- if(autoOn(c,"rec")){const front=adj(c.id).some(j=>C(j).f!=0);const need=foodUse(c)*6;if(pool.length&&recCap(c)>0&&c.food>need&&(front||c.troops<Math.max(2000,Math.floor(c.pop*.03)))){const o=[...pool].sort((a,b)=>b.t-a.t)[0];if(o&&c.gold-recCost(o)>=AUTO_RESERVE){pool.splice(pool.indexOf(o),1);lines.push(doRec(o,c,0))}}}
- if(autoOn(c,"dev")&&c.loy<50&&c.loy<100&&pool.length){const o=take("m");if(c.gold-BUDGET[rk(o)]>=AUTO_RESERVE)lines.push(doDev(o,c,"loy"))}
- while(pool.length){const o=pool.shift();
-  if(autoOn(c,"dev")&&o.z>=o.p&&o.z>=o.w){if((c.ind||0)<devCap(c,"ind")&&c.gold-BUDGET[rk(o)]>=AUTO_RESERVE){lines.push(doDev(o,c,"ind"));continue}}
-  if(autoOn(c,"dev")&&o.p>=o.w){const t=[["agri",c.agri,c.agri],["com",c.com,c.com]].filter(x=>x[1]<devCap(c,x[0])).sort((a,b)=>a[2]-b[2])[0]?.[0]||"agri";if(c[t]<devCap(c,t)&&c.gold-BUDGET[rk(o)]>=AUTO_RESERVE){lines.push(doDev(o,c,t));continue}}
-  if(autoOn(c,"train")&&c.train<80){lines.push(doTrain(o,c));continue}
-  if(autoOn(c,"dev")&&c.def<devCap(c,"def")&&c.gold-BUDGET[rk(o)]>=AUTO_RESERVE){lines.push(doDev(o,c,"def"));continue}
-  if(autoOn(c,"train")&&c.train<100){lines.push(doTrain(o,c));continue}
- }
+const autoRep=(o,proj,eff,sk,st,xe)=>`${o.n}｜${proj}｜${eff}｜${sk}${st}｜經驗+${xe}`;
+function autoTryOne(o,c){ensureAutoCmd(c);
+ const canGold=n=>c.gold>=n;const craftK=["arms","bows","horses"].filter(k=>autoOn(c,k));
+ if(autoOn(c,"plot")&&(c.wound||0)>0&&o.z>=50){const lv=o.z>=80?2:1,cost=medCost(o,lv);if(canGold(cost)){c.gold-=cost;o.done=true;const heal=applyWoundHeal(c,medHealPrev(o,c,lv));const xe=gainExp(o,XP.plot,o.z);const nm=lv==2?"神醫":"療傷";logMsg(`${o.n} 於${c.n}${nm} ${heal}`);return autoRep(o,nm,`傷員−${heal}→兵力+${heal}（餘${c.wound}）`,"智力",o.z,xe)}}
+ if(autoOn(c,"hire")){const t=G.offs.find(x=>!x.dead&&x.c==c.id&&x.st=="free"&&!x.fired);if(t){o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);logMsg(`${t.n} 加入${fname(0)}軍`);return autoRep(o,"登用",`成功招攬${t.n}`,"魅力",o.m,xe)}const xe=gainExp(o,XP.fail,o.m);return autoRep(o,"登用",`招攬${t.n}失敗`,"魅力",o.m,xe)}}
+ if(autoOn(c,"search")&&G.offs.some(x=>!x.dead&&x.c==c.id&&x.st=="hidden")){const e0=o.exp|0;const raw=doSearch(o,c);const xe=(o.exp|0)-e0;const eff=raw.replace(/<[^>]+>/g,"").replace(new RegExp("^"+o.n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),"").replace(/（智力\d+）/,"").replace(/經驗\+\d+/g,"").trim();return autoRep(o,"搜索",eff||"完成","智力",o.z,xe)}
+ {const front=adj(c.id).some(j=>C(j).f!=0);const needCraft=craftK.length&&(front||gearCap(c)<c.troops*1.1||craftK.some(k=>(c[k]|0)<c.troops));if(needCraft){const sk=craftK.slice().sort((a,b)=>(c[a]|0)-(c[b]|0))[0];const cc=craftCost(o,c),cf=craftFood(o,c,sk);if(canGold(cc)&&(!cf||c.food>=cf)){const e0=o.exp|0,raw=doCraft(o,c,sk),xe=(o.exp|0)-e0;if(o.done){const g=raw.match(/\+(\d+)/);return autoRep(o,`工房・${GNM[sk]}`,g?`產量+${g[1]}（庫存${c[sk]|0}）`:(raw.includes("失敗")?"製造失敗":"完成"),"智力",o.z,xe)}}}}
+ if(autoOn(c,"tech")&&o.z>=TECH_Z){const ty=["步","弓","騎"].filter(t=>techLv(c.f,t)<TECH_MAX).sort((a,b)=>techLv(c.f,a)-techLv(c.f,b))[0];if(ty){const k=techCost(techLv(c.f,ty));if(canGold(k.g)&&c.food>=k.f){const e0=o.exp|0,raw=doTech(o,c,ty),xe=(o.exp|0)-e0;if(o.done){const g=(raw.match(/科研 \+(\d+)/)||[])[1];return autoRep(o,`科研・${TY[ty].n}`,g?`+${g}・現Lv${techLv(c.f,ty)}`:"完成","智力",o.z,xe)}}}}
+ if(autoOn(c,"rec")&&recCap(c)>0&&gearCap(c)>c.troops){if(canGold(recCost(o))){const e0=o.exp|0,raw=doRec(o,c,0),xe=(o.exp|0)-e0;if(o.done){const g=(raw.match(/徵得 (\d+)/)||[])[1];return autoRep(o,"徵兵",g?`兵力+${g}（現${c.troops}）`:"完成","統率",o.t,xe)}}}
+ if(autoOn(c,"dev")&&c.loy<100&&canGold(BUDGET[rk(o)])){const e0=o.exp|0,old=c.loy;doDev(o,c,"loy");const xe=(o.exp|0)-e0;if(o.done)return autoRep(o,"安撫",`民忠${old}→${c.loy}`,"魅力",o.m,xe)}
+ if(autoOn(c,"dev")&&canGold(BUDGET[rk(o)])){const cands=[];if((c.ind|0)<devCap(c,"ind"))cands.push(["ind",o.z,"智力"]);if(c.agri<devCap(c,"agri"))cands.push(["agri",o.p,"政治"]);if(c.com<devCap(c,"com"))cands.push(["com",o.p,"政治"]);if(c.def<devCap(c,"def"))cands.push(["def",o.w,"武力"]);cands.sort((a,b)=>b[1]-a[1]);for(const [t,st,sk] of cands){const e0=o.exp|0,old=c[t]|0;doDev(o,c,t);const xe=(o.exp|0)-e0;if(o.done){const d=(c[t]|0)-old;return autoRep(o,`開發・${TNM[t]}`,`${old}→${c[t]}（${d>=0?"+":""}${d}）`,sk,st,xe)}break}}
+ if(autoOn(c,"train")&&c.train<100){const tc=trainCost(o);if(canGold(tc.g)&&c.food>=tc.f){const e0=o.exp|0,old=c.train;doTrain(o,c);const xe=(o.exp|0)-e0;if(o.done)return autoRep(o,"訓練",`訓練度${old}→${c.train}`,"武力",o.w,xe)}}
+ if(autoOn(c,"search")){const e0=o.exp|0;const raw=doSearch(o,c);const xe=(o.exp|0)-e0;const eff=raw.replace(/<[^>]+>/g,"").replace(new RegExp("^"+o.n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),"").replace(/（智力\d+）/,"").replace(/經驗\+\d+/g,"").trim();return autoRep(o,"搜索",eff||"完成","智力",o.z,xe)}
+ o.done=true;return autoRep(o,"（無可用）",`範圍內條件不足（金${c.gold}）`,"—","—",0)}
+function autoCity(c){const lines=[];const os=offsIn(c.id,0).filter(o=>!o.done);if(!os.length)return lines;ensureAutoCmd(c);
+ const order=[...os].sort((a,b)=>(b.z+b.p+b.t+b.w+b.m)-(a.z+a.p+a.t+a.w+a.m));
+ for(const o of order){if(o.done)continue;const line=autoTryOne(o,c);if(line)lines.push(line)}
  return lines}
-function autoRun(){const out=[];facCities(0).forEach(c=>{if(!c.auto)return;const idle=offsIn(c.id,0).filter(o=>!o.done);if(!idle.length)return;const before=idle.map(o=>o.n);const l=autoCity(c);out.push(`<b>${c.n}（自治・未指揮 ${before.length}人・${autoScopeTxt(c)}）</b>`);if(l.length)l.forEach(x=>out.push("　"+x));else out.push("　（條件不足，無人行動）");offsIn(c.id,0).filter(o=>!o.done).forEach(o=>out.push(`　${o.n} 待命`))});if(out.length)out.unshift("<b style=\"color:#ffd77a\">—— 未指揮武將・自治 ——</b>");return out}
+function autoRun(){const out=[];facCities(0).forEach(c=>{if(!c.auto)return;const idle=offsIn(c.id,0).filter(o=>!o.done);if(!idle.length)return;const n=idle.length;const l=autoCity(c);out.push(`<b>${c.n}（自治・未指揮 ${n}人・${autoScopeTxt(c)}）</b>`);if(l.length)l.forEach(x=>out.push("　"+x));else out.push("　（無未指揮武將）")});if(out.length)out.unshift("<b style=\"color:#ffd77a\">—— 未指揮武將・自治 ——</b>");return out}
 async function setAutoAll(on){if(!on){G.autoAll=false;facCities(0).forEach(c=>c.auto=false);render();toast("全部城市 自治 OFF");return}const sample=facCities(0)[0];if(!sample)return;const r=await autoConfig(sample);if(r==null||r=="off"){if(r=="off"){G.autoAll=false;facCities(0).forEach(c=>c.auto=false);render()}return}const cmd={...sample.autoCmd};G.autoAll=true;facCities(0).forEach(c=>{c.autoCmd={...cmd};c.auto=true});render();toast(`全部城市 自治 ON：${autoScopeTxt(sample)}`)}
 // ---------- battle engine ----------
 // 城防：防禦加成每300點翻倍，傷害最多減少75%
@@ -1088,7 +1107,7 @@ function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length).f
 function stEl(cols,rows,o={}){let key=o.sort??null,dir=o.dir||-1,flt=o.filters?o.filters[0][1]:null;const box=document.createElement("div");
  const draw=()=>{const tw0=box.querySelector(".tw"),mb=$("#mb");const sx=tw0?tw0.scrollLeft:0,sy=tw0?tw0.scrollTop:0,my=mb?mb.scrollTop:0; /* 排序／篩選不跳動：保留橫向・縱向捲動 */
   let rs=o.filters?rows.filter(r=>o.filters.find(f=>f[1]===flt)[2](r)):rows.slice();if(key!=null){const c=cols[key];rs.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(typeof x=="number"&&typeof y=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir})}
-  box.innerHTML=(o.filters?`<div class="msbar">${o.filters.map(f=>`<button data-f="${f[1]}" class="${f[1]===flt?"pri":""}">${f[0]}</button>`).join("")}<span class="mscnt">${rs.length}筆</span></div>`:"")+`<div class="tw"><table class="st"><thead><tr>${cols.map((c,i)=>`<th data-k="${i}">${c.h}<span class="arw">${key===i?(dir<0?"▼":"▲"):"⇅"}</span></th>`).join("")}</tr></thead><tbody>${rs.map(r=>`<tr data-r="${rows.indexOf(r)}">${cols.map(c=>`<td>${c.f?c.f(r):c.v(r)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${cols.length}">無</td></tr>`}</tbody></table></div>`+(o.hint===false?"":`<div style="font-size:12px;opacity:.7;margin-top:4px">點欄名排序${o.onRow?"，點列查看詳情":""}</div>`);
+  box.innerHTML=(o.filters?`<div class="msbar">${o.filters.map(f=>`<button data-f="${f[1]}" class="${f[1]===flt?"pri":""}">${f[0]}</button>`).join("")}<span class="mscnt">${rs.length}筆</span></div>`:"")+`<div class="tw"><table class="st"><thead><tr>${cols.map((c,i)=>`<th data-k="${i}">${c.h}<span class="arw">${key===i?(dir<0?"▼":"▲"):"⇅"}</span></th>`).join("")}</tr></thead><tbody>${rs.map(r=>{const rc=(r&&typeof r.t=="number"&&typeof r.w=="number"&&("rk" in r||r.st))?` rkrow rk${rk(r)}`:"";return`<tr class="${rc.trim()}" data-r="${rows.indexOf(r)}">${cols.map(c=>`<td>${c.f?c.f(r):c.v(r)}</td>`).join("")}</tr>`}).join("")||`<tr><td colspan="${cols.length}">無</td></tr>`}</tbody></table></div>`+(o.hint===false?"":`<div style="font-size:12px;opacity:.7;margin-top:4px">點欄名排序${o.onRow?"，點列查看詳情":""}</div>`);
   box.querySelectorAll("th").forEach(th=>th.onclick=e=>{e.stopPropagation();const k=+th.dataset.k;if(key===k)dir=-dir;else{key=k;dir=-1}draw()});
   box.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;draw()});
   if(o.onRow)box.querySelectorAll("tbody tr[data-r]").forEach(tr=>tr.onclick=()=>o.onRow(rows[+tr.dataset.r]));
@@ -1098,7 +1117,7 @@ function sortTable(title,cols,rows,onRow,filters,extra,opt={}){return modal(titl
 const AVCOLS=["#e8b86d","#7ec8e3","#a8d08d","#f0a0a0","#c9a0e8","#f0d070","#90d0c0","#e0a070"];
 function avHtml(o){let h=0;const n=o.n||"?";for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return`<span class="av" style="background:${AVCOLS[h%AVCOLS.length]}" aria-hidden="true">${n[0]}</span>`}
 function offRowHtml(o,mine){const tags=[...its(o).map(x=>`<span class="tag">${x.n}</span>`),mine&&o.done?'<span class="tag">已行動</span>':""].filter(Boolean).join("");
- return`<div class="orow ${o.done&&mine?"done":""}">${avHtml(o)}<span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag rk">${RANKS[rk(o)]}</span><span class="stn">${o.t}</span><span class="stn">${o.w}</span><span class="stn">${o.z}</span><span class="stn">${o.p}</span><span class="stn">${o.m}</span><span class="stn">${o.loy}</span><span class="tags">${tags}</span></div>`}
+ return`<div class="orow rk${rk(o)} ${o.done&&mine?"done":""}">${avHtml(o)}<span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag rk">${RANKS[rk(o)]}</span><span class="stn">${o.t}</span><span class="stn">${o.w}</span><span class="stn">${o.z}</span><span class="stn">${o.p}</span><span class="stn">${o.m}</span><span class="stn">${o.loy}</span><span class="tags">${tags}</span></div>`}
 function offHeadHtml(){return`<div class="ohd"><span class="sp">頭</span>${OSORT.map((x,i)=>`<button onclick="psort(${i})" class="${PS.k===i?"pri":""}">${x[0]}${PS.k===i?(PS.d<0?"▼":"▲"):""}</button>`).join("")}<span class="sp">狀</span></div>`}
 let PS={k:null,d:-1};function psort(i){if(PS.k===i)PS.d=-PS.d;else{PS.k=i;PS.d=-1}render()}
 const psorted=os=>{if(PS.k==null)return os;const f=OSORT[PS.k][1];return os.slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*PS.d})};
