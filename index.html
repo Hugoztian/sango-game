@@ -1086,11 +1086,13 @@ function vaultView(){const eq=G.offs.filter(o=>!o.dead&&o.f==0&&its(o).length).f
 // ---------- 一覽表（可排序、橫向捲動、首欄固定） ----------
 // 通用可排序表格：點欄名切換 ▼降冪/▲升冪
 function stEl(cols,rows,o={}){let key=o.sort??null,dir=o.dir||-1,flt=o.filters?o.filters[0][1]:null;const box=document.createElement("div");
- const draw=()=>{let rs=o.filters?rows.filter(r=>o.filters.find(f=>f[1]===flt)[2](r)):rows.slice();if(key!=null){const c=cols[key];rs.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(typeof x=="number"&&typeof y=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir})}
+ const draw=()=>{const tw0=box.querySelector(".tw"),mb=$("#mb");const sx=tw0?tw0.scrollLeft:0,sy=tw0?tw0.scrollTop:0,my=mb?mb.scrollTop:0; /* 排序／篩選不跳動：保留橫向・縱向捲動 */
+  let rs=o.filters?rows.filter(r=>o.filters.find(f=>f[1]===flt)[2](r)):rows.slice();if(key!=null){const c=cols[key];rs.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(typeof x=="number"&&typeof y=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir})}
   box.innerHTML=(o.filters?`<div class="msbar">${o.filters.map(f=>`<button data-f="${f[1]}" class="${f[1]===flt?"pri":""}">${f[0]}</button>`).join("")}<span class="mscnt">${rs.length}筆</span></div>`:"")+`<div class="tw"><table class="st"><thead><tr>${cols.map((c,i)=>`<th data-k="${i}">${c.h}<span class="arw">${key===i?(dir<0?"▼":"▲"):"⇅"}</span></th>`).join("")}</tr></thead><tbody>${rs.map(r=>`<tr data-r="${rows.indexOf(r)}">${cols.map(c=>`<td>${c.f?c.f(r):c.v(r)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${cols.length}">無</td></tr>`}</tbody></table></div>`+(o.hint===false?"":`<div style="font-size:12px;opacity:.7;margin-top:4px">點欄名排序${o.onRow?"，點列查看詳情":""}</div>`);
   box.querySelectorAll("th").forEach(th=>th.onclick=e=>{e.stopPropagation();const k=+th.dataset.k;if(key===k)dir=-dir;else{key=k;dir=-1}draw()});
   box.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;draw()});
-  if(o.onRow)box.querySelectorAll("tbody tr[data-r]").forEach(tr=>tr.onclick=()=>o.onRow(rows[+tr.dataset.r]))};
+  if(o.onRow)box.querySelectorAll("tbody tr[data-r]").forEach(tr=>tr.onclick=()=>o.onRow(rows[+tr.dataset.r]));
+  const tw1=box.querySelector(".tw");if(tw1){tw1.scrollLeft=sx;tw1.scrollTop=sy}if(mb)mb.scrollTop=my};
  draw();return box}
 function sortTable(title,cols,rows,onRow,filters,extra,opt={}){return modal(title,stEl(cols,rows,{onRow,filters,...opt}),[...(extra||[]),{t:"關閉",v:null}])}
 const AVCOLS=["#e8b86d","#7ec8e3","#a8d08d","#f0a0a0","#c9a0e8","#f0d070","#90d0c0","#e0a070"];
@@ -1104,7 +1106,7 @@ const psorted=os=>{if(PS.k==null)return os;const f=OSORT[PS.k][1];return os.slic
 const OSORT=[["姓名",o=>o.n],["品級",o=>rk(o)],["統",o=>o.t],["武",o=>o.w],["智",o=>o.z],["政",o=>o.p],["魅",o=>o.m],["忠",o=>o.loy]];
 function sortBar(get,apply,init){let key=init??null,dir=-1;const bar=document.createElement("div");bar.className="msbar sbar";
  const draw=()=>{bar.innerHTML=OSORT.map((x,i)=>`<button data-s="${i}" class="${key===i?"pri":""}">${x[0]}${key===i?(dir<0?"▼":"▲"):""}</button>`).join("");bar.querySelectorAll("button").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=+b.dataset.s;if(key===k)dir=-dir;else{key=k;dir=-1}draw();run()})};
- const run=()=>{if(key==null)return;const f=OSORT[key][1];apply(get().slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir}))};
+ const run=()=>{if(key==null)return;const mb=$("#mb"),my=mb?mb.scrollTop:0;const f=OSORT[key][1];apply(get().slice().sort((a,b)=>{const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir}));if(mb)mb.scrollTop=my};
  draw();return bar}
 const shuaiPow=c=>{const o=getShuai(c);return o?o.t:40}; /* 太守統率 */
 const plunderP=(o,t)=>cl(.4+(o.t-55)/120-Math.min(.12,t.def/2500)-(shuaiPow(t)-60)/200,.05,.9); /* 掠奪：我統率 vs 目標太守統率（無太守視為40） */
@@ -1118,17 +1120,18 @@ const getShuai=c=>{if(!c||c.f<0)return null;return c.shuai!=null?O(c.shuai):null
 const getShi=c=>{if(!c||c.f<0)return null;const o=c.shi!=null?O(c.shi):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null};
 const getBie=c=>{if(!c||c.f<0)return null;const o=c.bie!=null?O(c.bie):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 別駕（政→農商上限） */
 const shiZ=c=>{const o=getShi(c);return o?o.z:40};
-async function appointPost(c,role){ /* role: shuai太守|shi軍師|bie別駕 */syncPosts();
-  const nm={shuai:"太守",shi:"軍師",bie:"別駕"};
+async function appointPost(c,role){ /* role: shuai太守|shi軍師|bie別駕；只顯示相關能力並由高到低 */syncPosts();
+  const nm={shuai:"太守",shi:"軍師",bie:"別駕"},sk={shuai:"t",shi:"z",bie:"p"},sn={shuai:"統",shi:"智",bie:"政"};
   if(role=="shuai"){const lord=O(G.factions[c.f].lord);if(lord&&lord.c==c.id&&lord.st=="serve"&&!lord.dead)return toast("主公坐鎮，即為太守，無需改任")}
   const taken=new Set([c.shuai,c.shi,c.bie].filter(x=>x!=null));
   const cur=role=="shuai"?c.shuai:role=="shi"?c.shi:c.bie;
-  const os=offsIn(c.id,c.f).filter(o=>o.id===cur||!taken.has(o.id)); /* 三職互斥 */
-  const opts=[{label:"（撤銷）",v:"clear"},...os.map(o=>({label:o.n+(isLord(o)?"👑":""),sub:`統${o.t} 武${o.w} 智${o.z} 政${o.p}`+(o.id==cur?"・現任":""),v:o.id}))];
-  const v=await pick(`任命${nm[role]}（${c.n}）`,opts);if(v==null)return;
+  const k=sk[role],lab=sn[role];
+  const os=offsIn(c.id,c.f).filter(o=>o.id===cur||!taken.has(o.id)).sort((a,b)=>b[k]-a[k]||a.n.localeCompare(b.n,"zh")); /* 三職互斥・相關能力高→低 */
+  const opts=[{label:"（撤銷）",v:"clear"},...os.map(o=>({label:`${o.n}${isLord(o)?"👑":""}　${lab}${o[k]}`,sub:(o.id==cur?"現任":"")+(role=="shuai"?`・城防上限${Math.round(15*o.t)}`:role=="shi"?`・工業上限${Math.round(15*o.z)}`:`・農商上限${Math.round(15*o.p)}`),v:o.id}))];
+  const v=await pick(`任命${nm[role]}（${c.n}・依${lab}）`,opts);if(v==null)return;
   if(v=="clear"){if(role=="shuai")c.shuai=null;else if(role=="shi")c.shi=null;else c.bie=null;toast("已撤銷");renderPanel();return}
   if(role=="shuai")c.shuai=v;else if(role=="shi")c.shi=v;else c.bie=v;
-  toast(`${O(v).n} 任${c.n}${nm[role]}`);renderPanel()}
+  toast(`${O(v).n} 任${c.n}${nm[role]}（${lab}${O(v)[k]}）`);renderPanel()}
 
 const capital=f=>{const l=O(G.factions[f].lord);const cs=facCities(f);return cs.find(c=>c.id==l.c)||cs[0]};
 // 綜合實力＝城數×10 ＋ 人口(萬)×1 ＋ 武將總值(全武將五維合計)÷100×2 ＋ 兵力(千)×3 ＋ 糧(萬)×2 ＋ 金(千)×2 ＋ 開發總值(各城農+商+防)÷100×1 ＋ 寶物件數×3
