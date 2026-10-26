@@ -273,7 +273,7 @@ function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(
  const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
  p.innerHTML=`<h2><span class="dot" style="background:${fcol(c.f)}"></span>${c.n}<small style="font-size:13px;color:#ddd">${fname(c.f)}</small>${mine?`<button id="pAuto" class="${c.auto?"pri":""}" style="margin-left:auto">自治 ${c.auto?"ON":"OFF"}</button>`:""}<button id="pClose" style="${mine?"":"margin-left:auto"}">✕</button></h2>
  ${mine&&c.auto?`<div style="padding:4px 10px 8px;font-size:12px;color:#ffd77a">⚙ 自治中：${autoScopeTxt(c)}</div>`:mine?`<div style="padding:4px 10px 8px;font-size:12px;opacity:.55">自治 OFF・點「自治」設定指令範圍</div>`:""}
- <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>傷員<b>${c.wound||0}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div class="statbar">農業${pbar(c.agri,devCap(c,"agri"),"",1)}</div><div class="statbar">商業${pbar(c.com,devCap(c,"com"),"",1)}</div><div class="statbar">城防${pbar(c.def,devCap(c,"def"),"",1)}</div><div class="statbar">工業${pbar(c.ind||0,devCap(c,"ind"),"",1)}</div><div>兵器<b>${c.arms|0}</b></div><div>弓箭<b>${c.bows|0}</b></div><div>馬<b>${c.horses|0}</b></div><div>裝備餘<b>${gearCap(c)-c.troops}</b></div>${["步","弓","騎"].map(t=>{const lv=techLv(c.f,t);return`<div style="grid-column:span 4;text-align:left;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">科研・${TY[t].ic}${TY[t].n}<b style="font-size:13px">Lv${lv}</b>${lv<TECH_MAX?`${pbar(techXp(c.f,t),techNeed(lv),"sm",1)}<span style="opacity:.75;font-size:12px">金${techCost(lv,t).g} 糧${techCost(lv,t).f}</span>`:`<b style="color:#8f8">滿級</b>`}</div>`}).join("")}<div class="statbar">民忠${pbar(c.loy,100,"wide",1)}</div><div class="statbar">訓練${pbar(c.train,100,"wide",1)}</div><div>月收入<b>金+${c.f>=0?Math.round(goldInc(c)*1.44):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>旬耗糧<b>${foodUse(c)}</b><small style="font-size:11px;display:block">月${foodUse(c)*3}</small></div><div>繁榮度<b>${prosperShow(c).toFixed(2)}</b></div><div>上旬成長<b>${c._g!=null?"+"+c._g:"-"}</b></div><div>上旬遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
+ <div class="stats"><div>金<b>${c.gold}</b></div><div>糧<b>${c.food}</b></div><div>兵力<b>${c.troops}</b></div><div>傷員<b>${c.wound||0}</b></div><div>人口<b>${(c.pop/10000).toFixed(1)}萬</b></div><div class="statbar">農業${pbar(c.agri,devCap(c,"agri"),"",1)}</div><div class="statbar">商業${pbar(c.com,devCap(c,"com"),"",1)}</div><div class="statbar">城防${pbar(c.def,devCap(c,"def"),"",1)}</div><div class="statbar">工業${pbar(c.ind||0,devCap(c,"ind"),"",1)}</div><div>兵器<b>${c.arms|0}</b></div><div>弓箭<b>${c.bows|0}</b></div><div>馬<b>${c.horses|0}</b></div><div>裝備餘<b>${gearCap(c)-c.troops}</b></div>${["步","弓","騎"].map(t=>{const lv=techLv(c.f,t);return`<div style="grid-column:span 4;text-align:left;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">科研・${TY[t].ic}${TY[t].n}<b style="font-size:13px">Lv${lv}</b>${lv<TECH_MAX?`${pbar(techXp(c.f,t),techNeed(lv),"sm",1)}<span style="opacity:.75;font-size:12px">金${techCost(lv,t).g} 糧${techCost(lv,t).f}</span>`:`<b style="color:#8f8">滿級</b>`}</div>`}).join("")}<div class="statbar">民忠${pbar(c.loy,100,"wide",1)}</div><div class="statbar">訓練${pbar(c.train,100,"wide",1)}</div><div>月收入<b>金+${c.f>=0?Math.round(goldInc(c)*1.44):0}</b></div><div>秋收<b style="font-size:12px">糧+${c.f>=0?foodInc(c):0}<br>${nextHarvest()}</b></div><div>旬耗糧<b>${foodUse(c)}</b><small style="font-size:11px;display:block">月${foodUse(c)*3}</small></div><div>繁榮度<b>${prosperShow(c).toFixed(2)}</b></div><div>上旬成長<b>${c._g!=null?(c._g>0?"+":"")+c._g:"-"}</b></div><div>上旬遷徙<b>${c._m!=null?(c._m>0?"+":"")+c._m:"-"}</b></div><div style="grid-column:span 4">鄰接<b style="font-size:12px">${adj(c.id).map(j=>C(j).n).join(" ")}</b></div></div>
  <div class="posts" style="padding:0 10px;display:grid;gap:4px;font-size:13px">
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">太守 <b style="color:#ffd77a">${(getShuai(c)||{n:"—"}).n}</b>${getShuai(c)?`（統${getShuai(c).t}・城防上限${devCap(c,"def")}）`:""}${mine?`<button id="pShuai" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">軍師 <b style="color:#ffd77a">${(getShi(c)||{n:"—"}).n}</b>${getShi(c)?`（智${getShi(c).z}・工業上限${devCap(c,"ind")}）`:""}${mine?`<button id="pShi" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
@@ -466,7 +466,13 @@ async function toggleAuto(c){const r=await autoConfig(c);if(r==null)return;rende
 const autoRep=(o,proj,eff,sk,st,xe)=>`${o.n}｜${proj}｜${eff}｜${sk}${st}｜經驗+${xe}`;
 function autoTryOne(o,c){ensureAutoCmd(c);
  const canGold=n=>c.gold>=n;const craftK=["arms","bows","horses"].filter(k=>autoOn(c,k));
- if(autoOn(c,"plot")&&(c.wound||0)>0&&o.z>=50){const lv=o.z>=80?2:1,cost=medCost(o,lv);if(canGold(cost)){c.gold-=cost;o.done=true;const heal=applyWoundHeal(c,medHealPrev(o,c,lv));const xe=gainExp(o,XP.plot,o.z);const nm=lv==2?"神醫":"療傷";logMsg(`${o.n} 於${c.n}${nm} ${heal}`);return autoRep(o,nm,`傷員−${heal}→兵力+${heal}（餘${c.wound}）`,"智力",o.z,xe)}}
+ if(autoOn(c,"plot")){ /* 療傷優先，其次對鄰敵離間／煽動／掠奪 */
+  if((c.wound||0)>0&&o.z>=50){const lv=o.z>=80?2:1,cost=medCost(o,lv);if(canGold(cost)){c.gold-=cost;o.done=true;const heal=applyWoundHeal(c,medHealPrev(o,c,lv));const xe=gainExp(o,XP.plot,o.z);const nm=lv==2?"神醫":"療傷";logMsg(`${o.n} 於${c.n}${nm} ${heal}`);return autoRep(o,nm,`傷員−${heal}→兵力+${heal}（餘${c.wound}）`,"智力",o.z,xe)}}
+  const foes=adj(c.id).map(C).filter(e=>e.f>=0&&e.f!=0);
+  if(foes.length){const needLoot=c.gold<400||c.food<foodUse(c)*6;
+   if(needLoot&&o.t>=55){const t=foes.filter(e=>e.gold>80||e.food>400).sort((a,b)=>(b.gold+b.food)-(a.gold+a.food))[0]||foes.slice().sort((a,b)=>(b.gold+b.food)-(a.gold+a.food))[0];if(t){o.done=true;if(R()<plunderP(o,t)){const sg=Math.min(t.gold,Math.min(220,Math.round(t.gold*(.08+.07*R()))));const sf=Math.min(t.food,Math.min(900,Math.round(t.food*(.08+.07*R()))));t.gold-=sg;t.food-=sf;c.gold+=sg;c.food+=sf;t.loy=Math.max(0,t.loy-ri(1,4));const xe=gainExp(o,XP.plot,o.t);logMsg(`${o.n} 掠奪${t.n} 金${sg}・糧${sf}`);return autoRep(o,"掠奪",`自${t.n} 金+${sg} 糧+${sf}`,"統率",o.t,xe)}const xe=gainExp(o,XP.fail,o.t);return autoRep(o,"掠奪",`對${t.n}失敗`,"統率",o.t,xe)}}
+   if(o.z>=55){const marks=foes.flatMap(e=>offsIn(e.id).filter(x=>x.f==e.f&&!isLord(x)&&x.st=="serve")).sort((a,b)=>a.loy-b.loy||b.z-a.z);if(marks.length&&(o.z>=marks[0].z-5||R()<.55)){const t=marks[0];o.done=true;if(R()<.45+(o.z-t.z)/100){const d=ri(6,16);t.loy=Math.max(0,t.loy-d);const xe=gainExp(o,XP.plot,o.z);return autoRep(o,"離間",`${t.n} 忠誠−${d}（${t.loy}）`,"智力",o.z,xe)}const xe=gainExp(o,XP.fail,o.z);return autoRep(o,"離間",`${t.n} 拒絕`,"智力",o.z,xe)}
+    const t=foes.slice().sort((a,b)=>b.troops-a.troops||a.loy-b.loy)[0];o.done=true;if(R()<.45+(o.z-60)/100){const dl=ri(6,15);t.loy=Math.max(0,t.loy-dl);t.troops=Math.round(t.troops*.9);const xe=gainExp(o,XP.plot,o.z);return autoRep(o,"煽動",`${t.n} 民忠−${dl}・兵約九成`,"智力",o.z,xe)}const xe=gainExp(o,XP.fail,o.z);return autoRep(o,"煽動",`對${t.n}失敗`,"智力",o.z,xe)}}}
  if(autoOn(c,"hire")){const t=G.offs.find(x=>!x.dead&&x.c==c.id&&x.st=="free"&&!x.fired);if(t){o.done=true;if(R()<Math.min(.95,(.35+o.m/160)*fame(0))){t.f=0;t.st="serve";t.loy=ri(70,90);recruitRank(t);t.done=true;const xe=gainExp(o,XP.dev,o.m);logMsg(`${t.n} 加入${fname(0)}軍`);return autoRep(o,"登用",`成功招攬${t.n}`,"魅力",o.m,xe)}const xe=gainExp(o,XP.fail,o.m);return autoRep(o,"登用",`招攬${t.n}失敗`,"魅力",o.m,xe)}}
  {const front=adj(c.id).some(j=>C(j).f!=0);const needCraft=craftK.length&&(front||gearCap(c)<c.troops*1.1||craftK.some(k=>(c[k]|0)<c.troops));if(needCraft){const sk=craftK.slice().sort((a,b)=>(c[a]|0)-(c[b]|0))[0];const cc=craftCost(o,c),cf=craftFood(o,c,sk);if(canGold(cc)&&(!cf||c.food>=cf)){const e0=o.exp|0,raw=doCraft(o,c,sk),xe=(o.exp|0)-e0;if(o.done){const g=raw.match(/\+(\d+)/);return autoRep(o,`工房・${GNM[sk]}`,g?`產量+${g[1]}（庫存${c[sk]|0}）`:(raw.includes("失敗")?"製造失敗":"完成"),"智力",o.z,xe)}}}}
  if(autoOn(c,"tech")&&o.z>=TECH_Z){const ty=["步","弓","騎"].filter(t=>techLv(c.f,t)<TECH_MAX).sort((a,b)=>techLv(c.f,a)-techLv(c.f,b))[0];if(ty){const k=techCost(techLv(c.f,ty),ty);if(canGold(k.g)&&c.food>=k.f){const e0=o.exp|0,raw=doTech(o,c,ty),xe=(o.exp|0)-e0;if(o.done){const g=(raw.match(/科研 \+(\d+)/)||[])[1];return autoRep(o,`科研・${TY[ty].n}`,g?`+${g}・現Lv${techLv(c.f,ty)}`:"完成","智力",o.z,xe)}}}}
@@ -650,7 +656,7 @@ function checkFactions(){G.factions.forEach((F,f)=>{if(F.alive&&!facCities(f).le
 // ---------- NPC 勢力AI（難度演算法） ----------
 // ① 戰力評估：攻＝兵×(1+訓練/200)×(0.6+平均統率/250)×遠征0.9；守＝兵×城防倍率×(1+訓練/200)×(0.6+最高統率/250)＋守將×300
 // ② 威脅＝鄰接敵城中最強攻勢；前線城（有敵鄰）優先徵兵・訓練・城防，後方城專心農商並向最危前線輸送兵糧金
-// ③ 開戰：攻/守 ≥1.4 才出兵（不自殺），留守兵≥其他鄰敵威脅的一半，糧需保留6旬；目標評分＝勝算＋玩家城0.3＋孤城0.2＋人口
+// ③ 開戰：攻/守 ≥1.15 才出兵，留守兵≥其他鄰敵威脅的35%，糧需保留4旬；每勢力每旬最多2次出征；目標評分＝勝算＋玩家城0.5＋孤城0.25＋人口
 // ④ 出征派統率最高者（最多5名、至少留1名守城，不帶兵者不出征），自備軍糧；NPC 不作弊，只靠決策變強
 const aiAtkPow=(tr,os,c)=>{const ts=os.filter(o=>TCAP[rk(o)]>0);const avgT=ts.length?ts.reduce((s,o)=>s+o.t,0)/ts.length:40;return tr*(1+c.train/200)*(.6+avgT/250)*.9};
 const aiDefPow=t=>{const ds=offsIn(t.id).filter(o=>o.f==t.f&&TCAP[rk(o)]>0);const mT=ds.length?Math.max(...ds.map(o=>o.t)):50;return t.troops*defMultOf(devEff(t,"def"))*(1+t.train/200)*(.6+mT/250)+ds.length*300};
@@ -672,22 +678,22 @@ function aiTurn(f,queue){const F=G.factions[f];if(!F.alive)return;const mine=fac
  for(const c of mine){if(adj(c.id).some(j=>C(j).f!=f))continue;const dst=adj(c.id).map(C).filter(d=>d.f==f&&adj(d.id).some(j=>C(j).f!=f)).sort((a,b)=>aiThreat(b,f)/Math.max(1,aiDefPow(b))-aiThreat(a,f)/Math.max(1,aiDefPow(a)))[0];if(!dst)continue;
   const tr=Math.floor(Math.max(0,c.troops-2000)*.4);if(tr>0){const p=tr/Math.max(1,c.troops);c.troops-=tr;dst.troops+=tr;["arms","bows","horses"].forEach(g=>{const m=Math.floor((c[g]|0)*p);c[g]-=m;dst[g]=(dst[g]|0)+m})}const fd=Math.floor(Math.max(0,c.food-foodUse(c)*12)*.4);if(fd>0){c.food-=fd;dst.food+=fd}const gd=Math.floor(Math.max(0,c.gold-500)*.3);if(gd>0){c.gold-=gd;dst.gold+=gd}
   const os=offsIn(c.id,f);if(os.length>2&&offsIn(dst.id,f).length<3){const mv=[...os].sort((a,b)=>b.t-a.t).find(o=>!isLord(o)&&TCAP[rk(o)]>0);if(mv)mv.c=dst.id}}
- // 出征
- if(G.month+G.year*12>(G.scen||190)*12+2)for(const c of facCities(f)){const os=offsIn(c.id,f).filter(o=>TCAP[rk(o)]>0);if(!os.length||R()>.35)continue;
-  const pool=[...os].sort((a,b)=>b.t-a.t);const att=pool.slice(0,Math.min(5,Math.max(1,offsIn(c.id,f).length-1)));const capS=att.reduce((s,o)=>s+TCAP[rk(o)],0);const tr=Math.min(Math.floor(c.troops*.7),capS);if(tr<1500)continue;
-  const food=Math.ceil(tr/5);if(c.food-food<foodUse(c)*6)continue;const ap=aiAtkPow(tr,att,c);
-  const cand=adj(c.id).map(C).filter(t=>t.f!=f).map(t=>{const ratio=ap/Math.max(1,aiDefPow(t));const iso=adj(t.id).filter(j=>C(j).f==t.f).length==0?.2:0;return{t,ratio,sc:ratio+(t.f==0?.3:0)+iso+t.pop/1e6}}).filter(x=>x.ratio>=1.4).sort((a,b)=>b.sc-a.sc);
-  const pick0=cand[0];if(!pick0)continue;const tg=pick0.t;if((c.troops-tr)*(1+c.train/200)*defMultOf(devEff(c,"def"))<aiThreat(c,f,tg)*.5)continue;
-  c.troops-=tr;c.food-=food;if(tg.f==0&&offsIn(tg.id,0).length)queue.push({f,from:c,to:tg,att,tr,food});else war(f,c,tg,att,tr,false,undefined,undefined,food);break}
+ // 出征（更具攻擊性：勝算門檻低、出手機率高、每旬最多2波）
+ let wars=0;if(G.month+G.year*12>(G.scen||190)*12+1)for(const c of facCities(f)){if(wars>=2)break;const os=offsIn(c.id,f).filter(o=>TCAP[rk(o)]>0);if(!os.length||R()>.22)continue;
+  const pool=[...os].sort((a,b)=>b.t-a.t);const att=pool.slice(0,Math.min(5,Math.max(1,offsIn(c.id,f).length-1)));const capS=att.reduce((s,o)=>s+TCAP[rk(o)],0);const tr=Math.min(Math.floor(c.troops*.75),capS);if(tr<1000)continue;
+  const food=Math.ceil(tr/5);if(c.food-food<foodUse(c)*4)continue;const ap=aiAtkPow(tr,att,c);
+  const cand=adj(c.id).map(C).filter(t=>t.f!=f).map(t=>{const ratio=ap/Math.max(1,aiDefPow(t));const iso=adj(t.id).filter(j=>C(j).f==t.f).length==0?.25:0;return{t,ratio,sc:ratio+(t.f==0?.5:0)+iso+t.pop/1e6}}).filter(x=>x.ratio>=1.15).sort((a,b)=>b.sc-a.sc);
+  const pick0=cand[0];if(!pick0)continue;const tg=pick0.t;if((c.troops-tr)*(1+c.train/200)*defMultOf(devEff(c,"def"))<aiThreat(c,f,tg)*.35)continue;
+  c.troops-=tr;c.food-=food;wars++;if(tg.f==0&&offsIn(tg.id,0).length)queue.push({f,from:c,to:tg,att,tr,food});else war(f,c,tg,att,tr,false,undefined,undefined,food)}
  // empty cities get an officer
  facCities(f).forEach(c=>{if(!offsIn(c.id,f).length){const src=facCities(f).find(s=>offsIn(s.id,f).length>2&&adj(s.id).includes(c.id));if(src)offsIn(src.id,f)[1].c=c.id}})}
 // ---------- 爵位・名聲 ----------
 // 封號格式：伯＝三字＋伯（都鄉亭伯）、侯＝二字＋侯（武平侯）、公＝一字＋公（魏公）、王＝一字＋王（漢王）。
-// 四階爵位：伯(15名：縣伯5・鄉伯5・亭伯5)；開局全員「無爵」(名聲0.95)，綜合實力≥230且名聲≥110方可受封伯，先到先得・侯(7名)・公(5名)・王(3名)，統一天下為皇帝。每個封號獨一無二，名單由尊至卑排列。
+// 四階爵位：伯(15名：縣伯5・鄉伯5・亭伯5)；開局全員「無爵」(名聲0.95)，綜合實力≥920且名聲≥132方可受封伯，先到先得・侯(7名)・公(5名)・王(3名)，統一天下為皇帝。每個封號獨一無二，名單由尊至卑排列。
 // 先達者得最尊之號，後到者依次遞補；該階已滿則留在下階等候空缺。
 // 名聲依封號尊卑：伯1.12→1.00、侯1.30→1.15、公1.50→1.35、王1.75→1.55、皇帝1.8。
 // 晉階則釋放原封號；勢力滅亡釋放封號；綜合實力跌破現階門檻75%時降一階。
-const TIER=["伯","侯","公","王"],TIER_TH=[230,450,750,1200]; // 伯≥230・侯≥450・公≥750・王≥1200（另需名聲）；未受封者「無爵」爵位倍率0.95
+const TIER=["伯","侯","公","王"],TIER_TH=[920,1800,3000,4800]; // 伯≥920・侯≥1800・公≥3000・王≥4800（原×4；另需名聲）；未受封者「無爵」爵位倍率0.95
 const TNAMES=[
  "宜城縣 臨晉縣 安平縣 東阿縣 昌邑縣 高陽鄉 安樂鄉 平陸鄉 長社鄉 鄢陵鄉 都鄉亭 廣昌亭 武原亭 臨沮亭 新安亭".split(" "),
  "武鄉 武平 高陵 宜陽 新野 博望 臨湘".split(" "),
@@ -701,8 +707,8 @@ const titleName=f=>ttier(f)>=4?"皇帝":ttier(f)<0?"無爵":TNAMES[ttier(f)][tsl
 const tfame=f=>f>=0&&G.factions[f]&&G.factions[f].tier!=null?(ttier(f)>=4?1.8:ttier(f)<0?.95:slotFame(ttier(f),tslot(f))):1;
 const fame=f=>f>=0&&G.factions[f]?+(tfame(f)*repF(f)).toFixed(2):1; // 實際名望倍率＝爵位倍率×名聲係數
 // 名聲（君主聲望）：開局100；攻陷城池+25、守城成功+8、出征敗退-8、失城-20、晉爵+20（上限999，下限0）
-// 晉爵需同時達到 綜合實力 與 名聲 門檻：伯 230/110、侯 450/180、公 750/300、王 1200/500；另每旬依城數自然增加（每城+0.1÷3，月計+0.1）
-const REP_TH=[110,180,300,500];
+// 晉爵需同時達到 綜合實力 與 名聲 門檻：伯 920/132、侯 1800/216、公 3000/360、王 4800/600；另每旬依城數自然增加（每城+0.1÷3，月計+0.1）
+const REP_TH=[132,216,360,600]; /* 原×1.2 */
 const frep=f=>f>=0&&G.factions[f]?Math.round(G.factions[f].rep??100):0;
 function addRep(f,v){if(f<0||!G.factions[f])return;const F=G.factions[f];F.rep=cl((F.rep??100)+v,0,999)}
 const repF=f=>+(0.9+Math.min(frep(f),600)/1500).toFixed(3); // 名聲係數：0→0.9、100→0.97、600→1.3
@@ -1041,16 +1047,18 @@ function yearEvents(){if(G.month!=1)return[];const deb=[];G.offs.forEach(o=>{if(
  if(o.st=="future"&&G.year>=o.y){o.st="hidden";if(o.n!="諸葛亮"&&R()<.35){const nb=adj(o.c).map(C).sort((a,b)=>b.pop-a.pop)[0];if(nb&&nb.pop>C(o.c).pop)o.c=nb.id}deb.push(o);logMsg(`新武將 ${o.n} 登場於 ${C(o.c).n}`)}});return deb}
 // 城市數值指數效果：每300點翻倍，以300為標準（999約5倍）
 const cExp=v=>Math.pow(2,(v-300)/300);
-// 人口：繁榮度=商業與農業的指數效果×民忠；年成長＝1%×繁榮度（繁榮5.0→年5%，上限8%），並沿道路遷徙
+// 人口：繁榮度=商業農防×民忠；淨年成長＝1%×(繁榮−負擔)−df（df=0.012，即 −df×人口）；負擔隨人口升，150萬約需繁榮≥5+df才持平，不足負成長（年−8%～+8%），並沿道路遷徙
 const prosper=c=>(cExp(devEff(c,"com"))+cExp(devEff(c,"agri"))+cExp(devEff(c,"def")))/3*(.5+c.loy/200); /* 內用倍數；生效開發受職位上限，存值不削 */
 const prosperShow=c=>Math.pow(Math.max(0,prosper(c)),.25); /* 顯示壓縮：×16→顯示2、×1→1 */
 const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1;
-const growY=c=>Math.max(0,Math.min(.08,.01*prosper(c))); // 繁榮度5.0→年成長5%；超過則最高年8%
-const growM=c=>Math.pow(1+growY(c),1/12)-1;
+const POP_DF=.012; /* die factor：年死亡率＝df（與人口成正比，從成長中扣 −df×人口） */
+const popBurden=c=>5*(c.pop/POPMAX); /* 150萬需繁榮≥5才持平發展項；人口越高維持成本越高 */
+const growY=c=>{const raw=.01*(prosper(c)-popBurden(c))-POP_DF;return cl(raw,-.08,.08)}; // 淨年率＝發展項−df；開發不足或高人口易負成長
+const growM=c=>Math.pow(1+growY(c),1/12)-1; /* 年率可為負，月率同步 */}
 const growK=c=>cl(prosper(c)/5,0,1); // 相對繁榮5.0的成長係數
-// 人口：自然成長＋繁榮遷徙；人口與鄰城差距過大時由密往疏遷徙（負反饋）
+// 人口：自然成長＋繁榮遷徙；人口與鄰城差距過大時由密往疏遷徙（負反饋）；自然成長不可突破150萬
 function popTick(rep){const net=G.cities.map(()=>0);
- G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c)/3);const n=Math.max(0,Math.min(g,POPMAX-c.pop));c.pop+=n;c._g=n});
+ G.cities.forEach(c=>{const g=Math.round(c.pop*growM(c)/3);let n=g;if(n>0)n=Math.min(n,POPMAX-c.pop);else if(n<0)n=-Math.min(-n,c.pop-POPMIN);c.pop+=n;c._g=n});
  const dense=G.cities.map(()=>0);
  // 鄰城遷徙：每月每城外流合計≤人口3%（每旬均分）；先進城吸引；繁榮相近則密→疏
  // ①繁榮差|pGap|≥0.05：流向繁榮度高者；②|oGap|≥0.12：密往疏
