@@ -1059,7 +1059,7 @@ const POPMAX=1500000,POPMIN=20000,POPNAT=Math.pow(1.015,1/12)-1;
 const POP_DF=.012; /* die factor：年死亡率＝df（與人口成正比，從成長中扣 −df×人口） */
 const popBurden=c=>5*(c.pop/POPMAX); /* 150萬需繁榮≥5才持平發展項；人口越高維持成本越高 */
 const growY=c=>{const raw=.01*(prosper(c)-popBurden(c))-POP_DF;return cl(raw,-.08,.08)}; // 淨年率＝發展項−df；開發不足或高人口易負成長
-const growM=c=>Math.pow(1+growY(c),1/12)-1; /* 年率可為負，月率同步 */}
+const growM=c=>Math.pow(1+growY(c),1/12)-1; /* 年率可為負，月率同步 */
 const growK=c=>cl(prosper(c)/5,0,1); // 相對繁榮5.0的成長係數
 // 人口：自然成長＋繁榮遷徙；人口與鄰城差距過大時由密往疏遷徙（負反饋）；自然成長不可突破150萬
 function popTick(rep){const net=G.cities.map(()=>0);
