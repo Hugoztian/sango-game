@@ -1146,7 +1146,7 @@ function sortBar(get,apply,init){let key=init??null,dir=-1;const bar=document.cr
  const run=()=>{const mb=$("#mb"),my=mb?mb.scrollTop:0;const f=key==null?null:OSORT[key][1];apply(get().slice().sort((a,b)=>{const p=lordFirst(a,b);if(p)return p;if(!f)return 0;const x=f(a),y=f(b);return(typeof x=="number"?x-y:String(x).localeCompare(String(y),"zh-Hant"))*dir}));if(mb)mb.scrollTop=my};
  draw();run();return bar}
 const shuaiPow=c=>{const o=getShuai(c);return o?o.t:40}; /* 太守統率 */
-const plunderP=(o,t)=>Math.min(.95,.5*Math.pow(2,(o.t-shuaiPow(t))/4.31)); /* 掠奪：50%×2^(統差/4.31)；相等50%、差−10≈10%，僅封頂95% */
+const plunderP=(o,t)=>{const d=shuaiPow(t)||1;return Math.min(.95,.4*Math.pow(2,(o.t-d)/d*4))}; /* 掠奪：0.4×2^((我統−太守統)/太守統×4)，封頂95% */
 const taishu=c=>getShuai(c); /* 相容舊稱：太守 */
 function syncPosts(){if(!G)return;G.cities.forEach(c=>{if(c.f<0){c.shuai=null;c.shi=null;c.bie=null;return}
   const lord=O(G.factions[c.f].lord);if(lord&&!lord.dead&&lord.st=="serve"&&lord.c==c.id)c.shuai=lord.id; /* 主公所在＝太守 */
@@ -1157,9 +1157,9 @@ const getShuai=c=>{if(!c||c.f<0)return null;const o=c.shuai!=null?O(c.shuai):nul
 const getShi=c=>{if(!c||c.f<0)return null;const o=c.shi!=null?O(c.shi):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null};
 const getBie=c=>{if(!c||c.f<0)return null;const o=c.bie!=null?O(c.bie):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 別駕（政→農商上限） */
 const shiZ=c=>{const o=getShi(c);return o?o.z:40};
-const stirP=(o,t)=>Math.min(.95,.5*Math.pow(2,(o.z-shiZ(t))/4.31)); /* 煽動：50%×2^(智差/4.31)；相等50%、差−10≈10%，僅封頂95% */
-const plotP=(o,t)=>Math.min(.95,.5*Math.pow(2,(o.z-shiZ(C(t.c)))/4.31)); /* 離間：50%×2^((我智−敵城軍師智)/4.31)，同煽動 */
-const hireP=(o,t)=>Math.min(.95,fame(0)*Math.pow(2,(o.m-100)/5)*Math.pow(2,(50-(t.loy||50))/5)); /* 登用：魅低／忠近100皆指數級難；魅100・忠50≈滿，僅封頂95% */
+const stirP=(o,t)=>{const d=shiZ(t)||1;return Math.min(.95,.4*Math.pow(2,(o.z-d)/d*4))}; /* 煽動：0.4×2^((我智−軍師智)/軍師智×4)，封頂95% */
+const plotP=(o,t)=>{const d=shiZ(C(t.c))||1;return Math.min(.95,.4*Math.pow(2,(o.z-d)/d*4))}; /* 離間：同煽動，對敵城軍師智 */
+const hireP=(o,t)=>Math.min(.95,fame(0)*Math.pow(1.18,(o.m-100)/5)*Math.pow(1.18,(50-(t.loy||50))/5)); /* 登用：底數1.18；魅100・忠50≈滿，僅封頂95% */
 const POST_NM={shuai:"太守",shi:"軍師",bie:"別駕"};
 const postRolesHeld=(c,o)=>{const r=[];if(c.shuai===o.id)r.push("shuai");if(c.shi===o.id)r.push("shi");if(c.bie===o.id)r.push("bie");return r};
 function postCapOf(role,hold){const sk=role=="shuai"?(hold?hold.t:40):role=="shi"?(hold?hold.z:40):(hold?hold.p:40);return Math.round(15*sk)}
