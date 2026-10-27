@@ -703,12 +703,12 @@ const QMAX=5;
 function tacOK(B,u,n){const T=TAC[n];if(T.k!="智"&&T.k!=u.ty)return false;if(T.def&&u.side!="D")return false;if(u.o.pseudo&&T.k=="智")return false;if(n=="疾馳"&&u.dash)return false;if(T.tech&&techLv(u.side=="A"?B.af:B.df,u.ty)<T.tech)return false;return u.o[T.need[0]]>=T.need[1]}
 function unitShares(offs,tr){const tot=offs.reduce((s,o)=>s+(o.pseudo||TCAP[rk(o)]>0?o.t:0),0)||1;return offs.map(o=>{const cap=o.pseudo?1e9:TCAP[rk(o)];return cap?Math.max(100,Math.min(cap,Math.round(tr*o.t/tot))):0})}
 function aiTypes(c,offs,tr){const sh=unitShares(offs,tr),left={arms:c.arms|0,bows:c.bows|0,horses:c.horses|0};return offs.map((o,i)=>{let t=autoType(o);if(left[GEAR[t]]<sh[i])t=["步","弓","騎"].sort((a,b)=>left[GEAR[b]]-left[GEAR[a]])[0];left[GEAR[t]]-=sh[i];return t})}
-function makeBattle(af,from,to,aoffs,atroops,atypes,afood){const df=to.f;let doffs=offsIn(to.id,df<0?undefined:df).filter(o=>o.f==df);doffs=[...doffs].sort((a,b)=>b.t-a.t).filter(o=>TCAP[rk(o)]>0); /* 防守無限・但八品以下不帶兵 */
+function makeBattle(af,from,to,aoffs,atroops,atypes,afood,dpack){const df=to.f;let doffs,dtr,dtypes;if(dpack&&dpack.offs&&dpack.offs.length){doffs=dpack.offs;dtr=dpack.troops|0;dtypes=dpack.types}else{doffs=offsIn(to.id,df<0?undefined:df).filter(o=>o.f==df);doffs=[...doffs].sort((a,b)=>b.t-a.t).filter(o=>TCAP[rk(o)]>0);dtr=to.troops} /* 防守：可手動指定將領／兵力／兵種；八品以下不帶兵 */
  if(!doffs.length)doffs=[{id:-1,n:"守備隊",t:50,w:50,z:40,p:40,m:40,f:df,pseudo:1}];
  const B={af,df,turn:1,max:50,units:[],log:[],defMult:defMultOf(devEff(to,"def")),cityDef:to.def,atkPen:.9,foodA:afood==null?Math.ceil(atroops/5):afood,foodD:to.food,trA:1+(from.train)/200,trD:1+(to.train)/200,cells:[]};
  genTerrain(B);
  const place=(offs,tr,side,types)=>{const tot=offs.reduce((s,o)=>s+(o.pseudo||TCAP[rk(o)]>0?o.t:0),0)||1;const ys=[5,6,4,7,3,8,2,9,1,10,0,11];const taken=new Set();let pi=0;offs.forEach((o,i)=>{const cap=o.pseudo?1e9:TCAP[rk(o)];if(!cap)return;const ty=(types&&types[i])||(o.pseudo?["步","弓"][ri(0,1)]:autoType(o));let x,y;if(side=="A"){x=pi<3?1:0;y=ys[pi%6]}else{const order=[BW-2,BW-1];for(let c=BW-3;c>=2;c--)order.push(c);let ii=pi;do{x=order[Math.min(Math.floor(ii/ys.length),order.length-1)];y=ys[ii%ys.length];ii++}while(taken.has(x+","+y)&&ii<ys.length*order.length+8)}taken.add(x+","+y);B.units.push({o,side,ty,troops:Math.max(100,Math.min(cap,Math.round(tr*o.t/tot))),x,y,done:false,stun:0,q:2,fx:{}});pi++})};
- place(aoffs,atroops,"A",atypes);place(doffs,to.troops,"D");B.units.forEach(u=>u.startTr=u.troops);const dep=s=>B.units.filter(u=>u.side==s).reduce((t,u)=>t+u.troops,0);B.leftA=Math.max(0,atroops-dep("A"));B.reserveD=Math.max(0,to.troops-dep("D"));return B}
+ place(aoffs,atroops,"A",atypes);place(doffs,dtr,"D",dtypes);B.units.forEach(u=>u.startTr=u.troops);const dep=s=>B.units.filter(u=>u.side==s).reduce((t,u)=>t+u.troops,0);B.leftA=Math.max(0,atroops-dep("A"));B.reserveD=Math.max(0,to.troops-dep("D"));return B}
 const alive=(B,s)=>B.units.filter(u=>u.troops>0&&(!s||u.side==s));
 const uAt=(B,x,y)=>B.units.find(u=>u.troops>0&&u.x==x&&u.y==y);
 const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
@@ -803,7 +803,7 @@ async function bAct(k){const U=BUI;if(!U||U.busy)return;if(k=="回合結束")ret
   U.tac=n;U.mode="t:戰法";bRender();return}
  U.tac=null;U.mode="t:"+k;bRender()}
 // ---------- war resolution ----------
-async function war(af,from,to,aoffs,atroops,interactive,pside,atypes,afood){const df=to.f;if(!atypes)atypes=aiTypes(from,aoffs,atroops);const B=makeBattle(af,from,to,aoffs,atroops,atypes,afood);B.units.forEach(u=>{if(u.side=="A"){const g=GEAR[u.ty];from[g]=Math.max(0,(from[g]|0)-u.troops)}}); /* 出征消耗裝備 */B.units.forEach(u=>u._st=u.troops);const refund=(c,k=1)=>B.units.forEach(u=>{if(u.side=="A"&&u.troops>0)c[GEAR[u.ty]]=(c[GEAR[u.ty]]|0)+Math.round(u.troops*k)});const dLoss=k=>{B.units.forEach(u=>{if(u.side=="D"&&!u.o.pseudo||u.side=="D"){const g=GEAR[u.ty],lost=Math.max(0,(u._st||0)-Math.max(0,u.troops))+Math.round(Math.max(0,u.troops)*k);to[g]=Math.max(0,(to[g]|0)-lost)}})};from.troops+=B.leftA;let w;
+async function war(af,from,to,aoffs,atroops,interactive,pside,atypes,afood,dpack){const df=to.f;if(!atypes)atypes=aiTypes(from,aoffs,atroops);const B=makeBattle(af,from,to,aoffs,atroops,atypes,afood,dpack);B.units.forEach(u=>{if(u.side=="A"){const g=GEAR[u.ty];from[g]=Math.max(0,(from[g]|0)-u.troops)}}); /* 出征消耗裝備 */if(dpack)B.units.forEach(u=>{if(u.side=="D"&&!u.o.pseudo){const g=GEAR[u.ty];to[g]=Math.max(0,(to[g]|0)-u.troops)}}); /* 守方出擊亦扣裝備 */B.units.forEach(u=>u._st=u.troops);const refund=(c,k=1)=>B.units.forEach(u=>{if(u.side=="A"&&u.troops>0)c[GEAR[u.ty]]=(c[GEAR[u.ty]]|0)+Math.round(u.troops*k)});const dLoss=k=>{B.units.forEach(u=>{if(u.side=="D"&&!u.o.pseudo||u.side=="D"){const g=GEAR[u.ty],lost=Math.max(0,(u._st||0)-Math.max(0,u.troops))+Math.round(Math.max(0,u.troops)*k);to[g]=Math.max(0,(to[g]|0)-lost)}})};from.troops+=B.leftA;let w;
  if(interactive){if(df>=0||true)await modal("出陣",`${fname(af)}軍 ${aoffs.map(o=>o.n).join("、")} 率兵 ${atroops} 進攻 ${to.n}（${fname(df)}，兵 ${to.troops}）`,[{t:"開戰",v:1,cls:"pri"}]);w=await runBattle(B,pside||"A")}else w=autoResolve(B);
  const remA=alive(B,"A").reduce((s,u)=>s+u.troops,0),remD=alive(B,"D").reduce((s,u)=>s+u.troops,0);
  /* 既有傷員再遇衝突：死亡率高於常規 */const dieFrom=woundBattleDie(from),dieTo=woundBattleDie(to);if(dieFrom&&from.f==0)logMsg(`${from.n} 舊傷員陣亡 ${dieFrom}`);if(dieTo&&to.f==0)logMsg(`${to.n} 舊傷員陣亡 ${dieTo}`);
@@ -907,13 +907,26 @@ async function titleTick(){let big=null;G.factions.forEach((F,f)=>{if(F.alive)ad
  if(big)await modal("晉封爵位",`<p style="font-size:18px;text-align:center">天子詔曰：<br><b style="color:#ffd77a;font-size:26px">${G.factions[0].n} 晉封 ${big}</b></p><p>名聲大振！搜索、登用、勸降成功率 ×${fame(0)}</p>`)}
 function ladderView(){const rows=[];TNAMES.forEach((L,t)=>L.forEach((n,k)=>{const h=G.factions.findIndex(F=>F.alive&&F.tier===t&&F.slot===k);rows.push({t,k,n:n+TIER[t],h})}));rows.push({t:4,k:0,n:"皇帝",h:G.factions.findIndex(F=>F.alive&&F.tier===4)});G.factions.forEach((F,f)=>{if(F.alive&&F.tier===-1)rows.push({t:-1,k:-1,n:"無爵",h:f})});
  return sortTable("爵位一覽（封號獨一，先到先得）",[{h:"階",v:x=>x.t*100+(x.k<0?0:99-x.k),f:x=>x.t>=4?"帝":x.t<0?"—":TIER[x.t]},{h:"序",v:x=>x.k,f:x=>x.k<0?"-":x.k+1},{h:"封號",v:x=>x.n},{h:"門檻",v:x=>x.t,f:x=>x.t>=4?"統一":x.t<0?"—":TIER_TH[x.t]+"／名聲"+REP_TH[x.t]},{h:"名聲",v:x=>x.t>=4?1.8:x.t<0?.95:slotFame(x.t,x.k),f:x=>"×"+(x.t>=4?1.8:x.t<0?.95:slotFame(x.t,x.k))},{h:"持有",v:x=>x.h>=0?G.factions[x.h].n:"",f:x=>x.h>=0?`<b>${G.factions[x.h].n}</b>`:"—"}],rows,null,null,null,{sort:0,dir:-1})}
+async function defendSetup(a){ /* 被攻：顯示敵情，選出擊將（不限人數）・兵力上限8000・兵種 */const c=a.to,atypes=aiTypes(a.from,a.att,a.tr),sh=unitShares(a.att,a.tr);
+ const eHtml=`<div style="font-size:13px;line-height:1.45"><b style="color:#f88">敵軍・${fname(a.f)}</b>　攻我方 <b>${c.n}</b><br>總兵 <b style="color:#ffd77a">${a.tr}</b>　糧${a.food||Math.ceil(a.tr/5)}　城防我${c.def}・我兵${c.troops}<hr style="border-color:#553">`+
+  a.att.map((o,i)=>{const ty=atypes[i],need=sh[i];return`<div style="background:#33210f;border-radius:4px;padding:4px 6px;margin:3px 0"><b>${TY[ty].ic}${o.n}</b>　${TY[ty].n}約${need}　統${o.t} 武${o.w} 智${o.z} 政${o.p} 魅${o.m}　${RANKS[rk(o)]}</div>`}).join("")+`</div>`;
+ await modal("敵軍來襲！",eHtml,[{t:"佈陣迎擊",v:1,cls:"pri"}]);
+ const av=offsIn(c.id,0).filter(o=>TCAP[rk(o)]>0);if(!av.length){toast("無可帶兵武將，守備隊出戰");return null}
+ const os=await pick(`迎擊武將（不限人數・可帶兵品級）`,av.map(o=>({label:`${o.n}${isLord(o)?" 👑":""}`,sub:`統${o.t} 武${o.w} 智${o.z}　帶兵上限${TCAP[rk(o)]}`,v:o})),Math.max(1,av.length));
+ if(!os||!os.length){toast("未選武將，改以全城自動守備");return null}
+ const capS=os.reduce((s,o)=>s+TCAP[rk(o)],0);const maxTr=Math.min(8000,c.troops,capS);if(maxTr<100){toast("可出擊兵力不足");return null}
+ const r=await pick(`出擊兵力（上限 ${maxTr}＝min(8000・城兵・帶兵合計)）`,[1,.7,.5].map(x=>{const n=Math.max(100,Math.min(maxTr,Math.floor(maxTr*x)));return{label:x==1?`全出 ${n}`:`${Math.round(x*100)}%　${n}人`,sub:`城內剩兵約${c.troops-n}`,v:n}}));
+ if(r==null)return null;const tr=r;
+ const shares=unitShares(os,tr);const left={arms:c.arms|0,bows:c.bows|0,horses:c.horses|0};const types=[];
+ for(let i=0;i<os.length;i++){const o=os[i],need=shares[i];const ty=await pick(`${o.n} 的兵種（約${need}人・統${o.t} 武${o.w} 智${o.z}）・敵情見上`,Object.entries(TY).map(([k,T])=>({label:`${T.ic} ${T.n}（Lv${techLv(0,k)}）`,sub:`${GNM[GEAR[k]]}剩${left[GEAR[k]]}／需${need}・移動${T.mv} 射程${T.r.join("-")}・剋${TY[BEATS[k]].n}${k==autoType(o)?"・推薦":""}`,v:k,dis:left[GEAR[k]]<need})));if(!ty)return null;left[GEAR[ty]]-=need;types.push(ty)}
+ return{offs:os,troops:tr,types}}
 // ---------- turn ----------
 let ending=false;
 async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;try{if(G.autoAll)facCities(0).forEach(c=>c.auto=true);const autoLines=autoRun();G._plotHits=[];G._woundDyn=[];const queue=[];
  for(let f=1;f<G.factions.length;f++)aiTurn(f,queue);
  for(const a of queue){if(a.to.f!=0||!G.factions[a.f].alive||a.att.some(o=>o.dead||o.f!=a.f)){a.from.troops+=a.tr;a.from.food+=a.food||0;continue}
   if(!offsIn(a.to.id,0).length){await war(a.f,a.from,a.to,a.att,a.tr,false,undefined,undefined,a.food);continue}
-  await modal("敵軍來襲！",`${fname(a.f)}軍 ${a.att.map(o=>o.n).join("、")} 率兵 ${a.tr} 進攻我方 ${a.to.n}！`,[{t:"迎擊",v:1,cls:"pri"}]);await war(a.f,a.from,a.to,a.att,a.tr,true,"D",undefined,a.food)}
+  const dpack=await defendSetup(a);await war(a.f,a.from,a.to,a.att,a.tr,true,"D",undefined,a.food,dpack||undefined)}
  G.xun=(G.xun||0)+1;const newM=G.xun>2;if(newM){G.xun=0;G.month++;if(G.month>12){G.month=1;G.year++}}const debut=newM?yearEvents():[];
  const rep=[...autoLines];let gsum=0;G.cities.forEach(c=>{if(c.f>=0){const g=Math.round(goldInc(c)*1.44/3);c.gold+=g; /* 每旬金收入＝月基準×1.44÷3（=×0.48） */if(c.f==0)gsum+=g}
   if(newM&&G.month==7){const g=foodInc(c);c.food+=g;if(c.f==0)rep.push(`${c.n} 糧+${g}`)}
