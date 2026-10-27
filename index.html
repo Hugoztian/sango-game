@@ -281,7 +281,7 @@ function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">別駕 <b style="color:#ffd77a">${(getBie(c)||{n:"—"}).n}</b>${getBie(c)?`（政${getBie(c).p}）`:""}${mine?`<button id="pBie" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
 ${mine&&capital(0)===c?schPanelHtml(c):""}
 </div>
- ${mine?`<div class="cmds">${["開發","徵兵","解散","訓練","工房","科研","搜索","登用","計略","移動","輸送","出征","褒賞",...(capital(0)===c?["太學"]:[])].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
+ ${mine?`<div class="cmds">${["開發","軍備","解散","訓練","科研","搜索","登用","計略","移動","輸送","出征","褒賞",...(capital(0)===c?["太學"]:[])].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
  <div class="olist"><div class="otbl">${offHeadHtml()}${psorted(os).map(o=>offRowHtml(o,mine)).join("")||"<div class='ohint'>無武將</div>"}
  ${mine&&G.offs.some(o=>!o.dead&&o.c==c.id&&o.st=="hidden")?`<div class="ohint">💡 傳聞此地有在野賢才，試試「搜索」</div>`:""}${free.map(o=>{const nw=o.foundAt==nowM();return`<div class="orow ${nw?"newrow":""}">${avHtml(o)}<span class="nm">${o.n}</span><span class="tag rk">在野</span><span class="stn">${o.t}</span><span class="stn">${o.w}</span><span class="stn">${o.z}</span><span class="stn">${o.p}</span><span class="stn">${o.m}</span><span class="stn">-</span><span class="tags"><span class="tag" style="${nw?"background:#0aa":""}">${nw?"本月發現":"在野"}</span></span></div>`}).join("")}</div></div>`;
  $("#pClose").onclick=()=>{selCity=null;render()};if($("#pAuto"))$("#pAuto").onclick=()=>toggleAuto(c);if($("#pShuai"))$("#pShuai").onclick=()=>appointPost(c,"shuai");if($("#pShi"))$("#pShi").onclick=()=>appointPost(c,"shi");if($("#pBie"))$("#pBie").onclick=()=>appointPost(c,"bie");p.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>command(b.dataset.k,c))}
@@ -291,10 +291,10 @@ async function command(k,c){
  const enemyAdj=adj(c.id).filter(j=>C(j).f!=0).map(C),ownAdj=adj(c.id).filter(j=>C(j).f==0).map(C);
  if(k=="開發")return devCmd(c);
 
- if(k=="徵兵"){const os=await pickOffs(c,"徵兵：選擇武將","t",o=>`金${recCost(o)} 最多${recYield(o,c)}人（民忠${c.loy}・本月城上限剩${recCap(c)}）`);if(!os)return;const a=await pick(`徵兵數量（每名武將，共${os.length}名）`,[0,1000,2000,3000,5000].map(n=>({label:n?`上限 ${n}人`:"盡量徵兵",sub:`每名武將金${Math.round(BUDGET[0]*4*.7)}～${Math.round(BUDGET[9]*4*.7)}（依品級）・每250兵民忠-1`,v:n||-1})));if(!a)return;await summary("徵兵結果",os.map(o=>doRec(o,c,a<0?0:a)))}
+ if(k=="徵兵"||k=="軍備")return armCmd(c,"rec");
  if(k=="解散"){const t=await pick("解散項目",[{label:"兵力",sub:`現有${c.troops}（歸入人口）`,v:"troops",dis:c.troops<1},{label:"🐎 馬",sub:`庫存${c.horses|0}`,v:"horses",dis:(c.horses|0)<1}]);if(!t)return;const max=t=="troops"?c.troops:(c.horses|0);const pct=await pick(`解散比例（${t=="troops"?"兵力":"馬"} ${max}）`,[.25,.5,.75,1].map(x=>({label:`${x*100}%`,sub:`${Math.floor(max*x)}`,v:x,dis:Math.floor(max*x)<1})));if(!pct)return;const n=Math.floor(max*pct);if(n<1)return toast("數量不足");if(t=="troops"){c.troops-=n;c.pop+=n;fixGear(c);toast(`解散兵力 ${n}，人口 +${n}（兵${c.troops}・人口${c.pop}）`);logMsg(`${c.n} 解散兵力 ${n}`)}else{c.horses-=n;toast(`解散馬 ${n}（庫存${c.horses}）`);logMsg(`${c.n} 解散馬 ${n}`)}return}
- if(k=="工房"){const t=await pick("工房：製造項目（產量／單價看智力與工業）",[["arms","🗡️"],["bows","🏹"],["horses","🐎"]].map(([v,ic])=>({label:`${ic} ${GNM[v]}`,sub:`庫存${c[v]|0}・兵力${c.troops}・裝備總${gearCap(c)}`,v})));if(!t)return;const os=await pickOffs(c,`工房製造${GNM[t]}：選擇武將`,"z",o=>{const g=craftPrev(o,c),cost=craftCost(o,c),food=craftFood(o,c,t);return`金${cost}${food?` 糧${food}`:""} 預計+${g}・單價${(cost/g).toFixed(2)}`},1,o=>{const cost=craftCost(o,c),food=craftFood(o,c,t);return c.gold<cost||(food&&c.food<food)});if(!os)return;await summary("工房結果",os.map(o=>doCraft(o,c,t)))}
- if(k=="科研"){const ty=await pick("科研：騎＝軍師+太守・步＝太守+別駕・弓＝軍師+別駕（各≥60，高階更高）",["步","弓","騎"].map(t=>{const lv=techLv(0,t),k2=techCost(lv,t),ok=lv<TECH_MAX&&techPostOK(c,t);return{label:`${TY[t].ic} ${TY[t].n} Lv${lv} ${lv<TECH_MAX?pbar(techXp(0,t),techNeed(lv)):"滿"}`,sub:lv>=TECH_MAX?"已達上限":`${techPostLabel(c,t)}${ok?"":"（不足）"}・金${k2.g} 糧${k2.f}${t=="騎"?"（半）":""}`,v:t,dis:lv>=TECH_MAX||!ok}}));if(!ty)return;const sk=techOffSk(ty);const needOff=techOffNeed(c,ty);const os=await pickOffs(c,`${TY[ty].n}科研：選擇武將（${SKN[sk]}≥${needOff}）`,sk,o=>o[sk]<needOff?`${SKN[sk]}不足${needOff}`:`金${techCost(techLv(0,ty),ty).g} 糧${techCost(techLv(0,ty),ty).f} 科研+${techGain(o)}`,1,o=>o[sk]<needOff||!techPostOK(c,ty));if(!os)return;await summary("科研結果",os.map(o=>doTech(o,c,ty)))}
+ if(k=="工房")return armCmd(c,"arms");
+ if(k=="科研")return techCmd(c);
  if(k=="訓練"){const os=await pickOffs(c,"訓練：選擇武將","w",o=>{const k2=trainCost(o);return`金${k2.g} 糧${k2.f} 預計+${trainGain(o.w)}`},1,o=>{const k2=trainCost(o);return c.gold<k2.g||c.food<k2.f});if(!os)return;await summary("訓練結果",os.map(o=>doTrain(o,c)))}
  if(k=="搜索"){const os=await pickOffs(c,"搜索：選擇武將","z",o=>`發現率${Math.round(Math.min(.98,searchP(o.z)*fame(0))*100)}%`,1);if(!os)return;await summary("搜索結果",os.map(o=>doSearch(o,c)))}
  if(k=="登用"){const o=await pickOffBy(c,"登用：選擇使者（魅力）","m");if(!o)return;const ts=[...G.offs.filter(x=>!x.dead&&x.c==c.id&&x.st=="free"),...enemyAdj.flatMap(e=>offsIn(e.id).filter(x=>x.f>=0&&!isLord(x)))];
@@ -409,12 +409,12 @@ const PCELL="background:#33210f;border-radius:6px;padding:6px 8px",PB=(txt,v,cls
 function devJobsTick(rep){facCities(0).forEach(c=>{if(!c.devJobs||!c.devJobs.length)return;const keep=[];c.devJobs.forEach(j=>{const o=G.offs.find(x=>x.id===j.oId),t=j.kind,nm=TNM[t]||"安撫";if(!o||o.dead||o.st!="serve"||o.f!=0||o.c!=c.id){rep.push(`🛠 ${c.n}${nm}常駐：${o?o.n:"?"} 已不在城，解除`);return}if(o.done||schIn(o)){rep.push(`🛠 ${c.n}${nm}常駐：${o.n} 另有任務，本旬跳過`);keep.push(j);return}const cap=t=="loy"?100:devCap(c,t);if((c[t]|0)>=cap){rep.push(`🛠 ${c.n}${nm}已達上限，${o.n} 常駐解除`);return}if(t!="loy"){const st=t=="def"?o.w:isInd(t)?o.z:o.p,need=devNeedSk(c[t]|0);if(need&&st<need){rep.push(`<span style="color:#f88">🛠 ${c.n}${nm}${c[t]}需能力≥${need}，${o.n}（${st}）不合格，常駐解除</span>`);return}}rep.push("🛠 "+doDev(o,c,t));o.done=true;keep.push(j)});c.devJobs=keep})}
 const DEVMAX=5,devCnt=(c,t,sel,add)=>{const ids=new Set(sel);if(add!=null)ids.add(add);(c.devJobs||[]).forEach(j=>{if(j.kind===t)ids.add(j.oId)});return ids.size};
 const devJobOn=o=>facCities(0).some(c=>(c.devJobs||[]).some(j=>j.oId===o.id));
-async function devCmd(c){let t="agri";const sel=new Set();const SKL={w:"武",z:"智",p:"政",m:"魅"};
+async function devCmd(c){const dFull=v=>v=="loy"?(c.loy|0)>=100:(c[v]|0)>=devCap(c,v);let t=["agri","com","ind","def","loy"].find(v=>!dFull(v))||"agri";const sel=new Set();const SKL={w:"武",z:"智",p:"政",m:"魅"};
  for(;;){const sk=t=="def"?"w":t=="loy"?"m":isInd(t)?"z":"p",need=t=="loy"?0:devNeedSk(c[t]|0),cap=t=="loy"?100:devCap(c,t),cur=c[t]|0;
   const offs=offsIn(c.id,0).filter(o=>!o.done).sort((a,b)=>b[sk]-a[sk]);[...sel].forEach(id=>{if(!offs.some(o=>o.id==id))sel.delete(id)});
   const box=document.createElement("div");box.style.cssText="display:grid;gap:8px;font-size:14px";
   const P=[["agri","🌾農業"],["com","💰商業"],["ind","🏭工業"],["def","🏯城防"],["loy","😊安撫"]];
-  let h=`<div style="${PCELL}"><b>項目</b>　${P.map(([v,n])=>PB(n,"t:"+v,v==t?"pri":"")).join(" ")}</div>`;
+  let h=`<div style="${PCELL}"><b>項目</b>　${P.map(([v,n])=>PB(dFull(v)?n+"(滿)":n,"t:"+v,v==t?"pri":"",dFull(v))).join(" ")}</div>`;
   h+=`<div style="${PCELL}"><b>現況</b>　農${c.agri}・商${c.com}・工${c.ind|0}・防${c.def}（上限${DEV_MAX}）・民忠${c.loy}　金<b style="color:#ffd77a">${c.gold}</b></div>`;
   h+=`<div style="${PCELL}"><b>${TNM[t]||"安撫"}</b>　<b style="color:#ffd77a">${cur}</b>/${cap}　看${SKL[sk]}${need?`　需${SKL[sk]}≥${need}`:""}${cur>=cap?"　（已達上限）":""}</div>`;
   let cost=0,gain=0;
@@ -433,6 +433,49 @@ async function devCmd(c){let t="agri";const sel=new Set();const SKL={w:"武",z:"
   if(v=="disall"){c.devJobs=[];toast("本城內政常駐已全部解散");continue}
   if(v=="job"){const os=offs.filter(o=>sel.has(o.id));if(devCnt(c,t,sel)>DEVMAX){toast(`每項最多${DEVMAX}人（含常駐）`);continue}sel.clear();c.devJobs=(c.devJobs||[]).filter(j=>!os.some(o=>o.id===j.oId));os.forEach(o=>c.devJobs.push({oId:o.id,kind:t}));await summary(t=="loy"?"安撫結果":"開發結果",os.map(o=>doDev(o,c,t)));os.forEach(o=>o.done=true);render();continue}
   if(v=="run"){const os=offs.filter(o=>sel.has(o.id));sel.clear();await summary(t=="loy"?"安撫結果":"開發結果",os.map(o=>doDev(o,c,t)));render()}
+ }render()}
+const TECHMAX=5;function techJobsTick(rep){facCities(0).forEach(c=>{if(!c.techJobs||!c.techJobs.length)return;const keep=[];c.techJobs.forEach(j=>{const o=G.offs.find(x=>x.id===j.oId),ty=j.ty,nm=TY[ty].n+"科研";if(!o||o.dead||o.st!="serve"||o.f!=0||o.c!=c.id){rep.push(`🔬 ${c.n}${nm}常駐：${o?o.n:"?"} 已不在城，解除`);return}if(o.done||schIn(o)){rep.push(`🔬 ${c.n}${nm}常駐：${o.n} 另有任務，本旬跳過`);keep.push(j);return}if(techLv(c.f,ty)>=TECH_MAX){rep.push(`🔬 ${nm}已滿級，${o.n} 常駐解除`);return}if(!techPostOK(c,ty)){rep.push(`<span style="color:#f88">🔬 ${c.n}${nm}：${techPostLabel(c,ty)}不足，${o.n} 常駐解除</span>`);return}const sk=techOffSk(ty),nd=techOffNeed(c,ty);if(o[sk]<nd){rep.push(`<span style="color:#f88">🔬 ${c.n}${nm}需${SKN[sk]}≥${nd}，${o.n}（${o[sk]}）不合格，常駐解除</span>`);return}const k=techCost(techLv(c.f,ty),ty);if(c.gold<k.g||c.food<k.f){rep.push(`🔬 ${c.n}${nm}：金糧不足，${o.n} 本旬跳過`);keep.push(j);return}rep.push("🔬 "+doTech(o,c,ty));o.done=true;keep.push(j)});c.techJobs=keep})}
+const techCnt=(c,ty,sel,add)=>{const s=new Set(sel);if(add!=null)s.add(add);(c.techJobs||[]).forEach(j=>{if(j.ty===ty)s.add(j.oId)});return s.size};
+async function techCmd(c){let ty=["步","弓","騎"].find(t=>techLv(c.f,t)<TECH_MAX)||"步";const sel=new Set();
+ for(;;){const sk=techOffSk(ty),nd=techOffNeed(c,ty),lv=techLv(c.f,ty),full=lv>=TECH_MAX,pok=techPostOK(c,ty),k=techCost(lv,ty),blk=full||!pok;
+  const offs=offsIn(c.id,0).filter(o=>!o.done&&!schIn(o)).sort((a,b)=>techGain(b)-techGain(a));[...sel].forEach(id=>{if(!offs.some(o=>o.id==id))sel.delete(id)});
+  const box=document.createElement("div");box.style.cssText="display:grid;gap:8px;font-size:14px";
+  let h=`<div style="${PCELL}"><b>兵種</b>　${["步","弓","騎"].map(t=>{const l=techLv(c.f,t);return PB(`${TY[t].ic}${TY[t].n} ${l>=TECH_MAX?"滿級":"Lv"+l}`,"t:"+t,t==ty?"pri":"",l>=TECH_MAX)}).join(" ")}</div>`;
+  h+=`<div style="${PCELL}"><b>${TY[ty].n}科研</b>　Lv<b style="color:#ffd77a">${lv}</b>　${full?`<b style="color:#8f8">滿級</b>`:pbar(techXp(c.f,ty),techNeed(lv))}　每人金${k.g} 糧${k.f}　金<b style="color:#ffd77a">${c.gold}</b> 糧${c.food}</div>`;
+  h+=`<div style="${PCELL}"><b>職位</b>　${techPostLabel(c,ty)}　${pok?`<span style="color:#8f8">合格</span>`:`<span style="color:#f88">不足（各需≥${techPostNeedNow(c,ty)}）</span>`}　武將需${SKN[sk]}≥${nd}</div>`;
+  let cost=0,food=0,gain=0;
+  h+=offs.length?offs.map(o=>{const bad=o[sk]<nd,on=sel.has(o.id),g=techGain(o);if(on){cost+=k.g;food+=k.f;gain+=g}return `<div style="${PCELL}">${PB(on?"✔":"選",(bad?"x":"o:")+o.id,on?"pri":"",bad||blk)}　<b>${o.n}</b>　${SKN[sk]}${o[sk]}　${bad?`<span style="color:#f88">不足${nd}</span>`:`科研+${g}`}</div>`}).join(""):`<div style="${PCELL}">此城沒有可行動的武將</div>`;
+  const JB=c.techJobs||[];h+=`<div style="${PCELL}"><b>常駐</b>　${JB.length?JB.map((j,i)=>{const o=G.offs.find(x=>x.id===j.oId);return `${o?o.n:"?"}→${TY[j.ty].n} ${PB("✕","rm:"+i)}`}).join("　"):"—"}　<span style="opacity:.7">（每旬續做；職位/能力不合格或滿級即解除；忙或缺金糧本旬跳過）</span>${JB.length?"　"+PB("解散本項","dis1")+" "+PB("解散科研","disall"):""}</div>`;
+  h+=`<div style="${PCELL}">已選${sel.size}名（每項最多${TECHMAX}人含常駐）　花費金<b style="color:${cost>c.gold?"#f88":"#ffd77a"}">${cost}</b> 糧${food}　預計+${gain}</div><div>${PB("執行","run","pri",!sel.size||blk)} ${PB("執行並常駐","job","",!sel.size||blk)} ${PB("自動選人","auto","pri",blk)} ${PB("清除","clr")}</div>`;
+  box.innerHTML=h;box.querySelectorAll("button[data-a]").forEach(b=>b.onclick=()=>modal.close(b.dataset.a));
+  const v=await modal(`科研・${c.n}`,box,[{t:"關閉",v:null}]);if(!v)break;
+  if(v.startsWith("t:")){ty=v.slice(2);sel.clear();continue}
+  if(v.startsWith("o:")){const id=offs.find(o=>String(o.id)===v.slice(2)).id;if(sel.has(id))sel.delete(id);else if(techCnt(c,ty,sel,id)>TECHMAX)toast(`每項最多${TECHMAX}人（含常駐）`);else sel.add(id);continue}
+  if(v=="auto"){sel.clear();const js=new Set(JB.filter(j=>j.ty===ty).map(j=>j.oId));let g=c.gold,f=c.food;offs.filter(o=>o[sk]>=nd&&!js.has(o.id)).forEach(o=>{if(techCnt(c,ty,sel,o.id)<=TECHMAX&&g>=k.g&&f>=k.f){sel.add(o.id);g-=k.g;f-=k.f}});if(!sel.size)toast("沒有合格可選的武將（或金糧不足）");continue}
+  if(v=="clr"){sel.clear();continue}
+  if(v.startsWith("rm:")){c.techJobs.splice(+v.slice(3),1);continue}
+  if(v=="dis1"){c.techJobs=JB.filter(j=>j.ty!==ty);toast("本項科研常駐已解散");continue}
+  if(v=="disall"){c.techJobs=[];toast("本城科研常駐已全部解散");continue}
+  if(v=="job"||v=="run"){const os=offs.filter(o=>sel.has(o.id));if(v=="job"){if(techCnt(c,ty,sel)>TECHMAX){toast(`每項最多${TECHMAX}人（含常駐）`);continue}c.techJobs=JB.filter(j=>!os.some(o=>o.id===j.oId));os.forEach(o=>c.techJobs.push({oId:o.id,ty}))}sel.clear();await summary("科研結果",os.map(o=>doTech(o,c,ty)));if(v=="job")os.forEach(o=>o.done=true);render();continue}
+ }render()}
+async function armCmd(c,t0){let t=t0||"rec",amt=0;const sel=new Set();const TB=[["rec","🪖徵兵"],["arms","🗡️兵器"],["bows","🏹弓箭"],["horses","🐎馬"]];
+ for(;;){const isR=t=="rec",sk=isR?"t":"z";
+  const offs=offsIn(c.id,0).filter(o=>!o.done&&!schIn(o)).sort((a,b)=>b[sk]-a[sk]);[...sel].forEach(id=>{if(!offs.some(o=>o.id==id))sel.delete(id)});
+  const box=document.createElement("div");box.style.cssText="display:grid;gap:8px;font-size:14px";
+  let h=`<div style="${PCELL}"><b>項目</b>　${TB.map(([v,n])=>PB(n,"t:"+v,v==t?"pri":"")).join(" ")}</div>`;
+  h+=`<div style="${PCELL}"><b>現況</b>　兵力${c.troops}・裝備總${gearCap(c)}・兵器${c.arms|0}・弓箭${c.bows|0}・馬${c.horses|0}・工業${c.ind|0}・民忠${c.loy}　金<b style="color:#ffd77a">${c.gold}</b> 糧${c.food}</div>`;
+  if(isR)h+=`<div style="${PCELL}"><b>每人上限</b>　${[0,1000,2000,3000,5000].map(n=>PB(n?n+"人":"盡量","a:"+n,n==amt?"pri":"")).join(" ")}　本月城上限剩${recCap(c)}・每250兵民忠-1</div>`;
+  let cost=0,food=0,gain=0;
+  h+=offs.length?offs.map(o=>{const on=sel.has(o.id),cs=isR?recCost(o):craftCost(o,c),fd=isR?0:craftFood(o,c,t),g=isR?(amt?Math.min(amt,recYield(o,c)):recYield(o,c)):craftPrev(o,c);if(on){cost+=cs;food+=fd;gain+=g}return `<div style="${PCELL}">${PB(on?"✔":"選","o:"+o.id,on?"pri":"")}　<b>${o.n}</b>　${isR?"統率":"智力"}${o[sk]}　金${cs}${fd?` 糧${fd}`:""}　預計+${g}${isR?"":`・單價${(cs/Math.max(1,g)).toFixed(2)}`}</div>`}).join(""):`<div style="${PCELL}">此城沒有可行動的武將</div>`;
+  h+=`<div style="${PCELL}">已選${sel.size}名　花費金<b style="color:${cost>c.gold?"#f88":"#ffd77a"}">${cost}</b>${food?` 糧<b style="color:${food>c.food?"#f88":"#ffd77a"}">${food}</b>`:""}　預計+${gain}</div><div>${PB("執行","run","pri",!sel.size)} ${PB("自動選人","auto","pri")} ${PB("清除","clr")}</div>`;
+  box.innerHTML=h;box.querySelectorAll("button[data-a]").forEach(b=>b.onclick=()=>modal.close(b.dataset.a));
+  const v=await modal(`軍備・${c.n}`,box,[{t:"關閉",v:null}]);if(!v)break;
+  if(v.startsWith("t:")){t=v.slice(2);sel.clear();continue}
+  if(v.startsWith("a:")){amt=+v.slice(2);continue}
+  if(v.startsWith("o:")){const id=offs.find(o=>String(o.id)===v.slice(2)).id;sel.has(id)?sel.delete(id):sel.add(id);continue}
+  if(v=="auto"){sel.clear();let g=c.gold,f=c.food;offs.forEach(o=>{const cs=isR?recCost(o):craftCost(o,c),fd=isR?0:craftFood(o,c,t);if(g>=cs&&f>=fd){sel.add(o.id);g-=cs;f-=fd}});if(!sel.size)toast("金糧不足或無人可選");continue}
+  if(v=="clr"){sel.clear();continue}
+  if(v=="run"){const os=offs.filter(o=>sel.has(o.id));sel.clear();await summary(isR?"徵兵結果":"工房結果",os.map(o=>isR?doRec(o,c,amt):doCraft(o,c,t)));render()}
  }render()}
 async function trCmd(c,ownAdj){if(!ownAdj.length)return toast("沒有鄰接的己方城池");let oid=null,to=ownAdj[0].id;const amt={};const KS=[["gold","金"],["food","糧"],["troops","兵"],["arms","兵器"],["bows","弓箭"],["horses","馬"]];
  for(;;){const offs=offsIn(c.id,0).filter(o=>!o.done);if(!offs.some(o=>o.id==oid))oid=offs[0]?offs[0].id:null;const T=C(to);
@@ -468,7 +511,7 @@ async function schoolCmd(c){const S=schState();let selK=S.sk||"z";
   if(v.startsWith("out:")){const id=+v.slice(4)||v.slice(4);S.students=S.students.filter(x=>String(x)!==String(id));const n=(G.offs.find(o=>String(o.id)===String(id))||{}).n;if(!S.students.length)schClear(S);toast(`${n} 退學（經驗保留）`);continue}
   if(v.startsWith("sk:")){const nk=v.slice(3);if(nk==k)continue;if(!has){selK=nk;continue}const nt=await schPickT(c,nk,S);if(!nt)continue;S.sk=nk;S.t=nt.id;nt.done=true;toast(`太學改${SKN[nk]}課，教席${nt.n}`);continue}
   if(v=="t"){const nt=await schPickT(c,k,S);if(!nt)continue;S.sk=k;S.t=nt.id;nt.done=true;toast(`太學${SKN[k]}課，教席${nt.n}`);continue}
-  if(v=="in"&&has){if(S.students.length>=3){toast("弟子已滿3人");continue}const st=await pickOffBy(c,`${nm}弟子（教席${t.n}${t[k]}）`,k,o=>`每旬經驗+${schXp(t[k],o[k])}`,o=>o.id==S.t||S.students.includes(o.id)||o[k]>=t[k]);if(!st)continue;S.students.push(st.id);st.done=true;toast(`${st.n} 入太學（每旬金100）`)}
+  if(v=="in"&&has){if(S.students.length>=3){toast("弟子已滿3人");continue}const st=await pickOffBy(c,`${nm}弟子（教席${t.n}${t[k]}）`,k,o=>o[k]>=100?`${nm}已達100`:`每旬經驗+${schXp(t[k],o[k])}`,o=>o.id==S.t||S.students.includes(o.id)||o[k]>=t[k]||o[k]>=100);if(!st)continue;S.students.push(st.id);st.done=true;toast(`${st.n} 入太學（每旬金100）`)}
  }
  schClean();if(S.t!=null&&!S.students.length){schClear(S);toast("無弟子，太學未開課")}render()}
 // ---------- 裝備（兵器・弓箭・馬）＆工房 ----------
@@ -846,7 +889,7 @@ async function endTurn(){if(ending)return;ending=true;$("#bEnd").disabled=true;t
   if(newM&&G.month==7){const g=foodInc(c);c.food+=g;if(c.f==0)rep.push(`${c.n} 糧+${g}`)}
   c.food-=foodUse(c); /* 每旬耗糧＝(兵+傷×0.5+馬×2)/180×2.6 */if(c.food<0){c.food=0;c.troops=Math.floor(c.troops*.9);if(c.f==0)rep.push(`${c.n} 缺糧，士兵逃亡！`)}
   if(c.f>=0&&c.loy<100&&R()<.1)c.loy++});
- schoolTick(rep);gearDecayTick(rep);if(newM)payroll(rep);woundNeglectTick();riotTick(rep);popTick(rep);gatherFree(rep);{const pl=promoList();if(pl.length){rep.push("📜 可晉升（至「人事」批准）：");pl.forEach(o=>rep.push(`　${o.n} → ${RANKS[Math.min(9,rk(o)+1)]||"?"}`))}}G.offs.forEach(o=>{o.done=false;if(o.st=="serve"&&o.f>=0&&!isLord(o)&&o.loy<(o.f==0?25:35)&&R()<.1/3){if(o.f==0)rep.push(`⚠️ ${o.n} 不滿待遇，出奔下野`);revokeItem(o,true);o.f=-1;o.st="free";logMsg(`${o.n} 出奔下野`)}});schClean();schBusy();devJobsTick(rep);
+ schoolTick(rep);gearDecayTick(rep);if(newM)payroll(rep);woundNeglectTick();riotTick(rep);popTick(rep);gatherFree(rep);{const pl=promoList();if(pl.length){rep.push("📜 可晉升（至「人事」批准）：");pl.forEach(o=>rep.push(`　${o.n} → ${RANKS[Math.min(9,rk(o)+1)]||"?"}`))}}G.offs.forEach(o=>{o.done=false;if(o.st=="serve"&&o.f>=0&&!isLord(o)&&o.loy<(o.f==0?25:35)&&R()<.1/3){if(o.f==0)rep.push(`⚠️ ${o.n} 不滿待遇，出奔下野`);revokeItem(o,true);o.f=-1;o.st="free";logMsg(`${o.n} 出奔下野`)}});schClean();schBusy();devJobsTick(rep);techJobsTick(rep);
  checkFactions();await titleTick();save("auto");render();
  if(!facCities(0).length){await modal("遊戲結束",`${fname(0)}軍已無城池……天下大勢已去。`,[{t:"回到標題",v:1}]);location.reload();return}
  if(facCities(0).length==G.cities.length){await modal("天下統一！",`${G.year}年，${fname(0)}終於一統天下，開創太平盛世！`,[{t:"再玩一次",v:1}]);location.reload();return}
