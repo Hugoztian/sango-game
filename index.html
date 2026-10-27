@@ -268,7 +268,7 @@ function fitMap(center){const w=$("#mapwrap"),W=w.clientWidth,H=w.clientHeight;v
  document.addEventListener("gesturestart",e=>e.preventDefault());})();
 function zoomAt(mx,my,k){const ns=cl(view.s*k,.15,4);k=ns/view.s;view.x=mx-(mx-view.x)*k;view.y=my-(my-view.y)*k;view.s=ns;applyView()}
 // ---------- UI ----------
-function render(){if(G)syncPosts();if(G&&G.factions.some(F=>F.alive&&F.tier==null))initTitles();$("#date").innerHTML=`${dateStr()}　<span style="color:#9f9">${fname(0)}軍</span> <span class="ttl">${titleName(0)}</span> ${facCities(0).length}城`;$("#bOff").textContent=`人事${promoList().length?`(${promoList().length})`:""}`;drawMap();renderPanel()}
+function render(){if(G){syncPosts();schClean();schBusy()}if(G&&G.factions.some(F=>F.alive&&F.tier==null))initTitles();$("#date").innerHTML=`${dateStr()}　<span style="color:#9f9">${fname(0)}軍</span> <span class="ttl">${titleName(0)}</span> ${facCities(0).length}城`;$("#bOff").textContent=`人事${promoList().length?`(${promoList().length})`:""}`;drawMap();renderPanel()}
 function selectCity(i){selCity=i;drawMap();renderPanel()}
 function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(0);p.innerHTML=`<h2>主公 ${fname(0)}<small style="font-size:13px;margin-left:6px;color:#ddd">${titleName(0)}・名聲${frep(0)}・名望×${fame(0)}</small></h2><div style="padding:0 10px 10px;font-size:14px">點選地圖上的城市以下達命令。雙指縮放、拖曳移動地圖。<br><button id="pAutoAll" class="${G.autoAll?"pri":""}" style="margin:6px 0">全部自治 ${G.autoAll?"ON":"OFF"}</button><br>我方城市：${cs.map(c=>`<button data-sel="${c.id}" style="margin:3px">${c.n}${c.auto?" ⚙":""}</button>`).join("")}<h4 style="color:#ffd77a">戰報</h4>${G.log.slice(0,12).map(l=>`<div style="font-size:12px;${/ffa64d/.test(l)?"":"opacity:.85"}">${l}</div>`).join("")}</div>`;p.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{selectCity(+b.dataset.sel);fitMap(C(+b.dataset.sel))});$("#pAutoAll").onclick=()=>setAutoAll(!G.autoAll);return}
  const c=C(selCity),mine=c.f==0;const os=offsIn(c.id);const free=G.offs.filter(o=>!o.dead&&o.c==c.id&&o.st=="free");
@@ -279,6 +279,7 @@ function renderPanel(){const p=$("#panel");if(selCity==null){const cs=facCities(
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">太守 <b style="color:#ffd77a">${(getShuai(c)||{n:"—"}).n}</b>${getShuai(c)?`（統${getShuai(c).t}）`:""}${mine?`<button id="pShuai" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">軍師 <b style="color:#ffd77a">${(getShi(c)||{n:"—"}).n}</b>${getShi(c)?`（智${getShi(c).z}）`:""}${mine?`<button id="pShi" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
  <div style="background:#33210f;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">別駕 <b style="color:#ffd77a">${(getBie(c)||{n:"—"}).n}</b>${getBie(c)?`（政${getBie(c).p}）`:""}${mine?`<button id="pBie" style="min-height:32px;padding:2px 8px;font-size:12px;margin-left:auto">任命</button>`:""}</div>
+${mine&&capital(0)===c?schPanelHtml(c):""}
 </div>
  ${mine?`<div class="cmds">${["開發","徵兵","解散","訓練","工房","科研","搜索","登用","計略","移動","輸送","出征","褒賞",...(capital(0)===c?["太學"]:[])].map(k=>`<button data-k="${k}"${cmdMaxed(c,k)?" disabled title=\"已達上限\"":""}>${k}</button>`).join("")}</div>`:""}
  <div class="olist"><div class="otbl">${offHeadHtml()}${psorted(os).map(o=>offRowHtml(o,mine)).join("")||"<div class='ohint'>無武將</div>"}
@@ -392,20 +393,36 @@ const DEV_MAX=999;
 const devCap=(c,t)=>t=="loy"?100:DEV_MAX;
 const devEff=(c,t)=>Math.min(+(c[t]|0),devCap(c,t)); /* 硬頂999；存檔開發度不削 */
 
-// ---------- 太學（僅本城・最多3名學生・學費每人每旬金100） ----------
+// ---------- 太學（僅本城・同時一門課一位教席・最多3名弟子・束脩每人每旬金100） ----------
 const SCH_SK=["t","w","z","p","m"];
 function schOK(o,c){return o&&!o.dead&&o.st=="serve"&&o.f==0&&o.c==c.id}
-function schState(){if(!G.school)G.school={slots:[],xp:{}};return G.school}
+function schState(){let S=G.school;if(!S||S.slots){const xp=(S&&S.xp)||{};S=G.school={sk:null,t:null,students:[],xp}}return S}
 function schXp(tv,sv){if(tv<=sv)return 0;return Math.round(12*Math.pow(4,(tv-sv)*3/sv))}
-function schClean(){const S=schState(),c=capital(0);S.slots=S.slots.filter(x=>c&&schOK(O(x.s),c)&&schOK(O(x.t),c)&&x.s!=x.t)}
-function schBusy(){const S=schState();S.slots.forEach(x=>{O(x.s).done=true;O(x.t).done=true})}
-function schoolTick(rep){const S=schState();schClean();const c=capital(0);if(!c||!S.slots.length)return;rep.push("🎓 太學：");S.slots.forEach(x=>{const s=O(x.s),t=O(x.t),k=x.sk,nm=SKN[k];if(c.gold<100){rep.push(`　${s.n} 學費不足（需金100），本旬停課`);return}c.gold-=100;const g=schXp(t[k],s[k]);const X=S.xp[s.id]||(S.xp[s.id]={});X[k]=(X[k]||0)+g;let up="";while(X[k]>=100&&s[k]<100){X[k]-=100;s[k]++;up=`<b style="color:#ffd77a">${nm}升至${s[k]}！</b>`}if(s[k]>=100)X[k]=Math.min(X[k],99);rep.push(`　老師${t.n}（${nm}${t[k]}）→ 學生${s.n}（${nm}${s[k]}）・本旬經驗+${g}（${X[k]}/100）・學費金100${up?"・"+up:""}${g?"":"・老師不高於學生，無法教授"}`)})}
-async function schoolCmd(c){const S=schState();schClean();const v=await pick(`太學（學生${S.slots.length}/3・每人每旬金100）`,[{label:"入學",sub:"選學生・科目・老師",v:"in",dis:S.slots.length>=3},{label:"退學",v:"out",dis:!S.slots.length},...S.slots.map(x=>{const s=O(x.s),t=O(x.t),X=(S.xp[s.id]||{})[x.sk]||0;return{label:`${s.n}　學${SKN[x.sk]}`,sub:`老師${t.n}（${t[x.sk]}）・學生${s[x.sk]}・經驗${X}/100・每旬+${schXp(t[x.sk],s[x.sk])}`,v:"x",dis:true}})]);if(!v)return;
- if(v=="out"){const x=await pick("退學",S.slots.map(x=>({label:O(x.s).n,sub:`${SKN[x.sk]}・老師${O(x.t).n}`,v:x})));if(!x)return;S.slots.splice(S.slots.indexOf(x),1);toast(`${O(x.s).n} 退學（經驗保留）`);return}
- const used=new Set(S.slots.flatMap(x=>[x.s,x.t]));const st=await pickOffBy(c,"太學：選擇學生","z",null,o=>used.has(o.id));if(!st)return;
- const sk=await pick(`${st.n} 學習科目`,SCH_SK.map(k=>({label:SKN[k],sub:`現${st[k]}・經驗${(S.xp[st.id]||{})[k]||0}/100`,v:k,dis:st[k]>=100})));if(!sk)return;
- const t=await pickOffBy(c,`${SKN[sk]}老師（須高於${st[sk]}）`,sk,o=>`每旬經驗+${schXp(o[sk],st[sk])}`,o=>o.id==st.id||used.has(o.id)||o[sk]<=st[sk]);if(!t)return;
- S.slots.push({s:st.id,t:t.id,sk});st.done=true;t.done=true;toast(`${st.n} 入太學，隨${t.n}學${SKN[sk]}（每旬金100）`)}
+function schClear(S){S.sk=null;S.t=null;S.students=[]}
+function schClean(){const S=schState(),c=capital(0);if(!c||S.t==null||!schOK(O(S.t),c)){schClear(S);return}S.students=S.students.filter(id=>id!=S.t&&schOK(O(id),c)).slice(0,3)}
+function schIn(o){const S=schState();return S.t!=null&&(o.id===S.t||S.students.includes(o.id))}
+function schBusy(){const S=schState();if(S.t==null)return;O(S.t).done=true;S.students.forEach(id=>O(id).done=true)}
+function schoolTick(rep){const S=schState();schClean();const c=capital(0);if(!c||S.t==null)return;const t=O(S.t),k=S.sk,nm=SKN[k];rep.push(`🎓 太學：${nm}課・教席${t.n}（${nm}${t[k]}）`);const grad=[];S.students.forEach(id=>{const s=O(id);if(s[k]>=t[k]){grad.push(id);rep.push(`　🎓 弟子${s.n} 已至教席水平，畢業`);return}if(c.gold<100){rep.push(`　${s.n} 束脩不足（需金100），本旬停課`);return}c.gold-=100;const g=schXp(t[k],s[k]);const X=S.xp[s.id]||(S.xp[s.id]={});X[k]=(X[k]||0)+g;let up="";while(X[k]>=100&&s[k]<100){X[k]-=100;s[k]++;up=`<b style="color:#ffd77a">${nm}升至${s[k]}！</b>`}if(s[k]>=100)X[k]=Math.min(X[k],99);rep.push(`　弟子${s.n}（${nm}${s[k]}）・本旬經驗+${g}（${X[k]}/100）・束脩金100${up?"・"+up:""}${g?"":"・教席不高於弟子，無法教授"}`);if(s[k]>=t[k]){grad.push(id);rep.push(`　🎓 弟子${s.n} 已至教席水平，畢業`)}});if(grad.length){S.students=S.students.filter(id=>!grad.includes(id));if(!S.students.length){schClear(S);rep.push("　太學弟子皆已畢業，太學無人")}}}
+function schPanelHtml(c){const S=schState();schClean();if(S.t==null)return`<div style="background:#33210f;border-radius:6px;padding:6px 8px">太學 未開課</div>`;const t=O(S.t),k=S.sk,nm=SKN[k];return`<div style="background:#33210f;border-radius:6px;padding:6px 8px">太學　${nm}課　教席<b style="color:#ffd77a">${t.n}</b>（${t[k]}）　弟子 ${S.students.length?S.students.map(id=>{const s=O(id);return`${s.n}（${(S.xp[id]||{})[k]||0}/100）`}).join("・"):"—"}</div>`}
+async function schPickT(c,sk,S){const mx=Math.max(0,...S.students.map(id=>O(id)[sk]));return pickOffBy(c,`${SKN[sk]}教席${S.students.length?`（須高於弟子最高${mx}）`:""}`,sk,null,o=>S.students.includes(o.id)||(S.students.length&&o[sk]<=mx))}
+async function schoolCmd(c){const S=schState();let selK=S.sk||"z";
+ for(;;){schClean();const has=S.t!=null;if(has)selK=S.sk;const k=selK,nm=SKN[k],t=has?O(S.t):null;
+  const box=document.createElement("div");box.style.cssText="display:grid;gap:8px;font-size:14px";
+  const B=(txt,v,cls,dis)=>`<button type="button" data-a="${v}"${cls?` class="${cls}"`:""}${dis?" disabled":""}>${txt}</button>`;
+  const cell="background:#33210f;border-radius:6px;padding:6px 8px";
+  let h=`<div style="${cell}"><b>科目</b>　${SCH_SK.map(x=>B(SKN[x],"sk:"+x,x==k?"pri":"")).join(" ")}</div>`;
+  h+=`<div style="${cell}"><b>教席</b>　${t?`<b style="color:#ffd77a">${t.n}</b>（${nm}${t[k]}）`:"（空）"}　${B(t?"換教席":"選教席・開課","t")}</div>`;
+  for(let i=0;i<3;i++){const id=has?S.students[i]:null;if(id!=null){const s=O(id),X=(S.xp[id]||{})[k]||0;h+=`<div style="${cell}"><b>弟子${i+1}</b>　${s.n}　${nm}<b style="color:#ffd77a">${s[k]}</b>　經驗${X}/100　每旬+${schXp(t[k],s[k])}　${B("退學","out:"+id)}</div>`}else h+=`<div style="${cell}"><b>弟子${i+1}</b>　（空位）　${B("入學","in",null,!has)}</div>`}
+  h+=`<div style="opacity:.8">束脩每人每旬金100；弟子同科達教席水平即畢業。太學中者不得他用。退學／解散經驗保留。</div><div>${B("解散太學","end",null,!has)}</div>`;
+  box.innerHTML=h;box.querySelectorAll("button[data-a]").forEach(b=>b.onclick=()=>modal.close(b.dataset.a));
+  const v=await modal(`太學・${c.n}`,box,[{t:"關閉",v:null}]);if(!v)break;
+  if(v=="end"){schClear(S);toast("太學已解散（經驗保留）");continue}
+  if(v.startsWith("out:")){const id=+v.slice(4)||v.slice(4);S.students=S.students.filter(x=>String(x)!==String(id));const n=(G.offs.find(o=>String(o.id)===String(id))||{}).n;if(!S.students.length)schClear(S);toast(`${n} 退學（經驗保留）`);continue}
+  if(v.startsWith("sk:")){const nk=v.slice(3);if(nk==k)continue;if(!has){selK=nk;continue}const nt=await schPickT(c,nk,S);if(!nt)continue;S.sk=nk;S.t=nt.id;nt.done=true;toast(`太學改${SKN[nk]}課，教席${nt.n}`);continue}
+  if(v=="t"){const nt=await schPickT(c,k,S);if(!nt)continue;S.sk=k;S.t=nt.id;nt.done=true;toast(`太學${SKN[k]}課，教席${nt.n}`);continue}
+  if(v=="in"&&has){if(S.students.length>=3){toast("弟子已滿3人");continue}const st=await pickOffBy(c,`${nm}弟子（教席${t.n}${t[k]}）`,k,o=>`每旬經驗+${schXp(t[k],o[k])}`,o=>o.id==S.t||S.students.includes(o.id)||o[k]>=t[k]);if(!st)continue;S.students.push(st.id);st.done=true;toast(`${st.n} 入太學（每旬金100）`)}
+ }
+ schClean();if(S.t!=null&&!S.students.length){schClear(S);toast("無弟子，太學未開課")}render()}
 // ---------- 裝備（兵器・弓箭・馬）＆工房 ----------
 // 兵力不得超過裝備總數 gearCap＝兵器+弓箭+馬；出征時步兵耗兵器、弓兵耗弓箭、騎兵耗馬，歸城時依存活兵數返還。
 const GEAR={步:"arms",弓:"bows",騎:"horses"},GNM={arms:"兵器",bows:"弓箭",horses:"馬"};
@@ -1130,7 +1147,7 @@ function foodInc(c){const pm=popFoodMul(c);if(!pm)return 0;return 2*Math.round(2
 const nextHarvest=()=>G.month<7?`${7-G.month}個月後（7月）`:G.month==7?"本月已收":`${19-G.month}個月後（明年7月）`;
 // ---------- save/load ----------
 function save(slot){localStorage.setItem("sango_"+slot,JSON.stringify(G));}
-function load(slot){const s=localStorage.getItem("sango_"+slot);if(!s)return false;let x;try{x=JSON.parse(s)}catch(e){return false}if(!x||x.ver!==4){toast("舊版存檔不相容，請開始新遊戲",3000);return false}G=x;G.cities.forEach(c=>{const d=CITY.find(z=>z[0]==c.n);if(d){c.x=d[1];c.y=d[2]}if(c.shuai===undefined)c.shuai=null;if(c.shi===undefined)c.shi=null;if(c.bie===undefined)c.bie=null;if(c.wound==null)c.wound=0;if(c.ind==null)c.ind=ri(150,400);["forge","archery","stable"].forEach(k=>{delete c[k]});fixGear(c)});G.factions.forEach(F=>techOf(F));syncPosts();G.offs.forEach(o=>{if(!o.items){o.items=o.item?[{n:o.item,b:o.ib||itemDef(o.item)[2]}]:[]}delete o.item;delete o.ib;delete o.maxRk;ensureCombat(o)});return true}
+function load(slot){const s=localStorage.getItem("sango_"+slot);if(!s)return false;let x;try{x=JSON.parse(s)}catch(e){return false}if(!x||x.ver!==4){toast("舊版存檔不相容，請開始新遊戲",3000);return false}G=x;G.cities.forEach(c=>{const d=CITY.find(z=>z[0]==c.n);if(d){c.x=d[1];c.y=d[2]}if(c.shuai===undefined)c.shuai=null;if(c.shi===undefined)c.shi=null;if(c.bie===undefined)c.bie=null;if(c.wound==null)c.wound=0;if(c.ind==null)c.ind=ri(150,400);["forge","archery","stable"].forEach(k=>{delete c[k]});fixGear(c)});G.factions.forEach(F=>techOf(F));syncPosts();G.offs.forEach(o=>{if(!o.items){o.items=o.item?[{n:o.item,b:o.ib||itemDef(o.item)[2]}]:[]}delete o.item;delete o.ib;delete o.maxRk;ensureCombat(o)});schClean();schBusy();return true}
 async function menu(){const v=await pick("選單",[{label:"存檔 1",v:"s1"},{label:"存檔 2",v:"s2"},{label:"讀取 1",v:"l1",dis:!localStorage.getItem("sango_1")},{label:"讀取 2",v:"l2",dis:!localStorage.getItem("sango_2")},{label:"讀取自動存檔",v:"la",dis:!localStorage.getItem("sango_auto")},{label:"戰報",v:"log"},{label:"寶物庫",v:"vault"},{label:"新遊戲",v:"new"}]);if(!v)return;
  if(v[0]=="s"){save(v[1]);toast("已存檔")}else if(v[0]=="l"){load(v[1]=="a"?"auto":v[1]);selCity=null;render();fitMap();toast("已讀取")}else if(v=="vault")vaultView();else if(v=="log")modal("戰報",G.log.join("<br>")||"無");else if(v=="new"){const ch=await modal("新遊戲","選擇君主重新開始：",[{t:"取消",v:0},{t:"劉備（平原）",v:"劉備"},{t:"田郎（錢塘）",v:"田郎",cls:"pri"}]);if(ch){newGame(ch);selCity=null;render();fitMap()}}}
 function officerTable(){const rows=G.offs.filter(o=>!o.dead&&o.f==0&&o.st=="serve");
@@ -1169,7 +1186,7 @@ function stEl(cols,rows,o={}){let key=o.sort??null,dir=o.dir||-1,flt=o.filters?o
 function sortTable(title,cols,rows,onRow,filters,extra,opt={}){return modal(title,stEl(cols,rows,{onRow,filters,...opt}),[...(extra||[]),{t:"關閉",v:null}])}
 const AVCOLS=["#e8b86d","#7ec8e3","#a8d08d","#f0a0a0","#c9a0e8","#f0d070","#90d0c0","#e0a070"];
 function avHtml(o){let h=0;const n=o.n||"?";for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return`<span class="av" style="background:${AVCOLS[h%AVCOLS.length]}" aria-hidden="true">${n[0]}</span>`}
-function offRowHtml(o,mine){const tags=[...its(o).map(x=>`<span class="tag">${x.n}</span>`),mine&&o.done?'<span class="tag">已行動</span>':""].filter(Boolean).join("");
+function offRowHtml(o,mine){const tags=[...its(o).map(x=>`<span class="tag">${x.n}</span>`),G&&schIn(o)?`<span class="tag">太學${o.id===schState().t?'教席':'弟子'}</span>`:"",mine&&o.done?'<span class="tag">已行動</span>':""].filter(Boolean).join("");
  return`<div class="orow rk${rk(o)} ${o.done&&mine?"done":""}">${avHtml(o)}<span class="nm">${o.n}${isLord(o)?"👑":""}</span><span class="tag rk">${RANKS[rk(o)]}</span><span class="stn">${o.t}</span><span class="stn">${o.w}</span><span class="stn">${o.z}</span><span class="stn">${o.p}</span><span class="stn">${o.m}</span><span class="stn">${o.loy}</span><span class="tags">${tags}</span></div>`}
 function offHeadHtml(){return`<div class="ohd"><span class="sp">頭</span>${OSORT.map((x,i)=>`<button onclick="psort(${i})" class="${PS.k===i?"pri":""}">${x[0]}${PS.k===i?(PS.d<0?"▼":"▲"):""}</button>`).join("")}<span class="sp">狀</span></div>`}
 let PS={k:null,d:-1};function psort(i){if(PS.k===i)PS.d=-PS.d;else{PS.k=i;PS.d=-1}render()}
