@@ -1312,39 +1312,37 @@ function syncPosts(){if(!G)return;G.cities.forEach(c=>{if(c.f<0){c.shuai=null;c.
   else if(c.shuai!=null){const o=O(c.shuai);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve")c.shuai=null}
   if(c.shi!=null){const o=O(c.shi);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve"||c.shi===c.shuai||c.shi===c.bie)c.shi=null}
   if(c.bie!=null){const o=O(c.bie);if(!o||o.dead||o.f!=c.f||o.c!=c.id||o.st!="serve"||c.bie===c.shuai||c.bie===c.shi)c.bie=null}})}
-const getShuai=c=>{if(!c||c.f<0)return null;const o=c.shuai!=null?O(c.shuai):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 太守（統→城防上限） */
+const getShuai=c=>{if(!c||c.f<0)return null;const o=c.shuai!=null?O(c.shuai):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 太守（統；內政上限不再由職位決定） */
 const getShi=c=>{if(!c||c.f<0)return null;const o=c.shi!=null?O(c.shi):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null};
-const getBie=c=>{if(!c||c.f<0)return null;const o=c.bie!=null?O(c.bie):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 別駕（政→農商上限） */
+const getBie=c=>{if(!c||c.f<0)return null;const o=c.bie!=null?O(c.bie):null;return o&&!o.dead&&o.f==c.f&&o.c==c.id&&o.st=="serve"?o:null}; /* 別駕（政；內政上限不再由職位決定） */
 const shiZ=c=>{const o=getShi(c);return o?o.z:40};
 const stirP=(o,t)=>{const d=shiZ(t)||1;const base=.4*Math.pow(2,(o.z-d)/d*10);const loy=Math.max(0,Math.min(100,t.loy||50));return Math.min(.95,base*Math.pow(2,-(loy-50)/25))}; /* 煽動：智差×10・2^(−(民忠−50)/25)，無城防 */
 const plotP=(o,t)=>{const d=shiZ(C(t.c))||1;return Math.min(.95,.4*Math.pow(2,(o.z-d)/d*10))}; /* 離間：智差×10，對敵城軍師智 */
 const hireP=(o,t)=>Math.min(.95,fame(0)*Math.pow(1.18,(o.m-100)/5)*Math.pow(1.18,(50-(t.loy||50))/5)); /* 登用：底數1.18；魅100・忠50≈滿，僅封頂95% */
 const POST_NM={shuai:"太守",shi:"軍師",bie:"別駕"};
 const postRolesHeld=(c,o)=>{const r=[];if(c.shuai===o.id)r.push("shuai");if(c.shi===o.id)r.push("shi");if(c.bie===o.id)r.push("bie");return r};
-function postCapOf(role,hold){const sk=role=="shuai"?(hold?hold.t:40):role=="shi"?(hold?hold.z:40):(hold?hold.p:40);return Math.round(15*sk)}
-function postCapLab(role){return role=="shuai"?"城防":role=="shi"?"工業":"農商"}
 function vacateByLeave(c,os){const seen=new Set(),out=[];for(const o of os){for(const role of postRolesHeld(c,o)){if(seen.has(role))continue;seen.add(role);out.push({role,o})}}return out}
-async function confirmPostLeave(c,os,act){ /* 離城前立即選替補，再以上限變化確認 */const v=vacateByLeave(c,os);if(!v.length)return true;
+async function confirmPostLeave(c,os,act){ /* 離城前立即選替補（內政上限不再隨職位變化，不提示上限） */const v=vacateByLeave(c,os);if(!v.length)return true;
  const leaveIds=new Set(os.map(o=>o.id));const snap={shuai:c.shuai,shi:c.shi,bie:c.bie};const lines=[];
  const rollback=()=>{c.shuai=snap.shuai;c.shi=snap.shi;c.bie=snap.bie};
- for(const x of v){const role=x.role,old=x.o;const sk=role=="shuai"?"t":role=="shi"?"z":"p",sn=role=="shuai"?"統":role=="shi"?"智":"政";const lab=postCapLab(role);const curCap=postCapOf(role,old);
-  if(role=="shuai"){const lord=O(G.factions[c.f].lord);if(lord&&!leaveIds.has(lord.id)&&lord.c==c.id&&lord.st=="serve"&&!lord.dead){c.shuai=lord.id;lines.push({role,old,repl:lord,curCap,newCap:postCapOf(role,lord),auto:true});continue}}
+ for(const x of v){const role=x.role,old=x.o;const sk=role=="shuai"?"t":role=="shi"?"z":"p",sn=role=="shuai"?"統":role=="shi"?"智":"政";
+  if(role=="shuai"){const lord=O(G.factions[c.f].lord);if(lord&&!leaveIds.has(lord.id)&&lord.c==c.id&&lord.st=="serve"&&!lord.dead){c.shuai=lord.id;lines.push({role,old,repl:lord,auto:true});continue}}
   const taken=new Set();for(const r of["shuai","shi","bie"]){const id=r=="shuai"?c.shuai:r=="shi"?c.shi:c.bie;if(id!=null&&id!==old.id&&!leaveIds.has(id))taken.add(id)}
   const cand=offsIn(c.id,c.f).filter(o=>!leaveIds.has(o.id)&&!taken.has(o.id)).sort((a,b)=>b[sk]-a[sk]||a.n.localeCompare(b.n,"zh"));
-  const opts=[{label:"（暫不補任・出缺）",sub:`${lab}上限 ${curCap}→${postCapOf(role,null)}（視能力40）`,v:"vacant"},...cand.map(o=>({label:`${o.n}${isLord(o)?"👑":""}　${sn}${o[sk]}`,sub:`${lab}上限 ${curCap}→${postCapOf(role,o)}`,v:o.id}))];
+  const opts=[{label:"（暫不補任・出缺）",sub:"",v:"vacant"},...cand.map(o=>({label:`${o.n}${isLord(o)?"👑":""}　${sn}${o[sk]}`,sub:"",v:o.id}))];
   const pv=await pick(`立即補任${POST_NM[role]}（${old.n}因${act}離城）`,opts);if(pv==null){rollback();return false}
-  if(pv==="vacant"){if(role=="shuai")c.shuai=null;else if(role=="shi")c.shi=null;else c.bie=null;lines.push({role,old,repl:null,curCap,newCap:postCapOf(role,null)})}
-  else{const no=O(pv);if(role=="shuai")c.shuai=pv;else if(role=="shi")c.shi=pv;else c.bie=pv;lines.push({role,old,repl:no,curCap,newCap:postCapOf(role,no)})}}
- const html=`<p>因<strong>${act}</strong>離開 <b>${c.n}</b>，職位與上限變化如下：</p>`+lines.map(x=>{const gap=x.newCap-x.curCap;const gapTxt=gap===0?"不變":(gap>0?`+${gap}`:`${gap}`);const who=x.auto?`${x.repl.n}（主公坐鎮）`:x.repl?`${x.repl.n} 繼任`:`出缺（視40）`;return`<div class="orow" style="display:block;padding:8px"><b style="color:#ffd77a">${POST_NM[x.role]}</b>：${x.old.n} 離任 → ${who}<br><span style="opacity:.9">${postCapLab(x.role)}上限 ${x.curCap}→${x.newCap}（變化 ${gapTxt}）</span></div>`}).join("");
+  if(pv==="vacant"){if(role=="shuai")c.shuai=null;else if(role=="shi")c.shi=null;else c.bie=null;lines.push({role,old,repl:null})}
+  else{const no=O(pv);if(role=="shuai")c.shuai=pv;else if(role=="shi")c.shi=pv;else c.bie=pv;lines.push({role,old,repl:no})}}
+ const html=`<p>因<strong>${act}</strong>離開 <b>${c.n}</b>，職位交接如下：</p>`+lines.map(x=>{const who=x.auto?`${x.repl.n}（主公坐鎮）`:x.repl?`${x.repl.n} 繼任`:`出缺`;return`<div class="orow" style="display:block;padding:8px"><b style="color:#ffd77a">${POST_NM[x.role]}</b>：${x.old.n} 離任 → ${who}</div>`}).join("");
  const ok=await modal(`職位交接・請確認`,html,[{t:"取消",v:null},{t:"確認",v:1,cls:"pri"}]);if(!ok){rollback();return false}return true}
-async function appointPost(c,role){ /* role: shuai太守|shi軍師|bie別駕；只顯示相關能力並由高到低 */syncPosts();
+async function appointPost(c,role){ /* role: shuai太守|shi軍師|bie別駕；只顯示相關能力並由高到低；不提示內政上限 */syncPosts();
   const nm={shuai:"太守",shi:"軍師",bie:"別駕"},sk={shuai:"t",shi:"z",bie:"p"},sn={shuai:"統",shi:"智",bie:"政"};
   if(role=="shuai"){const lord=O(G.factions[c.f].lord);if(lord&&lord.c==c.id&&lord.st=="serve"&&!lord.dead)return toast("主公坐鎮，即為太守，無需改任")}
   const taken=new Set([c.shuai,c.shi,c.bie].filter(x=>x!=null));
   const cur=role=="shuai"?c.shuai:role=="shi"?c.shi:c.bie;
   const k=sk[role],lab=sn[role];
   const os=offsIn(c.id,c.f).filter(o=>o.id===cur||!taken.has(o.id)).sort((a,b)=>b[k]-a[k]||a.n.localeCompare(b.n,"zh")); /* 三職互斥・相關能力高→低 */
-  const opts=[{label:"（撤銷）",v:"clear"},...os.map(o=>({label:`${o.n}${isLord(o)?"👑":""}　${lab}${o[k]}`,sub:(o.id==cur?"現任":"")+(role=="shuai"?`・城防上限${Math.round(15*o.t)}`:role=="shi"?`・工業上限${Math.round(15*o.z)}`:`・農商上限${Math.round(15*o.p)}`),v:o.id}))];
+  const opts=[{label:"（撤銷）",v:"clear"},...os.map(o=>({label:`${o.n}${isLord(o)?"👑":""}　${lab}${o[k]}`,sub:o.id==cur?"現任":"",v:o.id}))];
   const v=await pick(`任命${nm[role]}（${c.n}・依${lab}）`,opts);if(v==null)return;
   if(v=="clear"){if(role=="shuai")c.shuai=null;else if(role=="shi")c.shi=null;else c.bie=null;toast("已撤銷");renderPanel();return}
   if(role=="shuai")c.shuai=v;else if(role=="shi")c.shi=v;else c.bie=v;
