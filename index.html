@@ -565,7 +565,7 @@ function doCraft(o,c,k){const cost=craftCost(o,c),food=craftFood(o,c,k);if(c.gol
 const scarce=c=>["arms","bows","horses"].sort((a,b)=>(c[a]|0)-(c[b]|0))[0];
 // ---------- 科研：騎＝軍師智+太守統、步＝太守統+別駕政、弓＝軍師智+別駕政；各≥60且≥55+5×等級 ----------
 const TECH_MAX=10,TECH_Z=60; /* 崗位／執行武將能力低於門檻不能科研 */
-const techNeed=lv=>Math.round(100*Math.pow(2,Math.max(0,lv-1))*Math.pow(1.4,Math.max(0,lv-4))); /* 高級經驗需求陡增：Lv5起×1.4^(lv-4) */
+const techNeed=lv=>Math.round(100*Math.pow(2,Math.max(0,lv-1))*Math.pow(1.4,Math.max(0,lv-4))*3); /* 高級經驗需求陡增：Lv5起×1.4^(lv-4)；整體再×3 */
 function techOf(F){if(!F)return{步:1,弓:1,騎:1};if(!F.tech)F.tech={步:1,弓:1,騎:1};if(!F.techXp)F.techXp={步:0,弓:0,騎:0};return F.tech}
 const techLv=(f,ty)=>f>=0&&G.factions[f]?(techOf(G.factions[f])[ty]||1):1;
 const techXp=(f,ty)=>f>=0&&G.factions[f]?(techOf(G.factions[f]),G.factions[f].techXp[ty]||0):0;
