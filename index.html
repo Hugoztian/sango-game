@@ -399,7 +399,7 @@ const devEff=(c,t)=>Math.min(+(c[t]|0),devCap(c,t)); /* 硬頂999；存檔開發
 const SCH_SK=["t","w","z","p","m"];
 function schOK(o,c){return o&&!o.dead&&o.st=="serve"&&o.f==0&&o.c==c.id}
 function schState(){let S=G.school;if(!S||S.slots){const xp=(S&&S.xp)||{};S=G.school={sk:null,t:null,students:[],xp}}return S}
-function schXp(tv,sv){if(tv<=sv)return 0;return Math.round(12*Math.pow(4,(tv-sv)*3/sv))}
+function schXp(tv,sv){if(tv<=sv)return 0;return Math.min(200,Math.round(12*Math.pow(4,(tv-sv)*3/sv)))} /* 每旬課業經驗封頂200＝最多+2能力 */
 function schClear(S){S.sk=null;S.t=null;S.students=[]}
 function schClean(){const S=schState(),c=capital(0);if(!c||S.t==null||!schOK(O(S.t),c)){schClear(S);return}S.students=S.students.filter(id=>id!=S.t&&schOK(O(id),c)).slice(0,3)}
 function schIn(o){const S=schState();return S.t!=null&&(o.id===S.t||S.students.includes(o.id))}
@@ -543,7 +543,7 @@ async function schoolCmd(c){const S=schState();let selK=S.sk||"z";
   let h=`<div style="${cell}"><b>科目</b>　${SCH_SK.map(x=>B(SKN[x],"sk:"+x,x==k?"pri":"")).join(" ")}</div>`;
   h+=`<div style="${cell}"><b>教席</b>　${t?`<b style="color:#ffd77a">${t.n}</b>（${nm}${t[k]}）`:"（空）"}　${B(t?"換教席":"選教席・開課","t")}</div>`;
   for(let i=0;i<3;i++){const id=has?S.students[i]:null;if(id!=null){const s=O(id),X=(S.xp[id]||{})[k]||0;h+=`<div style="${cell}"><b>弟子${i+1}</b>　${s.n}　${nm}<b style="color:#ffd77a">${s[k]}</b>　經驗${X}/100　每旬+${schXp(t[k],s[k])}　${B("退學","out:"+id)}</div>`}else h+=`<div style="${cell}"><b>弟子${i+1}</b>　（空位）　${B("入學","in",null,!has)}</div>`}
-  h+=`<div style="opacity:.8">束脩每人每旬金100；弟子同科達教席水平即畢業。太學中者不得他用。退學／解散課業經驗保留。每旬另給品級經驗：弟子${XP.schStu}、教席${XP.schTea}+授業×${XP.schTeaBonus}。</div><div>${B("解散太學","end",null,!has)}</div>`;
+  h+=`<div style="opacity:.8">束脩每人每旬金100；弟子同科達教席水平即畢業。太學中者不得他用。退學／解散課業經驗保留。課業經驗每旬封頂200（最多+2能力）。每旬另給品級經驗：弟子${XP.schStu}、教席${XP.schTea}+授業×${XP.schTeaBonus}。</div><div>${B("解散太學","end",null,!has)}</div>`;
   box.innerHTML=h;box.querySelectorAll("button[data-a]").forEach(b=>b.onclick=()=>modal.close(b.dataset.a));
   const v=await modal(`太學・${c.n}`,box,[{t:"關閉",v:null}]);if(!v)break;
   if(v=="end"){schClear(S);toast("太學已解散（經驗保留）");continue}
